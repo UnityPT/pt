@@ -1,0 +1,32 @@
+{
+  "name": "pt",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "auto": "node --loader ts-node/esm src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ctrl/qbittorrent": "^4.1.0",
+    "@types/create-torrent": "^5.0.0",
+    "@types/glob": "^7.2.0",
+    "@types/klaw": "^3.0.3",
+    "create-torrent": "^5.0.4",
+    "electron": "^20.0.1",
+    "fetch-cookie": "^2.1.0",
+    "glob": "^8.0.3",
+    "klaw": "^4.0.1",
+    "typed-struct": "^2.3.0",
+    "zlibjs": "^0.3.1"
+  },
+  "devDependencies": {
+    "ts-loader": "^9.3.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.7.4",
+    "webpack-cli": "^4.10.0"
+  }
+}
