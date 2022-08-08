@@ -16,10 +16,7 @@ async function UnityPackageMeta(file: string) {
 }
 
 (async function () {
-  const watchedDirectories = [
-    // path.join(process.env.APPDATA, 'Unity', 'Asset Store-5.x'),
-    'D:/买的资源',
-  ];
+  const watchedDirectories = [path.join(process.env.APPDATA, 'Unity', 'Asset Store-5.x'), 'D:/买的资源'];
 
   const client = new QBittorrent({
     baseUrl: 'http://localhost:8080/',
@@ -51,14 +48,14 @@ async function UnityPackageMeta(file: string) {
         const resource = resources[resourceIndex];
 
         // 本地有，远端有，qb 有 => 什么都不做
-        const taskIndex = taskHashes.indexOf(resource.info_hash);
-        if (taskIndex >= 0) {
+        if (taskHashes.includes(resource.info_hash)) {
         } else {
           if (description === resource.description) {
             // 本地有，远端有，qb 无，一致 => 添加下载任务
             console.log(`downloading ${meta.title}`);
             const torrent = await download(resource.torrent_id);
             await addTorrent(client, torrent, path.dirname(p), path.basename(p), false);
+            taskHashes.push(resource.info_hash);
           } else {
             // 本地有，远端有，qb 无，不一致 => 忽略
             console.log(`${p} has same version_id with server but not same file`);
@@ -66,7 +63,7 @@ async function UnityPackageMeta(file: string) {
         }
       } else {
         // 本地有，远端无 => 发布资源并添加下载任务
-        console.log(`uploading ${meta.title}`);
+        // console.log(`uploading ${meta.title}`);
         const name = meta.title
           .replace(/[<>:"\/\\|?*+#&().,—!™'\[\]]/g, '')
           .replace(/ {2,}/g, ' ')
@@ -79,7 +76,8 @@ async function UnityPackageMeta(file: string) {
           private: true,
         });
         const torrent = await upload(torrent0, description, `${name}.torrent`);
-        await addTorrent(client, torrent, path.dirname(p), path.basename(p), true);
+        const hash = await addTorrent(client, torrent, path.dirname(p), path.basename(p), true);
+        taskHashes.push(hash);
       }
     }
   }

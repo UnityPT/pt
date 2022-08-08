@@ -22,7 +22,8 @@ export async function addTorrent(client: QBittorrent, torrent: Buffer, savepath:
       oldPath,
       newPath: filename,
     });
-    await client.resumeTorrent(info.infoHash);
     await client.recheckTorrent(info.infoHash);
+    await client.resumeTorrent(info.infoHash);
+    return info.infoHash;
   }
 }
