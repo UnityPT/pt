@@ -1,77 +1,86 @@
-import {ExtraField} from "./gzip.js";
-import path from "path";
-import util from "util";
-import glob from "glob";
-import createTorrent from "create-torrent";
-import {download, index, login, upload} from "./api.js";
+import path from 'path';
+import util from 'util';
+import glob from 'glob';
+import Buffer from 'buffer';
+
+import createTorrent from 'create-torrent';
 import {QBittorrent} from '@ctrl/qbittorrent';
-import {Meta} from "./resource.js";
+
+import {download, index, login, upload} from './api.js';
+import {Meta} from './resource.js';
+import {ExtraField} from './gzip.js';
+import {addTorrent} from './qbittorrent.js';
 
 async function UnityPackageMeta(file: string) {
-    return ExtraField(file, 65, 36);
+  return ExtraField(file, 65, 36);
 }
 
 (async function () {
-    const client = new QBittorrent({
-        baseUrl: 'http://localhost:8080/',
-        username: 'admin',
-        password: 'adminadmin',
-    });
+  const watchedDirectories = [
+    // path.join(process.env.APPDATA, 'Unity', 'Asset Store-5.x'),
+    'D:/买的资源',
+  ];
 
-    // client.setPreferences()
+  const client = new QBittorrent({
+    baseUrl: 'http://localhost:8080/',
+    username: 'admin',
+    password: 'adminadmin',
+  });
 
-    // const data = await client.getAllData();
-    const tasks = await client.listTorrents()
-    const taskTorrentIds = tasks.map((item) => parseInt(new URL(item.tracker).searchParams.get('torrent_id')));
-    await login('simpletracker', 'simpletracker');
-    const resources = await index();
-    const resourceUploadIds = resources.map(i => JSON.parse(i.description).upload_id)
-    console.log(resourceUploadIds);
+  const tasks = await client.listTorrents({category: 'Unity'});
+  const taskHashes = tasks.map((item) => item.hash);
+  await login('simpletracker', 'simpletracker');
+  const resources = await index();
+  const resourceVersionIds = resources.map((i) => JSON.parse(i.description).version_id);
 
-    const cwd = path.join(process.env.APPDATA, 'Unity', 'Asset Store-5.x');
-    const files = await util.promisify(glob)("**/*.unitypackage", {cwd});
+  for (const cwd of watchedDirectories) {
+    const files = await util.promisify(glob)('**/*.unitypackage', {cwd});
 
     for (const file of files) {
-        const p = path.join(cwd, file);
-        const description = await UnityPackageMeta(p);
-        console.log(description)
-        const meta = <Meta>JSON.parse(description);
+      const p = path.join(cwd, file);
+      const description = await UnityPackageMeta(p);
+      if (!description) {
+        console.log(`${p} is not a unity asset store package`);
+        continue;
+      }
+      const meta = <Meta>JSON.parse(description);
 
-        // 远端有
-        const resourceIndex = resourceUploadIds.indexOf(meta.upload_id);
-        if (resourceIndex >= 0) {
-            const torrent_id = resources[resourceIndex].torrent_id;
+      // 本地有，远端有
+      const resourceIndex = resourceVersionIds.indexOf(meta.version_id);
+      if (resourceIndex >= 0) {
+        const resource = resources[resourceIndex];
 
-            // qb 有
-            const taskIndex = taskTorrentIds.indexOf(torrent_id);
-            if (taskIndex >= 0) {
-
-            } else {
-                // qb 无
-                console.log(`downloading ${meta.title}`)
-                const torrent = await download(torrent_id);
-                const result = await client.addTorrent(torrent, {
-                    savepath: path.dirname(p),
-                    filename: path.basename(p),
-                    category: 'Unity'
-                })
-            }
+        // 本地有，远端有，qb 有 => 什么都不做
+        const taskIndex = taskHashes.indexOf(resource.info_hash);
+        if (taskIndex >= 0) {
         } else {
-            // @ts-ignore
-            const torrent: Buffer = await util.promisify(createTorrent)(p, {
-                comment: description,
-                info: {id: meta.id},
-                announceList: [],
-                private: true,
-            })
-            console.log(`uploading ${meta.title}`)
-            const torrent2 = await upload(torrent, description, `${meta.title}.torrent`);
-
-            const result = await client.addTorrent(torrent2, {
-                savepath: path.dirname(p),
-                filename: path.basename(p),
-                category: 'Unity'
-            })
+          if (description === resource.description) {
+            // 本地有，远端有，qb 无，一致 => 添加下载任务
+            console.log(`downloading ${meta.title}`);
+            const torrent = await download(resource.torrent_id);
+            await addTorrent(client, torrent, path.dirname(p), path.basename(p), false);
+          } else {
+            // 本地有，远端有，qb 无，不一致 => 忽略
+            console.log(`${p} has same version_id with server but not same file`);
+          }
         }
+      } else {
+        // 本地有，远端无 => 发布资源并添加下载任务
+        console.log(`uploading ${meta.title}`);
+        const name = meta.title
+          .replace(/[<>:"\/\\|?*+#&().,—!™'\[\]]/g, '')
+          .replace(/ {2,}/g, ' ')
+          .trim();
+        // @ts-ignore
+        const torrent0: Buffer = await util.promisify(createTorrent)(p, {
+          name: name + '.unitypackage',
+          createdBy: 'UnityPT 1.0',
+          announceList: [],
+          private: true,
+        });
+        const torrent = await upload(torrent0, description, `${name}.torrent`);
+        await addTorrent(client, torrent, path.dirname(p), path.basename(p), true);
+      }
     }
+  }
 })();

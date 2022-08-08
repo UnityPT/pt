@@ -4,6 +4,7 @@ export interface Resource {
     description: string
     username: string
     submitted: string
+    info_hash: string
 }
 
 export interface Meta {
