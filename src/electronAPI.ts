@@ -24,4 +24,18 @@ export class electronAPI {
     const files = await client.torrentFiles(torrent.hash);
     return shell.openPath(path.join(torrent.save_path, files[0].name));
   }
+
+  static cancel(event, torrent: Torrent) {
+    return client.removeTorrent(torrent.hash, true);
+  }
+
+  static async pause(event, torrent: Torrent) {
+    await client.pauseTorrent(torrent.hash);
+    // return (await client.listTorrents({hashes: torrent.hash}))[0];
+  }
+
+  static async resume(event, torrent: Torrent) {
+    await client.resumeTorrent(torrent.hash);
+    // return (await client.listTorrents({hashes: torrent.hash}))[0];
+  }
 }

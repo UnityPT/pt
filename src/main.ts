@@ -33,6 +33,10 @@ app.whenReady().then(() => {
   ipcMain.handle('download', electronAPI.download);
   ipcMain.handle('list', electronAPI.list);
   ipcMain.handle('import', electronAPI.import);
+  ipcMain.handle('cancel', electronAPI.cancel);
+  ipcMain.handle('pause', electronAPI.pause);
+  ipcMain.handle('resume', electronAPI.resume);
+
   login('simpletracker', 'simpletracker');
   createWindow();
   app.on('activate', () => {

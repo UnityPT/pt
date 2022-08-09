@@ -14,23 +14,20 @@
   "license": "ISC",
   "dependencies": {
     "@ctrl/qbittorrent": "^4.1.0",
-    "@types/create-torrent": "^5.0.0",
-    "@types/glob": "^7.2.0",
-    "@types/klaw": "^3.0.3",
-    "@types/parse-torrent": "^5.8.4",
     "create-torrent": "^5.0.4",
     "electron": "^20.0.1",
     "electron-fetch": "^1.7.4",
-    "esm": "^3.2.25",
-    "fetch-cookie": "^2.1.0",
     "form-data": "^4.0.0",
     "glob": "^8.0.3",
     "klaw": "^4.0.1",
     "parse-torrent": "^9.1.5",
-    "typed-struct": "^2.3.0",
-    "zlibjs": "^0.3.1"
+    "typed-struct": "^2.3.0"
   },
   "devDependencies": {
+    "@types/create-torrent": "^5.0.0",
+    "@types/glob": "^7.2.0",
+    "@types/klaw": "^3.0.3",
+    "@types/parse-torrent": "^5.8.4",
     "copy-webpack-plugin": "^11.0.0",
     "ts-loader": "^9.3.1",
     "ts-node": "^10.9.1",
