@@ -6,6 +6,7 @@ import {QBittorrent} from '@ctrl/qbittorrent';
 export async function addTorrent(client: QBittorrent, torrent: Buffer, savepath: string, filename: string, skip_checking: boolean) {
   const info = <ParseTorrentFile.Instance>parseTorrent(torrent);
   const oldPath = info.files[0].path;
+  if (!filename) filename = oldPath;
   const rename = filename !== oldPath;
   await client.addTorrent(torrent, {
     savepath,

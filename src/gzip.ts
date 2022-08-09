@@ -1,8 +1,8 @@
 // https://www.rfc-editor.org/rfc/rfc1952.html#page-5
-import Struct = require("typed-struct");
+import Struct from "typed-struct";
 import fs from "fs";
 
-const Member = new Struct.default('Member')
+const Member = new Struct('Member')
     .UInt8('ID1')
     .UInt8('ID2')
     .UInt8('CM')
@@ -12,7 +12,7 @@ const Member = new Struct.default('Member')
     .UInt8('OS')
     .compile();
 
-const Extra = new Struct.default('Extra')
+const Extra = new Struct('Extra')
     .UInt8('SI1')
     .UInt8('SI2')
     .UInt16LE('LEN')

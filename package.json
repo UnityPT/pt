@@ -2,10 +2,11 @@
   "name": "pt",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
   "type": "module",
+  "main": "dist/bundle.cjs",
   "scripts": {
-    "start": "electron .",
+    "start": "webpack --mode development && electron .",
+    "build": "webpack --mode production",
     "auto": "node --loader ts-node/esm src/index.ts"
   },
   "keywords": [],
@@ -19,7 +20,10 @@
     "@types/parse-torrent": "^5.8.4",
     "create-torrent": "^5.0.4",
     "electron": "^20.0.1",
+    "electron-fetch": "^1.7.4",
+    "esm": "^3.2.25",
     "fetch-cookie": "^2.1.0",
+    "form-data": "^4.0.0",
     "glob": "^8.0.3",
     "klaw": "^4.0.1",
     "parse-torrent": "^9.1.5",
@@ -27,6 +31,7 @@
     "zlibjs": "^0.3.1"
   },
   "devDependencies": {
+    "copy-webpack-plugin": "^11.0.0",
     "ts-loader": "^9.3.1",
     "ts-node": "^10.9.1",
     "typescript": "^4.7.4",
