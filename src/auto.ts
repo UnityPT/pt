@@ -15,7 +15,7 @@ async function UnityPackageMeta(file: string) {
 }
 
 export async function auto() {
-  const watchedDirectories = [path.join(process.env.APPDATA, 'Unity', 'Asset Store-5.x'), 'D:/买的资源'];
+  const watchedDirectories = [path.join(process.env.APPDATA, 'Unity', 'Asset Store-5.x'), 'D:/买的资源', 'D:\\Downloads\\Unity'];
 
   const client = new QBittorrent({
     baseUrl: 'http://localhost:8080/',
@@ -63,14 +63,14 @@ export async function auto() {
         }
       } else {
         // 本地有，远端无 => 发布资源并添加下载任务
-        // console.log(`uploading ${meta.title}`);
+        console.log(`uploading ${meta.title}`);
         const name = meta.title
           .replace(/[<>:"\/\\|?*+#&().,—!™'\[\]]/g, '')
           .replace(/ {2,}/g, ' ')
           .trim();
         // @ts-ignore
         const torrent0: Buffer = await util.promisify(createTorrent)(p, {
-          name: name + '.unitypackage',
+          name: `[${meta.version_id}] ${name} ${meta.version}.unitypackage`,
           createdBy: 'UnityPT 1.0',
           announceList: [],
           private: true,

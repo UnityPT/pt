@@ -20,6 +20,7 @@
     "form-data": "^4.0.0",
     "glob": "^8.0.3",
     "klaw": "^4.0.1",
+    "p-retry": "^5.1.1",
     "parse-torrent": "^9.1.5",
     "typed-struct": "^2.3.0"
   },

@@ -21,7 +21,7 @@ export async function login(username: string, password: string) {
 }
 
 export async function index(): Promise<Resource[]> {
-  return (await fetch('https://pt.lolo.moe/index.php', {
+  return (await fetch('https://pt.lolo.moe/index.php?a=3', {
     session: session.defaultSession,
     useSessionCookies: true
   })).json();
