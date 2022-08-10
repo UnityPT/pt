@@ -15,8 +15,9 @@ export async function login(username: string, password: string) {
     session: session.defaultSession,
     useSessionCookies: true
   });
-  console.log(response.status);
-  assert.equal(response.status, 204);
+  if (response.status !== 204) {
+    throw new Error(await response.text());
+  }
 }
 
 export async function index(): Promise<Resource[]> {
@@ -37,7 +38,9 @@ export async function upload(torrent: Buffer, description: string, filename: str
     session: session.defaultSession,
     useSessionCookies: true
   });
-  assert.equal(response.headers.get('Content-Type'), 'application/octet-stream');
+  if (response.headers.get('Content-Type') !== 'application/octet-stream') {
+    throw new Error(await response.text());
+  }
   return Buffer.from(await response.arrayBuffer());
 }
 
@@ -48,6 +51,8 @@ export async function download(torrent_id: number): Promise<Buffer> {
     session: session.defaultSession,
     useSessionCookies: true
   });
-  assert.equal(response.headers.get('Content-Type'), 'application/octet-stream', response.statusText);
+  if (response.headers.get('Content-Type') !== 'application/octet-stream') {
+    throw new Error(await response.text());
+  }
   return Buffer.from(await response.arrayBuffer());
 }
