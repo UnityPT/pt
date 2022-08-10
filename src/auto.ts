@@ -2,20 +2,19 @@ import path from 'path';
 import util from 'util';
 import glob from 'glob';
 import Buffer from 'buffer';
-
+import assert from 'assert';
 import createTorrent from 'create-torrent';
 import {QBittorrent} from '@ctrl/qbittorrent';
-
-import {download, index, login, upload} from './api.js';
-import {Meta} from './resource.js';
-import {ExtraField} from './gzip.js';
-import {addTorrent} from './qbittorrent.js';
+import {download, index, upload} from './api';
+import {Meta} from './resource';
+import {ExtraField} from './gzip';
+import {addTorrent} from './qbittorrent';
 
 async function UnityPackageMeta(file: string) {
   return ExtraField(file, 65, 36);
 }
 
-(async function () {
+export async function auto() {
   const watchedDirectories = [path.join(process.env.APPDATA, 'Unity', 'Asset Store-5.x'), 'D:/买的资源'];
 
   const client = new QBittorrent({
@@ -26,7 +25,6 @@ async function UnityPackageMeta(file: string) {
 
   const tasks = await client.listTorrents({category: 'Unity'});
   const taskHashes = tasks.map((item) => item.hash);
-  await login('simpletracker', 'simpletracker');
   const resources = await index();
   const resourceVersionIds = resources.map((i) => JSON.parse(i.description).version_id);
 
@@ -41,11 +39,13 @@ async function UnityPackageMeta(file: string) {
         continue;
       }
       const meta = <Meta>JSON.parse(description);
+      assert.ok(meta.version_id);
 
       // 本地有，远端有
       const resourceIndex = resourceVersionIds.indexOf(meta.version_id);
       if (resourceIndex >= 0) {
         const resource = resources[resourceIndex];
+        if (!resource) continue; // 刚刚上传的，本地有重复文件。
 
         // 本地有，远端有，qb 有 => 什么都不做
         if (taskHashes.includes(resource.info_hash)) {
@@ -77,8 +77,9 @@ async function UnityPackageMeta(file: string) {
         });
         const torrent = await upload(torrent0, description, `${name}.torrent`);
         const hash = await addTorrent(client, torrent, path.dirname(p), path.basename(p), true);
+        resourceVersionIds.push(meta.version_id);
         taskHashes.push(hash);
       }
     }
   }
-})();
+}

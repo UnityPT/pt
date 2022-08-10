@@ -28,7 +28,7 @@ export async function index(): Promise<Resource[]> {
 
 export async function upload(torrent: Buffer, description: string, filename: string): Promise<Buffer> {
   const body = new FormData();
-  body.append('torrent', new Blob([torrent]), filename);
+  body.append('torrent', torrent, filename);
   body.append('description', description);
 
   const response = await fetch('https://pt.lolo.moe/upload.php', {

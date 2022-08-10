@@ -2,6 +2,7 @@ import {app, BrowserWindow, ipcMain, shell} from 'electron';
 import {electronAPI} from './electronAPI';
 import path from 'path';
 import {login} from './api';
+import {auto} from './auto';
 
 const createWindow = () => {
   // Create the browser window.
@@ -29,7 +30,7 @@ const createWindow = () => {
 // 这段程序将会在 Electron 结束初始化
 // 和创建浏览器窗口的时候调用
 // 部分 API 在 ready 事件触发后才能使用。
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   ipcMain.handle('download', electronAPI.download);
   ipcMain.handle('list', electronAPI.list);
   ipcMain.handle('import', electronAPI.import);
@@ -37,7 +38,8 @@ app.whenReady().then(() => {
   ipcMain.handle('pause', electronAPI.pause);
   ipcMain.handle('resume', electronAPI.resume);
 
-  login('simpletracker', 'simpletracker');
+  await login('simpletracker', 'simpletracker');
+  await auto();
   createWindow();
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
