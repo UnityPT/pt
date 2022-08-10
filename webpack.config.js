@@ -18,7 +18,7 @@ export default {
   },
   output: {
     filename: 'bundle.cjs',
-    path: path.resolve('dist'),
+    path: path.resolve('dist/main'),
     clean: true
   },
   plugins: [
