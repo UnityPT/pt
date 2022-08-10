@@ -2,7 +2,7 @@ import {app, BrowserWindow, ipcMain, shell} from 'electron';
 import {electronAPI} from './electronAPI';
 import path from 'path';
 import {login} from './api';
-import {auto} from './auto';
+import {auto, seedAll} from './auto';
 
 const createWindow = () => {
   // Create the browser window.
@@ -38,8 +38,6 @@ app.whenReady().then(async () => {
   ipcMain.handle('pause', electronAPI.pause);
   ipcMain.handle('resume', electronAPI.resume);
 
-  await login('simpletracker', 'simpletracker');
-  await auto();
   createWindow();
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the

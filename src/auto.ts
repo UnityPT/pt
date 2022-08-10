@@ -9,19 +9,20 @@ import {download, index, upload} from './api';
 import {Meta} from './resource';
 import {ExtraField} from './gzip';
 import {addTorrent} from './qbittorrent';
+import FormData from 'form-data';
 
 async function UnityPackageMeta(file: string) {
   return ExtraField(file, 65, 36);
 }
 
+const client = new QBittorrent({
+  baseUrl: 'http://localhost:8080/',
+  username: 'admin',
+  password: 'adminadmin',
+});
+
 export async function auto() {
   const watchedDirectories = [path.join(process.env.APPDATA, 'Unity', 'Asset Store-5.x'), 'D:/买的资源', 'D:\\Downloads\\Unity'];
-
-  const client = new QBittorrent({
-    baseUrl: 'http://localhost:8080/',
-    username: 'admin',
-    password: 'adminadmin',
-  });
 
   const tasks = await client.listTorrents({category: 'Unity'});
   const taskHashes = tasks.map((item) => item.hash);
@@ -81,5 +82,22 @@ export async function auto() {
         taskHashes.push(hash);
       }
     }
+  }
+}
+
+export async function seedAll() {
+  const tasks = await client.listTorrents({category: 'Unity'});
+  const taskHashes = tasks.map((item) => item.hash);
+  const resources = await index();
+
+  for (const resource of resources) {
+    console.log(resource);
+    if (taskHashes.includes(resource.info_hash)) continue;
+    const torrent = await download(resource.torrent_id);
+    const form = new FormData();
+    form.append('file', torrent, 'file.torrent');
+    form.append('useAutoTMM', 'true');
+    form.append('category', 'Unity');
+    await client.request('/torrents/add', 'POST', undefined, form, undefined, undefined, false);
   }
 }
