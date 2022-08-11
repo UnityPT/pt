@@ -2,6 +2,8 @@ import {app, BrowserWindow, ipcMain, shell} from 'electron';
 import {electronAPI} from './electronAPI';
 import path from 'path';
 import {login} from './api';
+import { autoUpdater } from "electron-updater"
+autoUpdater.checkForUpdatesAndNotify();
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 

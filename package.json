@@ -1,6 +1,6 @@
 {
   "name": "pt",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "type": "module",
   "main": "dist/main/bundle.cjs",
@@ -10,7 +10,7 @@
     "auto": "node --loader ts-node/esm src/index.ts",
     "pack": "npm run build && electron-builder --dir",
     "dist": "npm run build && electron-builder",
-    "upload": "electron-builder --publish always"
+    "upload": "npm run build && electron-builder --publish always"
   },
   "build": {
     "files": [
@@ -31,28 +31,27 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-  },
   "devDependencies": {
+    "@ctrl/qbittorrent": "^4.1.0",
     "@types/create-torrent": "^5.0.0",
     "@types/glob": "^7.2.0",
     "@types/klaw": "^3.0.3",
     "@types/parse-torrent": "^5.8.4",
     "copy-webpack-plugin": "^11.0.0",
-    "electron-builder": "^23.3.3",
-    "ts-loader": "^9.3.1",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.7.4",
-    "webpack-cli": "^4.10.0",
-    "@ctrl/qbittorrent": "^4.1.0",
     "create-torrent": "^5.0.4",
     "electron": "^20.0.1",
+    "electron-builder": "^23.3.3",
     "electron-fetch": "^1.7.4",
+    "electron-updater": "^5.2.1",
     "form-data": "^4.0.0",
     "glob": "^8.0.3",
     "klaw": "^4.0.1",
     "p-retry": "^5.1.1",
     "parse-torrent": "^9.1.5",
-    "typed-struct": "^2.3.0"
+    "ts-loader": "^9.3.1",
+    "ts-node": "^10.9.1",
+    "typed-struct": "^2.3.0",
+    "typescript": "^4.7.4",
+    "webpack-cli": "^4.10.0"
   }
 }
