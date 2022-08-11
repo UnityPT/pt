@@ -9,7 +9,8 @@
     "build": "webpack --mode production",
     "auto": "node --loader ts-node/esm src/index.ts",
     "pack": "npm run build && electron-builder --dir",
-    "dist": "npm run build && electron-builder"
+    "dist": "npm run build && electron-builder",
+    "upload": "electron-builder --publish always"
   },
   "build": {
     "files": [
@@ -19,6 +20,12 @@
     ],
     "win": {
       "icon": "logo.ico"
+    },
+    "publish": {
+      "provider": "s3",
+      "endpoint": "https://ptdl.lolo.moe",
+      "bucket": "unity-pt",
+      "path": "downloads"
     }
   },
   "keywords": [],
