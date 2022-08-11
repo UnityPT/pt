@@ -3,6 +3,8 @@ import {electronAPI} from './electronAPI';
 import path from 'path';
 import {login} from './api';
 
+const isDevelopment = process.env.NODE_ENV !== 'production'
+
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -19,10 +21,12 @@ function createWindow() {
     return {action: 'deny'};
   });
 
-  // mainWindow.loadURL('http://localhost:4200');
-  // mainWindow.webContents.openDevTools();
-
-  mainWindow.loadFile(path.join(__dirname, '..', 'pt-web/index.html'));
+  if (isDevelopment) {
+    mainWindow.loadURL('http://localhost:4200');
+    mainWindow.webContents.openDevTools();
+  } else {
+    mainWindow.loadFile(path.join(__dirname, '..', 'pt-web/index.html'));
+  }
 }
 
 // 这段程序将会在 Electron 结束初始化
