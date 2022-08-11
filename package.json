@@ -1,6 +1,6 @@
 {
   "name": "pt",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "",
   "type": "module",
   "main": "dist/main/bundle.cjs",
@@ -16,7 +16,10 @@
       "dist/main",
       "dist/pt-web",
       "package.json"
-    ]
+    ],
+    "win": {
+      "icon": "logo.ico"
+    }
   },
   "keywords": [],
   "author": "",
