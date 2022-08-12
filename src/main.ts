@@ -32,7 +32,6 @@ function createWindow() {
     return {action: 'deny'};
   });
   mainWindow.webContents.session.webRequest.onBeforeSendHeaders({urls: [qBittorrentOrigin + '/*']}, (details, callback) => {
-    console.log(details.requestHeaders);
     delete details.requestHeaders.Origin;
     delete details.requestHeaders.Referer;
     callback({requestHeaders: details.requestHeaders});
@@ -56,14 +55,7 @@ function createWindow() {
 // 和创建浏览器窗口的时候调用
 // 部分 API 在 ready 事件触发后才能使用。
 app.whenReady().then(async () => {
-  ipcMain.handle('download', electronAPI.download);
-  ipcMain.handle('list', electronAPI.list);
   ipcMain.handle('import', electronAPI.import);
-  ipcMain.handle('cancel', electronAPI.cancel);
-  ipcMain.handle('pause', electronAPI.pause);
-  ipcMain.handle('resume', electronAPI.resume);
-
-  login('simpletracker', 'simpletracker');
 
   createWindow();
   // app.on('activate', () => {
