@@ -2,10 +2,18 @@ import {app, BrowserWindow, ipcMain, shell} from 'electron';
 import {electronAPI} from './electronAPI';
 import path from 'path';
 import {login} from './api';
-import { autoUpdater } from "electron-updater"
+import {autoUpdater} from 'electron-updater';
+import Store from 'electron-store';
+
 autoUpdater.checkForUpdatesAndNotify();
 
-const isDevelopment = process.env.NODE_ENV !== 'production'
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+const store = new Store();
+// store.set('qBittorrentOrigin', 'http://poi.lan:8080');
+// if(store.get('origin'))
+const qBittorrentOrigin = <string>store.get('qBittorrentOrigin') ?? 'http://localhost:8080';
+app.commandLine.appendSwitch('unsafely-treat-insecure-origin-as-secure', qBittorrentOrigin);
 
 function createWindow() {
   // Create the browser window.
@@ -15,12 +23,25 @@ function createWindow() {
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-    },
+      webSecurity: false
+    }
   });
 
   mainWindow.webContents.setWindowOpenHandler(({url}) => {
     shell.openExternal(url);
     return {action: 'deny'};
+  });
+  mainWindow.webContents.session.webRequest.onBeforeSendHeaders({urls: [qBittorrentOrigin + '/*']}, (details, callback) => {
+    console.log(details.requestHeaders);
+    delete details.requestHeaders.Origin;
+    delete details.requestHeaders.Referer;
+    callback({requestHeaders: details.requestHeaders});
+  });
+  mainWindow.webContents.session.webRequest.onHeadersReceived({urls: [qBittorrentOrigin + '/*']}, (details, callback) => {
+    if (details.responseHeaders['set-cookie']) {
+      details.responseHeaders['set-cookie'][0] = details.responseHeaders['set-cookie'][0].replace('SameSite=Strict', 'SameSite=None; Secure');
+    }
+    callback({responseHeaders: details.responseHeaders});
   });
 
   if (isDevelopment) {
