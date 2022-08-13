@@ -1,11 +1,22 @@
 import {app, BrowserWindow, ipcMain, shell} from 'electron';
 import {electronAPI} from './electronAPI';
 import path from 'path';
-import {login} from './api';
 import {autoUpdater} from 'electron-updater';
 import Store from 'electron-store';
 
-autoUpdater.checkForUpdatesAndNotify();
+const checkForUpdates = autoUpdater.checkForUpdatesAndNotify({
+  title: '{appName} 已准备好更新',
+  body: '新版本 {version} 已下载，将在程序退出后安装。'
+});
+
+// checkForUpdates.then(()=>{
+//   autoUpdater.on('download-progress', (progressObj) => {
+//     let log_message = "Download speed: " + progressObj.bytesPerSecond;
+//     log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+//     log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+//     sendStatusToWindow(log_message);
+//   })
+// })
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
