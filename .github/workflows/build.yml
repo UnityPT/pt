@@ -14,7 +14,6 @@ jobs:
         with:
           cache: 'npm'
       - run: |
-          env
           npm ci
           npm run dist
         env:
