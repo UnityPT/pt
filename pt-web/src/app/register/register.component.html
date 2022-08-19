@@ -1,0 +1,35 @@
+<!--<img src="assets/logo.webp">-->
+<mat-card class="mat-elevation-z2">
+  <mat-card-content>
+    <form #loginForm="ngForm" (ngSubmit)="submit()">
+      <h2>注册</h2>
+      <mat-form-field>
+        <mat-label>用户名</mat-label>
+        <input matInput name="username" [(ngModel)]="user.username" required minlength="2" required maxlength="25"  #username="ngModel">
+        <mat-error *ngIf="username.errors?.['minlength']">用户名至少 2 个字符</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>密码</mat-label>
+        <input matInput name="password" type="password" [(ngModel)]="user.password" required minlength="6" #password="ngModel">
+        <mat-error *ngIf="password.errors?.['minlength']">密码至少 6 个字符</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>密码确认</mat-label>
+        <input matInput name="password_again" type="password" [(ngModel)]="user.password_again" required
+               [appPasswordAgain]="user.password" #passwordAgain="ngModel">
+        <mat-error *ngIf="passwordAgain.errors?.['passwordAgain']">与密码不一致</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>邮箱</mat-label>
+        <input matInput name="email" type="email" [(ngModel)]="user.email" required email #email="ngModel">
+        <mat-error *ngIf="email.errors?.['email']">邮箱格式不正确</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>邀请码</mat-label>
+        <input matInput name="invitation" [(ngModel)]="user.invitation" required #invitation="ngModel">
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" [disabled]="!loginForm.form.valid">注册</button>
+    </form>
+  </mat-card-content>
+</mat-card>

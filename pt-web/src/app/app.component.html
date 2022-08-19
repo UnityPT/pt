@@ -1,0 +1,34 @@
+<ng-particles [id]="id" [options]="particlesOptions" [particlesInit]="particlesInit"
+              *ngIf="api.showParticles()"></ng-particles>
+
+<!--导航开始-->
+<mat-toolbar color="primary">
+<!--  <img src="assets/logo.webp">-->
+  <span id="title">Unity PT</span>
+  <button mat-button routerLink="register" routerLinkActive="active" *ngIf="!api.username">注册</button>
+  <button mat-button routerLink="login" routerLinkActive="active" *ngIf="!api.username">登录</button>
+  <button mat-button routerLink="resource" routerLinkActive="active" *ngIf="api.username">资源</button>
+  <button mat-button routerLink="publish" routerLinkActive="active" *ngIf="api.username">发布</button>
+  <button mat-button routerLink="help" routerLinkActive="active">使用说明</button>
+  <span class="example-spacer"></span>
+
+  <button mat-button id="user" [matMenuTriggerFor]="menu" *ngIf="api.username">{{api.username}}</button>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item class="button" routerLink="invitation" routerLinkActive="active">邀请</button>
+    <button mat-menu-item class="button" (click)="logout()">退出登录</button>
+  </mat-menu>
+  <button mat-button id="stat" *ngIf="api.username">
+    <mat-icon>upload</mat-icon>
+    <span>0 GB</span>
+    <mat-icon>download</mat-icon>
+    <span>0 GB</span>
+    <mat-icon>emoji_events</mat-icon>
+    <span>{{user_stat_published}}</span>
+  </button>
+</mat-toolbar>
+<!--导航结束-->
+<!--搜索栏开始-->
+<!--搜索栏结束-->
+
+<router-outlet></router-outlet>
+<!--<div style="background: red"></div>-->

@@ -1,0 +1,14 @@
+<!--<img src="assets/logo.webp">-->
+<mat-card class="mat-elevation-z2">
+  <mat-card-content>
+    <form #loginForm="ngForm" (ngSubmit)="submit()" ngNativeValidate>
+      <h3>{{title}}</h3>
+<!--      <mat-form-field *ngIf="!invitation_key">-->
+<!--        <mat-label>邮箱</mat-label>-->
+<!--        <input matInput name="username" [(ngModel)]="email" required>-->
+<!--      </mat-form-field>-->
+      <mat-label *ngIf="invitation_key">{{invitation_key}}</mat-label>
+      <button mat-raised-button color="primary" [disabled]="!loginForm.form.valid" *ngIf="!invitation_key">邀请</button>
+    </form>
+  </mat-card-content>
+</mat-card>

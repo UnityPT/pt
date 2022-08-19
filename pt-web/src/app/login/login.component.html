@@ -1,0 +1,23 @@
+<!--<img src="assets/logo.webp">-->
+<mat-card class="mat-elevation-z2">
+  <mat-card-content>
+    <form #loginForm="ngForm" (ngSubmit)="submit()" ngNativeValidate>
+      <h2>登录</h2>
+<!--      <mat-error *ngIf="!loginValid">-->
+<!--        用户名或-->
+<!--      </mat-error>-->
+      <mat-form-field>
+        <mat-label>用户名</mat-label>
+        <input matInput name="username" [(ngModel)]="username" required>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>密码</mat-label>
+        <input matInput name="password" type="password" [(ngModel)]="password" required>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" [disabled]="!loginForm.form.valid">登录</button>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<!--<p>请输入账号密码</p>-->

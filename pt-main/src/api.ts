@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {Resource} from './resource.js';
+import {Resource} from './resource';
 import fetch from 'electron-fetch';
 import FormData from 'form-data';
 import {session} from 'electron';

@@ -5,9 +5,9 @@
   "type": "module",
   "main": "dist/main/bundle.cjs",
   "scripts": {
-    "start": "webpack --mode development && electron .",
+    "start": "webpack --mode development && electron ..",
     "build": "webpack --mode production",
-    "auto": "node --loader ts-node/esm src/index.ts",
+    "auto": "node --loader ts-node/esm pt/src/index.ts",
     "pack": "npm run build && electron-builder --dir",
     "dist": "npm run build && electron-builder",
     "upload": "npm run build && electron-builder --publish always"

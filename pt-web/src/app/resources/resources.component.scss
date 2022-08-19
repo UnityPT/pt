@@ -1,0 +1,212 @@
+:host {
+  height: 100%;
+  display: flex;
+  overflow: hidden;
+}
+
+.example-spacer {
+  flex: 1 1 auto;
+}
+
+//搜索栏开始
+.example-form {
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+}
+
+//搜索栏结束
+.example-full-width {
+  width: 100%;
+}
+
+
+//列表结束
+
+#main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  width: 100%;
+  // 左侧
+  #left {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    > form {
+      ::ng-deep .mat-form-field-wrapper {
+        padding-bottom: initial;
+
+        .mat-form-field-underline {
+          bottom: initial;
+        }
+      }
+    }
+
+    > mat-selection-list {
+      flex-grow: 1;
+      width: 360px;
+      padding-top: initial;
+
+      cdk-virtual-scroll-viewport {
+        height: 100%;
+
+        ::ng-deep .cdk-virtual-scroll-content-wrapper {
+          width: 100%;
+        }
+
+        //列表开始
+        .mat-list-icon {
+          color: rgba(0, 0, 0, 0.54);
+          font-size: initial;
+
+        }
+
+        .mat-list-icon, .mat-icon {
+          line-height: initial;
+        }
+
+        mat-list-option {
+          height: 40px !important;
+        }
+
+        mat-progress-spinner {
+          padding: 6px;
+        }
+
+        mat-progress-spinner::ng-deep > svg {
+          position: initial;
+        }
+
+        ::ng-deep .mat-list-item-content {
+          padding-right: 0;
+        }
+
+        .line {
+          display: flex;
+
+          > .title {
+            flex: 1;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            padding-right: 8px;
+          }
+
+          > .version {
+            flex: 0;
+          }
+        }
+      }
+    }
+  }
+
+  // 右侧
+  #right {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+
+    #info {
+      flex: 1;
+      background-color: #fafafa;
+      overflow-y: auto;
+
+      #meta {
+        line-height: 1.8;
+
+        h2 {
+          font-size: 20px;
+          margin-bottom: 0.2em;
+        }
+
+        > span, > a {
+          display: block;
+        }
+
+        > a {
+          text-decoration: none;
+        }
+
+        #asset-store-logo {
+          border: 1px solid black;
+          padding: 0 3px;
+          margin-left: 16px;
+        }
+      }
+
+      #description {
+        background-color: #ddd;
+      }
+
+      #package {
+        background-color: #eee;
+      }
+
+      > dl {
+        margin: 0;
+
+        //> dt {
+        //  font-weight: bold;
+        //}
+        //
+        //> dd {
+        //  margin: 0;
+        //}
+      }
+
+      .box {
+        padding: 20px;
+      }
+    }
+
+    #status-right {
+      display: flex;
+      height: 40px;
+      align-items: center;
+      margin-right: 12px;
+
+      mat-progress-bar {
+        height: 24px;
+        margin: 8px;
+
+        &::after {
+          content: attr(data-progress);
+          position: absolute;
+          left: 0;
+          right: 0;
+          text-align: center;
+          color: white;
+          line-height: 24px;
+        }
+      }
+
+      button {
+        height: 28px;
+        line-height: 1;
+        margin: 0 4px;
+      }
+    }
+  }
+
+}
+
+//
+//app-test {
+//  background: red;
+//}
+
+#status {
+  padding: 0 12px;
+  display: flex;
+  line-height: 40px;
+  background-color: #fafafa;
+
+  > span {
+    padding: 0 12px;
+  }
+
+  > button {
+    height: 32px;
+  }
+}

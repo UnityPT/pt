@@ -1,0 +1,47 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #fafafa;
+}
+
+//导航开始
+
+mat-toolbar {
+  flex-shrink: 0;
+
+  #title {
+    margin-right: 16px;
+  }
+
+  > button {
+    //margin: 0 4px;
+    &:hover {
+      background: rgba(0, 0, 0, .4);
+    }
+
+    &.active {
+      background: rgba(0, 0, 0, .2);
+    }
+  }
+
+  #user, #stat {
+    padding: 0 6px;
+  }
+
+  #stat span {
+    margin: 0 8px 0 2px;
+  }
+
+  > img {
+    //border-radius: 50%;
+    //width: 40px;
+    height: 32px;
+  }
+}
+
+.example-spacer {
+  flex: 1 1 auto;
+}
+
+//导航结束
