@@ -14,8 +14,10 @@ jobs:
         with:
           cache: 'npm'
       - run: |
-          npm ci
-          npm run dist
+          npm install --prefix ./pt-web/ ./pt-web/
+          cp -r ./pt-web/dist/ ./pt-main/dist
+          npm install --prefix ./pt-main/ ./pt-main/
+          npm --prefix ./pt-main/ run dist
         env:
           CI_BUILD_TAG: ${{ github.ref_type	== 'tag' && github.ref_name }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
