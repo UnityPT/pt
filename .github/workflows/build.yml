@@ -17,6 +17,10 @@ jobs:
       - run: |
           npm install --prefix ./pt-web/ ./pt-web/
           npm --prefix ./pt-web/ run build
+        env:
+          CI_BUILD_TAG: ${{ github.ref_type	== 'tag' && github.ref_name }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       - uses: actions/setup-node@v3
         with:
           cache: 'npm'
