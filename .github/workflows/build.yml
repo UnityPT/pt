@@ -6,13 +6,18 @@ jobs:
   release:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [ macos-latest, ubuntu-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           cache: 'npm'
+          cache-dependency-path: ./pt-web/package-lock.json
+      - uses: actions/setup-node@v3
+        with:
+          cache: 'npm'
+          cache-dependency-path: ./pt-main/package-lock.json
       - run: |
           npm install --prefix ./pt-web/ ./pt-web/
           npm --prefix ./pt-web/ run build
