@@ -13,21 +13,21 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: 'npm'
-          cache-dependency-path: ./pt-web/package-lock.json
-      - run: |
-          npm install --prefix ./pt-web/ ./pt-web/
-          npm --prefix ./pt-web/ run build
-        env:
-          CI_BUILD_TAG: ${{ github.ref_type	== 'tag' && github.ref_name }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      - uses: actions/setup-node@v3
-        with:
-          cache: 'npm'
           cache-dependency-path: ./pt-main/package-lock.json
+#      - run: |
+#          npm install --prefix ./pt-web/ ./pt-web/
+#          npm --prefix ./pt-web/ run build
+#        env:
+#          CI_BUILD_TAG: ${{ github.ref_type	== 'tag' && github.ref_name }}
+#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#      - uses: actions/setup-node@v3
+#        with:
+#          cache: 'npm'
+#          cache-dependency-path: ./pt-main/package-lock.json
       - run: |
-          ls
-          cp -r ./pt-web/dist/ ./pt-main/dist
+#          ls
+#          cp -r ./pt-web/dist/ ./pt-main/dist
           npm install --prefix ./pt-main/ ./pt-main/
           npm --prefix ./pt-main/ run dist
         env:
