@@ -13,6 +13,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: 'npm'
+          cache-dependency-path: ./pt-main/package-lock.json
       - run: |
           npm ci --prefix ./pt-main/ ./pt-main
           npm --prefix run dist
