@@ -15,6 +15,7 @@ jobs:
           cache: 'npm'
       - run: |
           npm install --prefix ./pt-web/ ./pt-web/
+          npm --prefix ./pt-web/ run build
           cp -r ./pt-web/dist/ ./pt-main/dist
           npm install --prefix ./pt-main/ ./pt-main/
           npm --prefix ./pt-main/ run dist
