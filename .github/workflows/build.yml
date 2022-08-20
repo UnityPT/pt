@@ -15,7 +15,14 @@ jobs:
           cache: 'npm'
           cache-dependency-path: pt-main/package-lock.json
       - run: |
-          env
+          npm ci --prefix pt-web pt-web
+          npm --prefix pt-web run build
+      - uses: actions/setup-node@v3
+        with:
+          cache: 'npm'
+          cache-dependency-path: ./pt-main/package-lock.json
+      - run: |
+          cp -r pt-web/dist pt-main/dist
           npm ci --prefix pt-main pt-main
           npm --prefix pt-main run dist
         env:
