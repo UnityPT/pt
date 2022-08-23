@@ -15,6 +15,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: pt-main/package-lock.json
       - run: |
+          sudo snap install snapcraft --classic
           npm ci --prefix pt-web pt-web
           npm --prefix pt-web run build
       - uses: actions/setup-node@v3
