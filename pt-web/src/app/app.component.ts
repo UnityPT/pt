@@ -1,10 +1,9 @@
-import {Component, Inject} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {ApiService} from "./api.service";
-import {Router} from "@angular/router";
-import {IParticlesProps} from "ng-particles/lib/ng-particles.module";
-import {ClickMode, Engine, HoverMode, MoveDirection, OutMode} from "tsparticles-engine";
-import {loadFull} from "tsparticles";
+import {Component} from '@angular/core';
+import {ApiService} from './api.service';
+import {Router} from '@angular/router';
+import {IParticlesProps} from 'ng-particles/lib/ng-particles.module';
+import {Engine, HoverMode, MoveDirection, OutMode} from 'tsparticles-engine';
+import {loadFull} from 'tsparticles';
 
 // 取数据
 @Component({
@@ -14,23 +13,26 @@ import {loadFull} from "tsparticles";
 })
 export class AppComponent {
   user_stat_published = 0;
-  email = "@";
+  email = '@';
 
   constructor(public api: ApiService, public router: Router) {
   }
 
   logout() {
-    localStorage.removeItem('username');
-    this.api.username = '';
+    this.api.logout();
     this.router.navigate(['login']);
   }
 
-  id = "tsparticles";
+  test() {
+
+  }
+
+  id = 'tsparticles';
   particlesOptions: IParticlesProps = {
-    preset: "stars",
+    preset: 'stars',
     background: {
       color: {
-        value: "#fafafa"
+        value: '#fafafa'
       }
     },
     fpsLimit: 120,
@@ -42,7 +44,7 @@ export class AppComponent {
         onHover: {
           enable: true,
           mode: HoverMode.grab
-        },
+        }
         // resize: true
       },
       modes: {
@@ -56,10 +58,10 @@ export class AppComponent {
     },
     particles: {
       color: {
-        value: "#3f51b5"
+        value: '#3f51b5'
       },
       links: {
-        color: "#000000",
+        color: '#000000',
         distance: 150,
         enable: true,
         opacity: 0.5,
@@ -89,10 +91,10 @@ export class AppComponent {
         value: 0.5
       },
       shape: {
-        type: "circle"
+        type: 'circle'
       },
       size: {
-        value: {min: 1, max: 5},
+        value: {min: 1, max: 5}
       }
     },
     detectRetina: true,
@@ -102,6 +104,7 @@ export class AppComponent {
   async particlesInit(engine: Engine): Promise<void> {
     await loadFull(engine);
   }
+
 }
 
 declare global {

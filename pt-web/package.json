@@ -20,6 +20,7 @@
     "@angular/platform-browser": "^14.1.0",
     "@angular/platform-browser-dynamic": "^14.1.0",
     "@angular/router": "^14.1.0",
+    "@auth0/angular-jwt": "^5.0.2",
     "@ctrl/qbittorrent": "^4.1.0",
     "@types/create-torrent": "^5.0.0",
     "@types/lodash-es": "^4.17.6",
@@ -43,12 +44,12 @@
     "@angular/cli": "~14.1.0",
     "@angular/compiler-cli": "^14.1.0",
     "buffer": "^6.0.3",
+    "html-loader": "^4.1.0",
     "imports-loader": "^4.0.0",
+    "markdown-loader": "^8.0.0",
     "path-browserify": "^1.0.1",
     "raw-loader": "^4.0.2",
     "typescript": "~4.7.2",
-    "util": "^0.12.4",
-    "html-loader": "^4.1.0",
-    "markdown-loader": "^8.0.0"
+    "util": "^0.12.4"
   }
 }

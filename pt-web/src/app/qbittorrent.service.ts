@@ -1,17 +1,17 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
-import {firstValueFrom} from "rxjs";
-import {Torrent, TorrentFile} from "@ctrl/qbittorrent/dist/src/types";
+import {HttpClient} from '@angular/common/http';
+import {firstValueFrom} from 'rxjs';
+import {Torrent, TorrentFile} from '@ctrl/qbittorrent/dist/src/types';
 import parseTorrent from 'parse-torrent';
-import * as ParseTorrentFile from "parse-torrent-file";
+import * as ParseTorrentFile from 'parse-torrent-file';
 
 @Injectable({
   providedIn: 'root'
 })
 export class QBittorrentService {
-  baseUrl = 'http://localhost:8080'
-  username = 'admin'
-  password = 'adminadmin'
+  baseUrl = 'http://localhost:8080';
+  username = 'admin';
+  password = 'adminadmin';
 
   constructor(private http: HttpClient) {
   }
@@ -23,7 +23,7 @@ export class QBittorrentService {
       category: 'Unity',
       paused: filename ? 'true' : 'false',
       skip_checking: filename ? 'true' : 'false'
-    })
+    });
 
     const info = <ParseTorrentFile.Instance>parseTorrent(Buffer.from(await torrent.arrayBuffer()));
     const hash = info.infoHash!;
@@ -35,8 +35,8 @@ export class QBittorrentService {
       await this.request('torrents/renameFile', {
         hash: hash,
         oldPath,
-        newPath: filename,
-      })
+        newPath: filename
+      });
       await this.request('torrents/recheck', {hashes: hash});
       await this.request('torrents/resume', {hashes: hash});
     }
@@ -48,38 +48,38 @@ export class QBittorrentService {
     return this.request('auth/login', {username, password});
   }
 
-  torrentsInfo(params: { filter?: string, category?: string, tag?: string, sort?: string, reverse?: string, limit?: string, offset?: string, hashes?: string }) {
-    return this.request<Torrent[]>("torrents/info", params, 'json');
+  torrentsInfo(params: {filter?: string, category?: string, tag?: string, sort?: string, reverse?: string, limit?: string, offset?: string, hashes?: string}) {
+    return this.request<Torrent[]>('torrents/info', params, 'json');
   }
 
-  torrentsDelete(hash: string,) {
-    return this.request("torrents/delete", {hashes: hash, deleteFiles: 'true'});
+  torrentsDelete(hash: string) {
+    return this.request('torrents/delete', {hashes: hash, deleteFiles: 'true'});
   }
 
-  torrentsPause(hash: string,) {
-    return this.request("torrents/pause", {hashes: hash});
+  torrentsPause(hash: string) {
+    return this.request('torrents/pause', {hashes: hash});
   }
 
-  torrentsResume(hash: string,) {
-    return this.request("torrents/resume", {hashes: hash});
+  torrentsResume(hash: string) {
+    return this.request('torrents/resume', {hashes: hash});
   }
 
-  torrentsFiles(hash: string,) {
-    return this.request<TorrentFile[]>("torrents/files", {hash}, 'json');
+  torrentsFiles(hash: string) {
+    return this.request<TorrentFile[]>('torrents/files', {hash}, 'json');
   }
 
   // low level apis
 
   // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)
 
-  request<T>(method: string, params: Record<string, string | Blob | undefined>, responseType: "json" | "text" = "text"): Promise<T> {
+  request<T>(method: string, params: Record<string, string | Blob | undefined>, responseType: 'json' | 'text' = 'text'): Promise<T> {
     const body = new FormData();
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined) {
         if (typeof value === 'string') {
-          body.append(key, value)
+          body.append(key, value);
         } else {
-          body.append(key, value, "test.torrent");
+          body.append(key, value, 'test.torrent');
         }
       }
     }

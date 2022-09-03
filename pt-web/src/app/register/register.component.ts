@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ApiService} from "../api.service";
 import {Router} from "@angular/router";
-import {User} from "../types";
+import {RegisterInfo} from "../types";
 
 @Component({
   selector: 'app-register',
@@ -10,7 +10,7 @@ import {User} from "../types";
 })
 export class RegisterComponent implements OnInit {
 
-  user: User = {
+  user: RegisterInfo = {
     username: '',
     password: '',
     password_again: '',

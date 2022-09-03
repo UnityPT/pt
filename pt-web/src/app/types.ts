@@ -41,7 +41,7 @@ export interface Publisher {
   id: string
   label: string
 }
-export interface User {
+export interface RegisterInfo {
   username: '',
   password: '',
   password_again: '',
