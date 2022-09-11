@@ -15,19 +15,21 @@ export class ApiService {
   username = localStorage.getItem('username');
   curPage = '';
 
-  constructor(private http: HttpClient, private router: Router, private jwtHelperService: JwtHelperService) {
+  constructor(private http: HttpClient, private router: Router,
+             // private jwtHelperService: JwtHelperService
+               ) {
     this.router.events.subscribe((data) => {
       if (data instanceof NavigationEnd) {
         this.curPage = data.url;
       }
     });
     console.log('constuctor');
-    const token = localStorage.getItem('token');
-    if (token) {
-      const user = this.jwtHelperService.decodeToken(token).user;
-      console.log(this.jwtHelperService.decodeToken(token));
-      this.setUser(user.username);
-    }
+    // const token = localStorage.getItem('token');
+    // if (token) {
+    //   const user = this.jwtHelperService.decodeToken(token).user;
+    //   console.log(this.jwtHelperService.decodeToken(token));
+    //   this.setUser(user.username);
+    // }
   }
 
   async login(username: string, password: string) {

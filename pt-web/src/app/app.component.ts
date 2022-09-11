@@ -4,6 +4,8 @@ import {Router} from '@angular/router';
 import {IParticlesProps} from 'ng-particles/lib/ng-particles.module';
 import {Engine, HoverMode, MoveDirection, OutMode} from 'tsparticles-engine';
 import {loadFull} from 'tsparticles';
+import {firstValueFrom} from 'rxjs';
+import {HttpClient} from '@angular/common/http';
 
 // 取数据
 @Component({
@@ -15,16 +17,34 @@ export class AppComponent {
   user_stat_published = 0;
   email = '@';
 
-  constructor(public api: ApiService, public router: Router) {
+  constructor(public api: ApiService, public router: Router,private http: HttpClient) {
   }
 
   logout() {
     this.api.logout();
     this.router.navigate(['login']);
   }
+  url(method: string) {
+    return `http://localhost:80/${method}`;
+  }
+  async test1() {
+    const res = await firstValueFrom(this.http.post(this.url('login'), {
+      username: 'frogeater',
+      password: '123456'
+    }, {
+      responseType: 'text',
+      withCredentials: true
+    }));
+    localStorage.setItem('access_token', JSON.parse(res).access_token);
+  }
 
-  test() {
-
+  test2() {
+    return firstValueFrom(this.http.post(this.url('invitations'), {
+      email: '@',
+    }, {
+      responseType: 'text',
+      withCredentials: true
+    }));
   }
 
   id = 'tsparticles';

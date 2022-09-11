@@ -36,8 +36,9 @@ import {InvitationComponent} from './invitation/invitation.component';
 import {JwtModule} from '@auth0/angular-jwt';
 
 export function tokenGetter() {
-  return localStorage.getItem('token');
+  return localStorage.getItem("access_token");
 }
+
 
 @NgModule({
   declarations: [
@@ -50,7 +51,7 @@ export function tokenGetter() {
     HelpComponent,
     PublishComponent,
     PasswordAgainDirective,
-    InvitationComponent
+    InvitationComponent,
   ],
   imports: [
     BrowserModule,
@@ -82,11 +83,12 @@ export function tokenGetter() {
     NgParticlesModule,
     JwtModule.forRoot({
       config: {
-        tokenGetter: tokenGetter
+        tokenGetter: tokenGetter,
+        //80端口和443端口不写 :80/443
+        allowedDomains: ["localhost"],
       }
     })
   ],
-  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule {
