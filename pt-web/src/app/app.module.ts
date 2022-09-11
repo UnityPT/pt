@@ -85,7 +85,7 @@ export function tokenGetter() {
       config: {
         tokenGetter: tokenGetter,
         //80端口和443端口不写 :80/443
-        allowedDomains: ["localhost"],
+        allowedDomains: ["localhost",'frogeater.vip'],
       }
     })
   ],

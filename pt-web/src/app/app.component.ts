@@ -25,7 +25,7 @@ export class AppComponent {
     this.router.navigate(['login']);
   }
   url(method: string) {
-    return `http://localhost:80/${method}`;
+    return `https://frogeater.vip/${method}`;
   }
   async test1() {
     const res = await firstValueFrom(this.http.post(this.url('login'), {
@@ -39,6 +39,7 @@ export class AppComponent {
   }
 
   test2() {
+    console.log(localStorage.getItem("access_token"));
     return firstValueFrom(this.http.post(this.url('invitations'), {
       email: '@',
     }, {
