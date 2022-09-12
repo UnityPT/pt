@@ -40,7 +40,7 @@ export class ApiService {
       responseType: 'text',
       withCredentials: true
     }));
-    localStorage.setItem('token',JSON.parse(res).access_token);
+    localStorage.setItem('access_token',JSON.parse(res).access_token);
     this.setUser(username);
   }
 
@@ -97,6 +97,7 @@ export class ApiService {
   }
 
   invitations(email: string) {
+    console.log(localStorage.getItem('access_token'));
     return firstValueFrom(this.http.post(this.url('invitations'), {
       email
     }, {

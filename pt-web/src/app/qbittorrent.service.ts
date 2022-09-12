@@ -76,10 +76,11 @@ export class QBittorrentService {
     const body = new FormData();
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined) {
+      console.log(key,value,'\n');
         if (typeof value === 'string') {
           body.append(key, value);
         } else {
-          body.append(key, value, 'test.torrent');
+          body.append(key, value, 'test.torrent');//todo: ?
         }
       }
     }
