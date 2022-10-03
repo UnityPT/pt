@@ -10,8 +10,8 @@ import {JwtHelperService} from '@auth0/angular-jwt';
 })
 export class ApiService {
   //baseUrl = 'https://pt.lolo.moe';
-  //baseUrl = 'https://frogeater.vip';
-  baseUrl = 'http://localhost:80';
+  baseUrl = 'https://frogeater.vip';
+  //baseUrl = 'http://localhost:80';
   username = localStorage.getItem('username');
   curPage = '';
 
@@ -40,14 +40,15 @@ export class ApiService {
       responseType: 'text',
       withCredentials: true
     }));
-    localStorage.setItem('access_token',JSON.parse(res).access_token);
+    localStorage.setItem('access_token', JSON.parse(res).access_token);
     this.setUser(username);
   }
 
   logout() {
     localStorage.removeItem('username');
-    this.username = ''
+    this.username = '';
   }
+
   setUser(username: string) {
     this.username = username;
     localStorage.setItem('username', username);
@@ -185,4 +186,11 @@ export class ApiService {
   //     responseType: 'blob'
   //   })));
   // }
+  async test() {
+    const url = new URL(this.url('index'));
+    console.log((await lastValueFrom(this.http.get<Resource[]>(url.href, {withCredentials: true}))).map((resource => ({
+      resource,
+      meta: JSON.parse(resource.description)
+    }))));
+  }
 }

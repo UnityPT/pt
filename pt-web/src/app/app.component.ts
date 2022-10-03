@@ -101,7 +101,7 @@ export class AppComponent {
   }
 
   test() {
-
+      this.api.test();
   }
 }
 
