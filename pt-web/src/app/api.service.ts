@@ -89,12 +89,10 @@ export class ApiService {
   }
 
   async register(registerInfo: RegisterInfo) {
-    await firstValueFrom(this.http.post(this.url('register'), registerInfo, {
+    return await firstValueFrom(this.http.post(this.url('register'), registerInfo, {
       responseType: 'text',
       withCredentials: true
     }));
-    //注册后自动登录
-    this.setUser(registerInfo.username);
   }
 
   invitations(email: string) {
@@ -188,9 +186,14 @@ export class ApiService {
   // }
   async test() {
     const url = new URL(this.url('index'));
-    console.log((await lastValueFrom(this.http.get<Resource[]>(url.href, {withCredentials: true}))).map((resource => ({
-      resource,
-      meta: JSON.parse(resource.description)
-    }))));
+    await firstValueFrom(this.http.post(this.url('test'), undefined, {
+      responseType: 'text',
+      withCredentials: true
+    }));
+
+    // console.log((await lastValueFrom(this.http.get<Resource[]>(url.href, {withCredentials: true}))).map((resource => ({
+    //   resource,
+    //   meta: JSON.parse(resource.description)
+    // }))));
   }
 }
