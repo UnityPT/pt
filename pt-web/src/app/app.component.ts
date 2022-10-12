@@ -12,8 +12,6 @@ import {loadFull} from 'tsparticles';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  user_stat_published = 0;
-
   constructor(public api: ApiService, public router: Router) {
   }
 

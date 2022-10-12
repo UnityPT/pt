@@ -100,7 +100,8 @@ export class ResourcesComponent implements OnInit {
   async refresh() {
     this.items = orderBy(this.items = (await this.api.index()), [(item) => item.meta.title, (item) => item.meta.version_id], ['asc', 'desc']);
     this.refreshed_at = new Date();
-    // this.user_stat_published = this.items.filter(({resource}) => resource.username === '七海千秋').length
+    this.api.user_stat_published = this.items.filter(({resource}) => resource.username === this.api.username).length
+    await this.api.refreshUserStat();
     this.myControl.reset()
   }
 

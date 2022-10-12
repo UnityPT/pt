@@ -42,6 +42,10 @@
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
+            "allowedCommonJsDependencies": [
+              "create-torrent",
+              "path"
+            ],
             "customWebpackConfig": {
               "path": "webpack.config.js",
               "mergeRules": {

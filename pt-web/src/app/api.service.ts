@@ -3,21 +3,24 @@ import {HttpClient} from '@angular/common/http';
 import {firstValueFrom, lastValueFrom} from 'rxjs';
 import {RegisterInfo, Resource, ResourceMeta} from './types';
 import {NavigationEnd, Router} from '@angular/router';
-import {JwtHelperService} from '@auth0/angular-jwt';
+import {round} from 'lodash-es';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  //baseUrl = 'https://pt.lolo.moe';
+  // baseUrl = 'https://pt.lolo.moe';
   baseUrl = 'https://frogeater.vip';
   //baseUrl = 'http://localhost:80';
   username = localStorage.getItem('username');
   curPage = '';
+  user_stat_published = 0;
+  user_stat_uploaded = '0B';
+  user_stat_downloaded = '0B';
 
-  constructor(private http: HttpClient, private router: Router,
-             // private jwtHelperService: JwtHelperService
-               ) {
+  constructor(private http: HttpClient, private router: Router
+              // private jwtHelperService: JwtHelperService
+  ) {
     this.router.events.subscribe((data) => {
       if (data instanceof NavigationEnd) {
         this.curPage = data.url;
@@ -96,7 +99,6 @@ export class ApiService {
   }
 
   invitations(email: string) {
-    console.log(localStorage.getItem('access_token'));
     return firstValueFrom(this.http.post(this.url('invitations'), {
       email
     }, {
@@ -105,95 +107,54 @@ export class ApiService {
     }));
   }
 
+ async refreshUserStat() {
+    const user_stat = JSON.parse(await firstValueFrom(this.http.get(this.url('userstat'), {
+      responseType: 'text',
+      withCredentials: true
+    })));
+    this.user_stat_uploaded = this.formatSize(user_stat.uploaded);
+    this.user_stat_downloaded =  this.formatSize(user_stat.downloaded);
+  }
+
   checkShowParticles() {
     return !this.username && this.curPage != '/help';
   }
 
-  // test() {
-  //   await fs.readFileSync('./test.torrent'),
-  //   const items = await this.api.index(true);
-  //   const taskHashes = (await this.qBittorrent.torrentsInfo({category: 'Unity'})).map(t => t.hash);
-  //   const resourceVersionIds = items.map((item) => item.meta.version_id);
-  //
-  //   for (let i = 0; i < files.length; i++) {
-  //     const file = files.item(i)!;
-  //     const description = await ExtraField(file, 65, 36);
-  //     if (!description) {
-  //       console.log(`${file.webkitRelativePath} is not a unity asset store package`);
-  //       continue;
-  //     }
-  //     const meta = <Meta>JSON.parse(description);
-  //     if (!meta.version_id) {
-  //       console.log(`${file.webkitRelativePath} is strange`);
-  //       continue;
-  //     }
-  //
-  //     // @ts-ignore
-  //     const p = file.path // provided by electron, not works in chrome.
-  //       .replaceAll('\\', '/'); // 由于 path-browserify 只支持 posix 风格路径，不支持 win32风格
-  //     console.log(p);
-  //
-  //     const resourceIndex = resourceVersionIds.indexOf(meta.version_id);
-  //     // 本地有，远端有
-  //     if (resourceIndex >= 0) {
-  //       const item = items[resourceIndex];
-  //       if (!item) continue; // 刚刚上传的，本地有重复文件。
-  //
-  //       const {resource, meta} = item;
-  //       // 本地有，远端有，qb 有 => 什么都不做
-  //       if (taskHashes.includes(resource.info_hash)) {
-  //       } else {
-  //         if (description === resource.description) {
-  //           // 本地有，远端有，qb 无，一致 => 添加下载任务
-  //           console.log(`downloading ${meta.title}`);
-  //           const torrent = await this.api.download(resource.torrent_id);
-  //           await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
-  //           taskHashes.push(resource.info_hash);
-  //         } else {
-  //           // 本地有，远端有，qb 无，不一致 => 忽略
-  //           console.log(`${p} has same version_id with server but not same file`);
-  //         }
-  //       }
-  //     } else {
-  //       // 本地有，远端无 => 发布资源并添加下载任务
-  //       console.log(`uploading ${meta.title}`);
-  //       const name = meta.title
-  //         .replace(/[<>:"\/\\|?*+#&().,—!™'\[\]]/g, '')
-  //         .replace(/ {2,}/g, ' ')
-  //         .trim();
-  //
-  //       const torrent0: Uint8Array = await new Promise((resolve, reject) => {
-  //         createTorrent(file, {
-  //           name: `[${meta.version_id}] ${name} ${meta.version}.unitypackage`,
-  //           createdBy: 'UnityPT 1.0',
-  //           announceList: [],
-  //           private: true,
-  //         }, (err: any, torrent: any) => err ? reject(err) : resolve(torrent))
-  //       })
-  //
-  //       const torrent = await this.api.upload(torrent0, description, `${name}.torrent`);
-  //
-  //
-  //
-  //   const body = new FormData();
-  //   body.append('torrent', new Blob([torrent]), filename);
-  //   body.append('description', description);
-  //
-  //   return (await firstValueFrom(this.http.post(this.url('upload'), body, {
-  //     withCredentials: true,
-  //     responseType: 'blob'
-  //   })));
-  // }
-  async test() {
-    const url = new URL(this.url('index'));
-    await firstValueFrom(this.http.post(this.url('test'), undefined, {
-      responseType: 'text',
-      withCredentials: true
-    }));
-
-    // console.log((await lastValueFrom(this.http.get<Resource[]>(url.href, {withCredentials: true}))).map((resource => ({
-    //   resource,
-    //   meta: JSON.parse(resource.description)
-    // }))));
+  formatSize(size: number) {
+    if (size < 512) return round(size, 2) + 'B';
+    size /= 1024.0;
+    if (size < 512) return round(size, 2) + 'KB';
+    size /= 1024.0;
+    if (size < 512) return round(size, 2) + 'MB';
+    size /= 1024.0;
+    if (size < 512) return round(size, 2) + 'GB';
+    size /= 1024.0;
+    return round(size, 2) + 'TB';
   }
+  async test() {
+    // const blob = await lastValueFrom(this.http.get(this.url('download'), {
+    //   params: {id: 22},
+    //   responseType: 'blob',
+    //   withCredentials: true
+    // }));
+    //
+    // var url = window.URL.createObjectURL(blob)
+    // // 上面这个是创建一个blob的对象连链接，
+    // var link = document.createElement('a')
+    // // 创建一个链接元素，是属于 a 标签的链接元素，所以括号里才是a，
+    //
+    // link.href = url;
+    // // 把上面获得的blob的对象链接赋值给新创建的这个 a 链接
+    // link.setAttribute('download', "test.torrent")
+    // // 设置下载的属性（所以使用的是download），这个是a 标签的一个属性
+    // // 后面的是文件名字，可以更改
+    // link.click();
+    //
+    //
+    // // console.log((await lastValueFrom(this.http.get<Resource[]>(url.href, {withCredentials: true}))).map((resource => ({
+    // //   resource,
+    // //   meta: JSON.parse(resource.description)
+    // // }))));
+  }
+
 }

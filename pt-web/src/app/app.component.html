@@ -6,7 +6,7 @@
 <!--  <img src="assets/logo.webp">-->
   <span id="title">Unity PT</span>
   <button mat-button routerLink="register" routerLinkActive="active" *ngIf="!api.username">注册</button>
-  <button mat-button class="button" (click)="test()" >测试</button>
+<!--  <button mat-button class="button" (click)="test()" >测试</button>-->
   <button mat-button routerLink="login" routerLinkActive="active" *ngIf="!api.username">登录</button>
   <button mat-button routerLink="resource" routerLinkActive="active" *ngIf="api.username">资源</button>
   <button mat-button routerLink="publish" routerLinkActive="active" *ngIf="api.username">发布</button>
@@ -20,11 +20,11 @@
   </mat-menu>
   <button mat-button id="stat" *ngIf="api.username">
     <mat-icon>upload</mat-icon>
-    <span>0 GB</span>
+    <span>{{api.user_stat_uploaded}}</span>
     <mat-icon>download</mat-icon>
-    <span>0 GB</span>
+    <span>{{api.user_stat_downloaded}}</span>
     <mat-icon>emoji_events</mat-icon>
-    <span>{{user_stat_published}}</span>
+    <span>{{api.user_stat_published}}</span>
   </button>
 </mat-toolbar>
 <!--导航结束-->
