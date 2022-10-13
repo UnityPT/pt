@@ -58,8 +58,10 @@ export class PublishComponent implements OnInit {
             // 本地有，远端有，qb 无，一致 => 添加下载任务
             console.log(`downloading ${meta.title}`);
             const torrent = await this.api.download(resource.torrent_id);
-            await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
-            taskHashes.push(resource.info_hash);
+            if(torrent) {
+              await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
+              taskHashes.push(resource.info_hash);
+            }
           } else {
             // 本地有，远端有，qb 无，不一致 => 忽略
             console.log(`${p} has same version_id with server but not same file`);
@@ -83,7 +85,7 @@ export class PublishComponent implements OnInit {
         })
 
         const torrent = await this.api.upload(torrent0, description, `${name}.torrent`);
-
+        if (!torrent) return;
         const hash = await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
         resourceVersionIds.push(meta.version_id);
         taskHashes.push(hash);

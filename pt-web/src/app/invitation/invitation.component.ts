@@ -20,7 +20,9 @@ export class InvitationComponent implements OnInit {
 
   async submit() {
     try {
-      this.invitation_key = await this.api.invitations('@');
+      const ret = await this.api.invitations(this.email);
+      if (!ret) return;
+      this.invitation_key = ret;
       this.title = "请复制邀请码";
     } catch {
       alert('邀请失败');

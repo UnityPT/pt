@@ -73,6 +73,7 @@ export class ResourcesComponent implements OnInit {
 
   async download(resource: Resource) {
     const torrent = await this.api.download(resource.torrent_id);
+    if (!torrent) return;
     await this.qBittorrent.torrentsAdd(torrent);
   }
 

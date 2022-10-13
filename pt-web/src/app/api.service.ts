@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {firstValueFrom, lastValueFrom} from 'rxjs';
-import {RegisterInfo, Resource, ResourceMeta} from './types';
+import {RegisterInfo, Resource, ResourceMeta, UserStat} from './types';
 import {NavigationEnd, Router} from '@angular/router';
 import {round} from 'lodash-es';
 
@@ -26,7 +26,6 @@ export class ApiService {
         this.curPage = data.url;
       }
     });
-    console.log('constuctor');
     // const token = localStorage.getItem('token');
     // if (token) {
     //   const user = this.jwtHelperService.decodeToken(token).user;
@@ -57,34 +56,56 @@ export class ApiService {
     localStorage.setItem('username', username);
   }
 
-  async index(forceRefresh = false): Promise<ResourceMeta[]> {
+  async index(forceRefresh = false) {
     const url = new URL(this.url('index'));
     if (forceRefresh) {
       url.searchParams.append('t', Date.now().toString());
     }
-    return (await lastValueFrom(this.http.get<Resource[]>(url.href, {withCredentials: true}))).map((resource => ({
+
+
+    let body = [] as Resource[];
+    try {
+       const ret = await lastValueFrom(this.http.get<Resource[]>(url.href, {
+        withCredentials: true,
+        observe:'response'
+      }));
+       body = ret.body??[] as Resource[];
+    }catch (e) {
+      this.dealWithError(e as HttpErrorResponse);
+    }
+    return body.map((resource => ({
       resource,
       meta: JSON.parse(resource.description)
     })));
   }
 
-  async upload(torrent: Uint8Array, description: string, filename: string): Promise<Blob> {
+  async upload(torrent: Uint8Array, description: string, filename: string){
     const body = new FormData();
     body.append('torrent', new Blob([torrent]), filename);
     body.append('description', description);
 
-    return (await firstValueFrom(this.http.post(this.url('upload'), body, {
-      withCredentials: true,
-      responseType: 'blob'
-    })));
+    try {
+      return (await firstValueFrom(this.http.post(this.url('upload'), body, {
+        withCredentials: true,
+        responseType: 'blob'
+      })));
+    }catch (e) {
+      this.dealWithError(e as HttpErrorResponse);
+    }
+    return;
   }
 
-  download(id: number): Promise<Blob> {
-    return lastValueFrom(this.http.get(this.url('download'), {
-      params: {id: id.toString()},
-      responseType: 'blob',
-      withCredentials: true
-    }));
+  download(id: number){
+    try {
+      return lastValueFrom(this.http.get(this.url('download'), {
+        params: {id: id.toString()},
+        responseType: 'blob',
+        withCredentials: true
+      }));
+    }catch (e) {
+      this.dealWithError(e as HttpErrorResponse);
+    }
+    return;
   }
 
   url(method: string) {
@@ -99,19 +120,22 @@ export class ApiService {
   }
 
   invitations(email: string) {
-    return firstValueFrom(this.http.post(this.url('invitations'), {
-      email
-    }, {
-      responseType: 'text',
-      withCredentials: true
-    }));
+    try {
+      return firstValueFrom(this.http.post(this.url('invitations'), {
+        email
+      }, {
+        responseType: 'text',
+        withCredentials: true
+      }));
+    }catch (e) {
+      return this.dealWithError(e as HttpErrorResponse);
+    }
   }
 
  async refreshUserStat() {
-    const user_stat = JSON.parse(await firstValueFrom(this.http.get(this.url('userstat'), {
-      responseType: 'text',
+    const user_stat = await firstValueFrom(this.http.get<UserStat>(this.url('userstat'), {
       withCredentials: true
-    })));
+    }));
     this.user_stat_uploaded = this.formatSize(user_stat.uploaded);
     this.user_stat_downloaded =  this.formatSize(user_stat.downloaded);
   }
@@ -157,4 +181,12 @@ export class ApiService {
     // // }))));
   }
 
+  private dealWithError(e:HttpErrorResponse) {
+    if(e.status == 401)
+    {
+      this.logout();
+      this.router.navigate(['login']);
+    }
+    return;
+  }
 }
