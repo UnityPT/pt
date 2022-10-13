@@ -29,7 +29,8 @@ export class RegisterComponent implements OnInit {
     try {
       const res = await this.api.register(this.user);
       if (res == 'success') {
-        return this.api.login(this.user.username,this.user.password);
+        await this.api.login(this.user.username,this.user.password);
+        this.router.navigate(['resource']);
       }
     } catch {
       alert('注册失败');
