@@ -56,10 +56,8 @@ function createWindow() {
 
   if (isDevelopment) {
     mainWindow.loadURL('http://localhost:4200');
-    mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, '..', 'pt-web/index.html'));
-    mainWindow.webContents.openDevTools();
   }
 }
 
