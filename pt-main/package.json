@@ -24,7 +24,7 @@
     "mac": {
       "icon": "icon.icns",
       "target": [{
-        "target": "snap",
+        "target": "dmg",
         "arch": ["x64","arm64"]
       }]
     },
