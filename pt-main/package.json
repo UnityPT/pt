@@ -21,6 +21,9 @@
     "win": {
       "icon": "logo.ico"
     },
+    "mac": {
+      "icon": "icon.icns"
+    },
     "publish": {
       "provider": "s3",
       "endpoint": "https://ptdl.lolo.moe",

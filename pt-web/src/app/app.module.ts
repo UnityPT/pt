@@ -82,7 +82,7 @@ import {JwtModule} from '@auth0/angular-jwt';
           return localStorage.getItem('access_token');
         },
         //80端口和443端口不写 :80/443
-        allowedDomains: ['localhost', 'frogeater.vip']
+        allowedDomains: ['localhost', 'frogeater.vip','pt.lolo.moe']
       }
     })
   ],

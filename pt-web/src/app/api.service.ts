@@ -9,8 +9,8 @@ import {round} from 'lodash-es';
   providedIn: 'root'
 })
 export class ApiService {
-  // baseUrl = 'https://pt.lolo.moe';
-  baseUrl = 'https://frogeater.vip';
+  baseUrl = 'https://pt.lolo.moe';
+  //baseUrl = 'https://frogeater.vip';
   //baseUrl = 'http://localhost:80';
   username = localStorage.getItem('username');
   curPage = '';
