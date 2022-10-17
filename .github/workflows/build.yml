@@ -6,7 +6,7 @@ jobs:
   release:
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [ windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -15,7 +15,6 @@ jobs:
           cache: 'npm'
           cache-dependency-path: pt-main/package-lock.json
       - run: |
-#          sudo snap install snapcraft --classic
           npm ci --prefix pt-web pt-web
           npm --prefix pt-web run build
       - uses: actions/setup-node@v3
