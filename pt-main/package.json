@@ -22,7 +22,11 @@
       "icon": "logo.ico"
     },
     "mac": {
-      "icon": "icon.icns"
+      "icon": "icon.icns",
+      "target": [{
+        "target": "dmp",
+        "arch": ["x64","arm64"]
+      }]
     },
     "publish": {
       "provider": "s3",
