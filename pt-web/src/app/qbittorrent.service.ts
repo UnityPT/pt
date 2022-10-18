@@ -28,8 +28,6 @@ export class QBittorrentService {
     const info = <ParseTorrentFile.Instance>parseTorrent(Buffer.from(await torrent.arrayBuffer()));
     const hash = info.infoHash!;
 
-    console.log(filename);
-
     if (filename) {
       const oldPath = info.files![0].path;
       await this.request('torrents/renameFile', {
