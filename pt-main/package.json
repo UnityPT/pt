@@ -23,11 +23,19 @@
     },
     "mac": {
       "icon": "icon.icns",
-      "target": [{
-        "target": "dmg",
-        "arch": ["x64","arm64"]
-      }]
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "hardenedRuntime": true,
+      "entitlements": "./node_modules/electron-builder-notarize/entitlements.mac.inherit.plist"
     },
+    "afterSign": "electron-builder-notarize",
     "publish": {
       "provider": "s3",
       "endpoint": "https://ptdl.lolo.moe",
@@ -63,6 +71,7 @@
   },
   "dependencies": {
     "@types/electron-store": "^3.2.0",
+    "electron-builder-notarize": "^1.5.0",
     "electron-store": "^8.1.0"
   }
 }
