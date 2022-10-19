@@ -6,7 +6,7 @@
 <!--  <img src="assets/logo.webp">-->
   <span id="title">Unity PT</span>
   <button mat-button routerLink="register" routerLinkActive="active" *ngIf="!api.username">注册</button>
-  <button mat-button class="button" (click)="test()" >测试</button>
+<!--  <button mat-button class="button" (click)="test()" >测试</button>-->
   <button mat-button routerLink="login" routerLinkActive="active" *ngIf="!api.username">登录</button>
   <button mat-button routerLink="resource" routerLinkActive="active" *ngIf="api.username">资源</button>
   <button mat-button routerLink="publish" routerLinkActive="active" *ngIf="api.username">发布</button>

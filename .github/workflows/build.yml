@@ -6,23 +6,26 @@ jobs:
   release:
     strategy:
       matrix:
-        os: [ ubuntu-latest]
+        os: [ windows-latest,macOS-latest,ubuntu-latest ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+      - run: |
+          echo "CSC_LINK=${{secrets.MACOS_CSC_LINK}}" >> $GITHUB_ENV
+          echo "CSC_KEY_PASSWORD=${{secrets.MACOS_CSC_KEY_PASSWORD}}" >> $GITHUB_ENV
+          echo "APPLE_ID=${{secrets.APPLE_ID}}" >> $GITHUB_ENV
+          echo "APPLE_ID_PASSWORD=${{secrets.APPLE_ID_PASSWORD}}" >> $GITHUB_ENV
+        if: runner.os == 'macOS'
+      - run: |
+          echo "TRAVIS_BRANCH=_no_notarize" >> $GITHUB_ENV
+        if: runner.os == 'macOS' && github.ref_type != 'tag'
       - uses: actions/setup-node@v3
         with:
           cache: 'npm'
-          cache-dependency-path: pt-main/package-lock.json
+          cache-dependency-path: ./*/package-lock.json
       - run: |
-          sudo snap install snapcraft --classic
           npm ci --prefix pt-web pt-web
           npm --prefix pt-web run build
-      - uses: actions/setup-node@v3
-        with:
-          cache: 'npm'
-          cache-dependency-path: ./pt-main/package-lock.json
-      - run: |
           cp -r pt-web/dist pt-main/dist
           npm ci --prefix pt-main pt-main
           npm --prefix pt-main run dist

@@ -13,17 +13,32 @@
     "upload": "npm run build && electron-builder --publish always"
   },
   "build": {
+    "productName": "UnityPT",
+    "appId": "com.upt.upt",
     "files": [
       "dist/main",
       "dist/pt-web",
       "package.json"
     ],
     "win": {
+      "verifyUpdateCodeSignature": false,
       "icon": "logo.ico"
     },
     "mac": {
-      "icon": "icon.icns"
+      "icon": "icon.icns",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "hardenedRuntime": true,
+      "entitlements": "./node_modules/electron-builder-notarize/entitlements.mac.inherit.plist"
     },
+    "afterSign": "electron-builder-notarize",
     "publish": {
       "provider": "s3",
       "endpoint": "https://ptdl.lolo.moe",
@@ -59,6 +74,7 @@
   },
   "dependencies": {
     "@types/electron-store": "^3.2.0",
+    "electron-builder-notarize": "^1.5.0",
     "electron-store": "^8.1.0"
   }
 }

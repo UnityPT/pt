@@ -62,7 +62,6 @@ export class ApiService {
       url.searchParams.append('t', Date.now().toString());
     }
 
-
     let body = [] as Resource[];
     try {
        const ret = await lastValueFrom(this.http.get<Resource[]>(url.href, {
