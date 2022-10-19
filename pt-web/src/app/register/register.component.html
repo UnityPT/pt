@@ -1,7 +1,7 @@
 <!--<img src="assets/logo.webp">-->
 <mat-card class="mat-elevation-z2">
   <mat-card-content>
-    <form #loginForm="ngForm" (ngSubmit)="submit()">
+    <form #registerForm="ngForm" (ngSubmit)="submit()">
       <h2>注册</h2>
       <mat-form-field>
         <mat-label>用户名</mat-label>
@@ -29,7 +29,7 @@
         <input matInput name="invitation" [(ngModel)]="user.invitation" required #invitation="ngModel">
       </mat-form-field>
 
-      <button mat-raised-button color="primary" [disabled]="!loginForm.form.valid">注册</button>
+      <button mat-raised-button color="primary" [disabled]="!registerForm.form.valid">注册</button>
     </form>
   </mat-card-content>
 </mat-card>

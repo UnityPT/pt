@@ -1,0 +1,29 @@
+<!--<img src="assets/logo.webp">-->
+<mat-card class="mat-elevation-z2">
+  <mat-card-content>
+    <form #settingForm="ngForm" (ngSubmit)="submit()">
+      <h2>qb设置</h2>
+      <mat-form-field>
+        <mat-label>远程qb地址</mat-label>
+        <input matInput name="qb_url" [(ngModel)]="qbInfo.qb_url">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>用户名</mat-label>
+        <input matInput name="username" type="password" [(ngModel)]="qbInfo.username">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>密码</mat-label>
+        <input matInput name="password" type="password" [(ngModel)]="qbInfo.password">
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>下载路径</mat-label>
+        <input matInput name="downloads" [(ngModel)]="qbInfo.downloads" >
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>取回url</mat-label>
+        <input matInput name="invitation" [(ngModel)]="qbInfo.get_url">
+      </mat-form-field>
+      <button mat-raised-button color="primary"  [disabled]="!settingForm.form.valid">确定</button>
+    </form>
+  </mat-card-content>
+</mat-card>

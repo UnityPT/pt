@@ -4,6 +4,7 @@ import {Router} from '@angular/router';
 import {IParticlesProps} from 'ng-particles/lib/ng-particles.module';
 import {Engine, HoverMode, MoveDirection, OutMode} from 'tsparticles-engine';
 import {loadFull} from 'tsparticles';
+import {QBInfo} from './types';
 
 // 取数据
 @Component({
@@ -99,7 +100,7 @@ export class AppComponent {
   }
 
   test() {
-      this.api.test();
+    this.api.test();
   }
 }
 
@@ -107,6 +108,8 @@ declare global {
   interface Window {
     electronAPI: {
       import: (path: string) => Promise<void>;
+      store_get: (key: string, defaultValue?:any) => Promise<QBInfo>;
+      store_set: (key: string, value:any) => Promise<void>;
     };
   }
 }

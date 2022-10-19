@@ -26,6 +26,7 @@
     "@types/lodash-es": "^4.17.6",
     "@types/parse-torrent": "^5.8.4",
     "create-torrent": "^5.0.4",
+    "electron-store": "^8.1.0",
     "lodash-es": "^4.17.21",
     "ng-particles": "^3.2.1",
     "ngx-filesize": "^2.0.16",

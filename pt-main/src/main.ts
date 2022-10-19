@@ -23,7 +23,9 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 const store = new Store();
 // store.set('qBittorrentOrigin', 'http://poi.lan:8080');
 // if(store.get('origin'))
-const qBittorrentOrigin = <string>store.get('qBittorrentOrigin') ?? 'http://localhost:8080';
+// @ts-ignore
+const qBittorrentOrigin = store.get('qbInfo',{qb_url:'http://localhost:8080'}).qb_url;
+console.log(qBittorrentOrigin);
 app.commandLine.appendSwitch('unsafely-treat-insecure-origin-as-secure', qBittorrentOrigin);
 
 function createWindow() {
@@ -65,7 +67,10 @@ function createWindow() {
 // 和创建浏览器窗口的时候调用
 // 部分 API 在 ready 事件触发后才能使用。
 app.whenReady().then(async () => {
-  ipcMain.handle('import', electronAPI.import);
+  electronAPI.store = store;
+  ipcMain.handle('import', electronAPI.import.bind(electronAPI));
+  ipcMain.handle('store_get', electronAPI.store_get.bind(electronAPI));
+  ipcMain.handle('store_set', electronAPI.store_set.bind(electronAPI));
 
   createWindow();
   // app.on('activate', () => {

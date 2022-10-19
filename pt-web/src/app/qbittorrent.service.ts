@@ -9,9 +9,9 @@ import * as ParseTorrentFile from 'parse-torrent-file';
   providedIn: 'root'
 })
 export class QBittorrentService {
-  baseUrl = 'http://localhost:8080';
+  // baseUrl = 'http://localhost:8080';
   username = 'admin';
-  password = 'adminadmin';
+  password = 'LBEe7AZRiD95RHw';
 
   constructor(private http: HttpClient) {
   }
@@ -56,11 +56,11 @@ export class QBittorrentService {
     return this.request('torrents/delete', {hashes: hash, deleteFiles: 'true'});
   }
 
-  torrentsPause(hash: string) {
+  async torrentsPause(hash: string) {
     return this.request('torrents/pause', {hashes: hash});
   }
 
-  torrentsResume(hash: string) {
+  async torrentsResume(hash: string) {
     return this.request('torrents/resume', {hashes: hash});
   }
 
@@ -72,11 +72,11 @@ export class QBittorrentService {
 
   // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)
 
-  request<T>(method: string, params: Record<string, string | Blob | undefined>, responseType: 'json' | 'text' = 'text'): Promise<T> {
+  async request<T>(method: string, params: Record<string, string | Blob | undefined>, responseType: 'json' | 'text' = 'text'): Promise<T> {
     const body = new FormData();
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined) {
-      console.log(key,value,'\n');
+        console.log(key, value, '\n');
         if (typeof value === 'string') {
           body.append(key, value);
         } else {
@@ -85,7 +85,7 @@ export class QBittorrentService {
       }
     }
     // @ts-ignore
-    return firstValueFrom(this.http.post<T>(`${this.baseUrl}/api/v2/${method}`, body, {
+    return firstValueFrom(this.http.post<T>(`${(await window.electronAPI.store_get('qbInfo')).qb_url}/api/v2/${method}`, body, {
       // @ts-ignore
       responseType,
       withCredentials: true

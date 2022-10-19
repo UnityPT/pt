@@ -43,11 +43,19 @@ export interface Publisher {
 }
 
 export interface RegisterInfo {
-  username: '',
-  password: '',
-  password_again: '',
-  email: '',
-  invitation: ''
+  username: string,
+  password: string,
+  password_again: string,
+  email: string,
+  invitation: string
+}
+
+export interface QBInfo {
+  qb_url: string,
+  username: string,
+  password: string,
+  downloads: string,
+  get_url: string,
 }
 
 export interface UserStat {
