@@ -18,7 +18,7 @@ jobs:
         if: runner.os == 'macOS'
       - run: |
           echo "TRAVIS_BRANCH=_no_notarize" >> $GITHUB_ENV
-        if: runner.os == 'macOS' && github.ref_type == 'tag'
+        if: runner.os == 'macOS' && github.ref_type != 'tag'
       - uses: actions/setup-node@v3
         with:
           cache: 'npm'
