@@ -21,6 +21,7 @@
       "package.json"
     ],
     "win": {
+      "verifyUpdateCodeSignature": false
       "icon": "logo.ico"
     },
     "mac": {
