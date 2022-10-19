@@ -22,7 +22,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: 'npm'
-          cache-dependency-path: ./*/package-lock.json
+          cache-dependency-path: |
+            pt-main/package-lock.json
+            pt-web/package-lock.json
       - run: |
           npm ci --prefix pt-web pt-web
           npm --prefix pt-web run build
