@@ -28,6 +28,9 @@ jobs:
           echo "APPLE_ID_PASSWORD=${{secrets.APPLE_ID_PASSWORD}}" >> $GITHUB_ENV
         if: runner.os == 'macOS'
       - run: |
+          echo "TRAVIS_BRANCH=_no_notarize" >> $GITHUB_ENV
+        if: runner.os == 'macOS' && github.ref_type == 'tag'
+      - run: |
           cp -r pt-web/dist pt-main/dist
           npm ci --prefix pt-main pt-main
           npm --prefix pt-main run dist
