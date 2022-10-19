@@ -13,6 +13,8 @@
     "upload": "npm run build && electron-builder --publish always"
   },
   "build": {
+    "productName": "UnityPT",
+    "appId": "com.upt.upt",
     "files": [
       "dist/main",
       "dist/pt-web",
