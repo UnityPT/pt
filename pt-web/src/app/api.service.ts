@@ -173,11 +173,6 @@ export class ApiService {
     // // 后面的是文件名字，可以更改
     // link.click();
     //
-    //
-    // // console.log((await lastValueFrom(this.http.get<Resource[]>(url.href, {withCredentials: true}))).map((resource => ({
-    // //   resource,
-    // //   meta: JSON.parse(resource.description)
-    // // }))));
   }
 
   private dealWithError(e:HttpErrorResponse) {
