@@ -9,10 +9,6 @@ import * as ParseTorrentFile from 'parse-torrent-file';
   providedIn: 'root'
 })
 export class QBittorrentService {
-  // baseUrl = 'http://localhost:8080';
-  username = 'admin';
-  password = 'LBEe7AZRiD95RHw';
-
   constructor(private http: HttpClient) {
   }
 
@@ -44,7 +40,9 @@ export class QBittorrentService {
     return hash;
   }
 
-  authLogin(username: string = this.username, password: string = this.password) {
+  async authLogin(username?: string, password?: string) {
+    if (!username) username = (await window.electronAPI.store_get('qbInfo')).username;
+    if (!password) password = (await window.electronAPI.store_get('qbInfo')).password;
     return this.request('auth/login', {username, password});
   }
 

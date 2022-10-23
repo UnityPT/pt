@@ -9,7 +9,7 @@
       </mat-form-field>
       <mat-form-field>
         <mat-label>用户名</mat-label>
-        <input matInput name="username" type="password" [(ngModel)]="qbInfo.username">
+        <input matInput name="username" [(ngModel)]="qbInfo.username">
       </mat-form-field>
       <mat-form-field>
         <mat-label>密码</mat-label>
@@ -21,7 +21,8 @@
       </mat-form-field>
       <mat-form-field>
         <mat-label>取回url</mat-label>
-        <input matInput name="invitation" [(ngModel)]="qbInfo.get_url">
+        <input matInput name="get_url" [(ngModel)]="qbInfo.get_url" required [get_url]="qbInfo.get_url" #get_url = "ngModel">
+        <mat-error *ngIf="get_url.errors?.['get_url']">格式不正确</mat-error>
       </mat-form-field>
       <button mat-raised-button color="primary"  [disabled]="!settingForm.form.valid">确定</button>
     </form>

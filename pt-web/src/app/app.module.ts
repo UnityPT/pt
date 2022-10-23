@@ -35,6 +35,7 @@ import {PublishComponent} from './publish/publish.component';
 import {InvitationComponent} from './invitation/invitation.component';
 import {JwtModule} from '@auth0/angular-jwt';
 import { SettingComponent } from './setting/setting.component';
+import {SettingDirective} from './setting/setting.directive';
 
 @NgModule({
   declarations: [
@@ -44,9 +45,9 @@ import { SettingComponent } from './setting/setting.component';
     ResourcesComponent,
     RegisterComponent,
     PasswordAgainDirective,
+    SettingDirective,
     HelpComponent,
     PublishComponent,
-    PasswordAgainDirective,
     InvitationComponent,
     SettingComponent
   ],

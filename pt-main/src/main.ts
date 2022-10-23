@@ -25,7 +25,6 @@ const store = new Store();
 // if(store.get('origin'))
 // @ts-ignore
 const qBittorrentOrigin = store.get('qbInfo',{qb_url:'http://localhost:8080'}).qb_url;
-console.log(qBittorrentOrigin);
 app.commandLine.appendSwitch('unsafely-treat-insecure-origin-as-secure', qBittorrentOrigin);
 
 function createWindow() {

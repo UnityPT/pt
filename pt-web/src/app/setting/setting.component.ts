@@ -9,7 +9,7 @@ import {QBInfo} from '../types';
 })
 export class SettingComponent implements OnInit {
 
-  qbInfo: QBInfo={
+  qbInfo: QBInfo = {
     qb_url: 'http://localhost:8080',
     username: 'admin',
     password: 'adminadmin',
@@ -21,9 +21,8 @@ export class SettingComponent implements OnInit {
     this.init();
   }
 
-  async init()
-  {
-    this.qbInfo =  await window.electronAPI.store_get('qbInfo', {
+  async init() {
+    this.qbInfo = await window.electronAPI.store_get('qbInfo', {
       qb_url: 'http://localhost:8080',
       username: 'admin',
       password: 'adminadmin',
@@ -35,6 +34,7 @@ export class SettingComponent implements OnInit {
   ngOnInit() {
 
   }
+
   async submit() {
     if (this.qbInfo) {
       await window.electronAPI.store_set('qbInfo', this.qbInfo);

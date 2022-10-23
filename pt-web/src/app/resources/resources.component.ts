@@ -78,15 +78,16 @@ export class ResourcesComponent implements OnInit {
   async import(torrent: Torrent) {
     try {
       const files = await this.qBittorrent.torrentsFiles(torrent.hash);
+
       const get_url = (await window.electronAPI.store_get('qbInfo', {})).get_url;
       if (get_url) {
-        if (get_url.startsWith('\\\\')) {
-          await window.electronAPI.import(get_url + '\\' + files[0].name);
-        } else {
-          await window.electronAPI.import(path.join(get_url, files[0].name));
-        }
+        // if (get_url.startsWith('\\\\')) {
+        //   await window.electronAPI.import(get_url + '\\' + files[0].name);
+        // } else {
+          await window.electronAPI.import(get_url, files[0].name);
+        // }
       } else {
-        await window.electronAPI.import(path.join(torrent.save_path, files[0].name));
+        await window.electronAPI.import(torrent.save_path, files[0].name);
       }
     } catch (error) {
       alert(error);
