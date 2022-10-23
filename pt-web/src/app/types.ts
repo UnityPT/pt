@@ -54,7 +54,7 @@ export interface QBInfo {
   qb_url: string,
   username: string,
   password: string,
-  downloads: string,
+  savepath: string,
   get_url: string,
 }
 

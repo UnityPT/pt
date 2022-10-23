@@ -13,6 +13,7 @@ export class QBittorrentService {
   }
 
   async torrentsAdd(torrent: Blob, savepath?: string, filename?: string) {
+    savepath = (await window.electronAPI.store_get('qbInfo',{})).savepath
     await this.request('torrents/add', {
       torrents: torrent,
       savepath,

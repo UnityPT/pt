@@ -13,7 +13,7 @@ export class SettingComponent implements OnInit {
     qb_url: 'http://localhost:8080',
     username: 'admin',
     password: 'adminadmin',
-    downloads: '',
+    savepath: '',
     get_url: ''
   };
 
