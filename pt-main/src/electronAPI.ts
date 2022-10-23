@@ -8,7 +8,7 @@ export class electronAPI {
   static async import(event, origin: string, pathname: string) {
     if (navigator.userAgentData.platform == 'Windows') {
       return shell.openPath(path.join(origin, pathname));
-    } else if (navigator.userAgentData.platform == 'MacOS') {
+    } else if (navigator.userAgentData.platform == 'macOS') {
       const url = new URL(origin);
       url.pathname = pathname;
       return shell.openPath(url.href);
