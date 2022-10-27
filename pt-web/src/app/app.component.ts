@@ -107,7 +107,7 @@ export class AppComponent {
 declare global {
   interface Window {
     electronAPI: {
-      import: (origin: string, pathname: string) => Promise<void>;
+      import: (origin: string, pathname: string, platform:string) => Promise<void>;
       store_get: (key: string, defaultValue?: any) => Promise<QBInfo>;
       store_set: (key: string, value: any) => Promise<void>;
     };

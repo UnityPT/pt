@@ -7,7 +7,6 @@ import {HttpClient} from '@angular/common/http';
 import {QBittorrentService} from '../qbittorrent.service';
 import {ApiService} from '../api.service';
 import {MatDialog} from '@angular/material/dialog';
-import path from 'path';
 import {orderBy} from 'lodash-es';
 import {MatSelectionListChange} from '@angular/material/list';
 
@@ -84,10 +83,10 @@ export class ResourcesComponent implements OnInit {
         // if (get_url.startsWith('\\\\')) {
         //   await window.electronAPI.import(get_url + '\\' + files[0].name);
         // } else {
-          await window.electronAPI.import(get_url, files[0].name);
+        await window.electronAPI.import(get_url, files[0].name, navigator.userAgentData.platform);
         // }
       } else {
-        await window.electronAPI.import(torrent.save_path, files[0].name);
+        await window.electronAPI.import(torrent.save_path, files[0].name, navigator.userAgentData.platform);
       }
     } catch (error) {
       alert(error);
