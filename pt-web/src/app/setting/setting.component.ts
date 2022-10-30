@@ -35,10 +35,13 @@ export class SettingComponent implements OnInit {
   async submit() {
     if (this.qbInfo) {
       const old_qb_info = await window.electronAPI.store_get('qbInfo', this.qbInfo);
-      if (old_qb_info.qb_url != this.qbInfo.qb_url) {
-      }
-
       await window.electronAPI.store_set('qbInfo', this.qbInfo);
+      if (old_qb_info.qb_url != this.qbInfo.qb_url) {
+        const cf = confirm('你修改了qb地址,需要重启客户端,是否重启?');
+        if (cf == true) {
+          await window.electronAPI.relaunch();
+        }
+      }
     }
   }
 }

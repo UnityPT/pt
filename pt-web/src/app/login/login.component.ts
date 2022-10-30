@@ -1,23 +1,19 @@
-import {Component, OnInit} from '@angular/core';
-import {ApiService} from '../api.service';
-import {Router} from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ApiService } from '../api.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
-
   username = '';
   password = '';
 
+  constructor(private api: ApiService, private router: Router) {}
 
-  constructor(private api: ApiService, private router: Router) {
-  }
-
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   async submit() {
     try {
@@ -27,6 +23,4 @@ export class LoginComponent implements OnInit {
       alert('登录失败');
     }
   }
-
-
 }

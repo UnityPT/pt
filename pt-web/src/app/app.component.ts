@@ -1,20 +1,19 @@
-import {Component} from '@angular/core';
-import {ApiService} from './api.service';
-import {Router} from '@angular/router';
-import {IParticlesProps} from 'ng-particles/lib/ng-particles.module';
-import {Engine, HoverMode, MoveDirection, OutMode} from 'tsparticles-engine';
-import {loadFull} from 'tsparticles';
-import {QBInfo} from './types';
+import { Component } from '@angular/core';
+import { ApiService } from './api.service';
+import { Router } from '@angular/router';
+import { IParticlesProps } from 'ng-particles/lib/ng-particles.module';
+import { Engine, HoverMode, MoveDirection, OutMode } from 'tsparticles-engine';
+import { loadFull } from 'tsparticles';
+import { QBInfo } from './types';
 
 // 取数据
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  constructor(public api: ApiService, public router: Router) {
-  }
+  constructor(public api: ApiService, public router: Router) {}
 
   logout() {
     this.api.logout();
@@ -26,8 +25,8 @@ export class AppComponent {
     preset: 'stars',
     background: {
       color: {
-        value: '#fafafa'
-      }
+        value: '#fafafa',
+      },
     },
     fpsLimit: 120,
     // fullScreen: {
@@ -37,29 +36,29 @@ export class AppComponent {
       events: {
         onHover: {
           enable: true,
-          mode: HoverMode.grab
-        }
+          mode: HoverMode.grab,
+        },
         // resize: true
       },
       modes: {
         grab: {
           distance: 100,
           links: {
-            opacity: 1
-          }
-        }
-      }
+            opacity: 1,
+          },
+        },
+      },
     },
     particles: {
       color: {
-        value: '#3f51b5'
+        value: '#3f51b5',
       },
       links: {
         color: '#000000',
         distance: 150,
         enable: true,
         opacity: 0.5,
-        width: 1
+        width: 1,
       },
       // collisions: {
       //   enable: true
@@ -68,31 +67,31 @@ export class AppComponent {
         direction: MoveDirection.none,
         enable: true,
         outModes: {
-          default: OutMode.bounce
+          default: OutMode.bounce,
         },
         random: false,
         speed: 1,
-        straight: false
+        straight: false,
       },
       number: {
         density: {
           enable: true,
-          area: 800
+          area: 800,
         },
-        value: 80
+        value: 80,
       },
       opacity: {
-        value: 0.5
+        value: 0.5,
       },
       shape: {
-        type: 'circle'
+        type: 'circle',
       },
       size: {
-        value: {min: 1, max: 5}
-      }
+        value: { min: 1, max: 5 },
+      },
     },
     detectRetina: true,
-    style: {top: '64px', bottom: '0', height: 'calc(100% - 64px)'}
+    style: { top: '64px', bottom: '0', height: 'calc(100% - 64px)' },
   };
 
   async particlesInit(engine: Engine): Promise<void> {
@@ -107,11 +106,10 @@ export class AppComponent {
 declare global {
   interface Window {
     electronAPI: {
-      import: (origin: string, pathname: string, platform:string) => Promise<void>;
+      import: (origin: string, pathname: string, platform: string) => Promise<void>;
       store_get: (key: string, defaultValue?: any) => Promise<QBInfo>;
       store_set: (key: string, value: any) => Promise<void>;
+      relaunch: () => Promise<void>;
     };
   }
 }
-
-

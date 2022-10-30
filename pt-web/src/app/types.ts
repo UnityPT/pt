@@ -23,8 +23,8 @@ export interface Meta {
 }
 
 export interface ResourceMeta {
-  resource: Resource,
-  meta: Meta
+  resource: Resource;
+  meta: Meta;
 }
 
 export interface Link {
@@ -43,19 +43,19 @@ export interface Publisher {
 }
 
 export interface RegisterInfo {
-  username: string,
-  password: string,
-  password_again: string,
-  email: string,
-  invitation: string
+  username: string;
+  password: string;
+  password_again: string;
+  email: string;
+  invitation: string;
 }
 
 export interface QBInfo {
-  qb_url: string,
-  username: string,
-  password: string,
-  savepath: string,
-  get_url: string,
+  qb_url: string;
+  username: string;
+  password: string;
+  savepath: string;
+  get_url: string;
 }
 
 export interface UserStat {
