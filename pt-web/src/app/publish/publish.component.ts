@@ -1,29 +1,26 @@
-import {Component, OnInit} from '@angular/core';
-import {ExtraField} from "../gzip";
-import {Meta} from "../types";
-import createTorrent from "create-torrent";
-import {ApiService} from "../api.service";
-import {QBittorrentService} from "../qbittorrent.service";
-import path from "path";
+import { Component, OnInit } from '@angular/core';
+import { ExtraField } from '../gzip';
+import { Meta } from '../types';
+import createTorrent from 'create-torrent';
+import { ApiService } from '../api.service';
+import { QBittorrentService } from '../qbittorrent.service';
+import path from 'path';
 
 @Component({
   selector: 'app-publish',
   templateUrl: './publish.component.html',
-  styleUrls: ['./publish.component.scss']
+  styleUrls: ['./publish.component.scss'],
 })
 export class PublishComponent implements OnInit {
+  constructor(private api: ApiService, private qBittorrent: QBittorrentService) {}
 
-  constructor(private api: ApiService, private qBittorrent: QBittorrentService) {
-  }
-
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   async publish(files: FileList | null) {
     if (!files) return;
 
     const items = await this.api.index(true);
-    const taskHashes = (await this.qBittorrent.torrentsInfo({category: 'Unity'})).map(t => t.hash);
+    const taskHashes = (await this.qBittorrent.torrentsInfo({ category: 'Unity' })).map((t) => t.hash);
     const resourceVersionIds = items.map((item) => item.meta.version_id);
 
     for (let i = 0; i < files.length; i++) {
@@ -50,7 +47,7 @@ export class PublishComponent implements OnInit {
         const item = items[resourceIndex];
         if (!item) continue; // 刚刚上传的，本地有重复文件。
 
-        const {resource, meta} = item;
+        const { resource, meta } = item;
         // 本地有，远端有，qb 有 => 什么都不做
         if (taskHashes.includes(resource.info_hash)) {
         } else {
@@ -58,7 +55,7 @@ export class PublishComponent implements OnInit {
             // 本地有，远端有，qb 无，一致 => 添加下载任务
             console.log(`downloading ${meta.title}`);
             const torrent = await this.api.download(resource.torrent_id);
-            if(torrent) {
+            if (torrent) {
               await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
               taskHashes.push(resource.info_hash);
             }
@@ -76,13 +73,17 @@ export class PublishComponent implements OnInit {
           .trim();
 
         const torrent0: Uint8Array = await new Promise((resolve, reject) => {
-          createTorrent(file, {
-            name: `[${meta.version_id}] ${name} ${meta.version}.unitypackage`,
-            createdBy: 'UnityPT 1.0',
-            announceList: [],
-            private: true,
-          }, (err: any, torrent: any) => err ? reject(err) : resolve(torrent))
-        })
+          createTorrent(
+            file,
+            {
+              name: `[${meta.version_id}] ${name} ${meta.version}.unitypackage`,
+              createdBy: 'UnityPT 1.0',
+              announceList: [],
+              private: true,
+            },
+            (err: any, torrent: any) => (err ? reject(err) : resolve(torrent)),
+          );
+        });
 
         const torrent = await this.api.upload(torrent0, description, `${name}.torrent`);
         if (!torrent) return;
