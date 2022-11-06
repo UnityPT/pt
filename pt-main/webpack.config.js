@@ -11,6 +11,10 @@ export default {
         use: 'ts-loader',
         exclude: /node_modules/,
       },
+      {
+        test: /\.node$/,
+        use: 'node-loader'
+      }
     ],
   },
   resolve: {
