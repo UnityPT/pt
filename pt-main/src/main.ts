@@ -1,13 +1,13 @@
-import {app, BrowserWindow, ipcMain, shell} from 'electron';
-import {electronAPI} from './electronAPI';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import { electronAPI } from './electronAPI';
 import path from 'path';
-import {autoUpdater} from 'electron-updater';
+import { autoUpdater } from 'electron-updater';
 import Store from 'electron-store';
-import fs from 'fs';
+import { SSH } from './ssh';
 
 const checkForUpdates = autoUpdater.checkForUpdatesAndNotify({
   title: '{appName} 已准备好更新',
-  body: '新版本 {version} 已下载，将在程序退出后安装。'
+  body: '新版本 {version} 已下载，将在程序退出后安装。',
 });
 
 // checkForUpdates.then(()=>{
@@ -25,7 +25,7 @@ const store = new Store();
 // store.set('qBittorrentOrigin', 'http://poi.lan:8080');
 // if(store.get('origin'))
 // @ts-ignore
-const qBittorrentOrigin = store.get('qbInfo', {qb_url: 'http://localhost:8080'}).qb_url;
+const qBittorrentOrigin = store.get('qbInfo', { qb_url: 'http://localhost:8080' }).qb_url;
 app.commandLine.appendSwitch('unsafely-treat-insecure-origin-as-secure', qBittorrentOrigin);
 
 function createWindow() {
@@ -36,24 +36,24 @@ function createWindow() {
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      webSecurity: false
-    }
+      webSecurity: false,
+    },
   });
 
-  mainWindow.webContents.setWindowOpenHandler(({url}) => {
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
-    return {action: 'deny'};
+    return { action: 'deny' };
   });
-  mainWindow.webContents.session.webRequest.onBeforeSendHeaders({urls: [qBittorrentOrigin + '/*']}, (details, callback) => {
+  mainWindow.webContents.session.webRequest.onBeforeSendHeaders({ urls: [qBittorrentOrigin + '/*'] }, (details, callback) => {
     delete details.requestHeaders.Origin;
     delete details.requestHeaders.Referer;
-    callback({requestHeaders: details.requestHeaders});
+    callback({ requestHeaders: details.requestHeaders });
   });
-  mainWindow.webContents.session.webRequest.onHeadersReceived({urls: [qBittorrentOrigin + '/*']}, (details, callback) => {
+  mainWindow.webContents.session.webRequest.onHeadersReceived({ urls: [qBittorrentOrigin + '/*'] }, (details, callback) => {
     if (details.responseHeaders['set-cookie']) {
       details.responseHeaders['set-cookie'][0] = details.responseHeaders['set-cookie'][0].replace('SameSite=Strict', 'SameSite=None; Secure');
     }
-    callback({responseHeaders: details.responseHeaders});
+    callback({ responseHeaders: details.responseHeaders });
   });
 
   if (isDevelopment) {
@@ -71,6 +71,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('import', electronAPI.import.bind(electronAPI));
   ipcMain.handle('store_get', electronAPI.store_get.bind(electronAPI));
   ipcMain.handle('store_set', electronAPI.store_set.bind(electronAPI));
+  ipcMain.handle('create_ssh',electronAPI.import.bind(electronAPI));
   ipcMain.handle('relaunch', () => {
     app.relaunch();
     app.exit();
@@ -93,13 +94,3 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. 也可以拆分成几个文件，然后用 require 导入。
-
-
-const {NodeSSH} = require('node-ssh');
-const ssh = new NodeSSH();
-
-ssh.connect({
-  host: '144.24.50.48',
-  username: 'nanami',
-  privateKeyPath: ''
-}).then(console.log('xxx'));

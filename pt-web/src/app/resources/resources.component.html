@@ -88,6 +88,9 @@
           <mat-progress-bar *ngIf="torrent && statusDownloading.has(torrent.state); else spacer"
                             [value]="torrent.progress * 100"
                             [attr.data-progress]="torrent.progress | percent:'.1'"></mat-progress-bar>
+          <mat-progress-bar *ngIf=" test; else spacer"
+                            [value]="30 * 100"
+                            [attr.data-progress]="torrent.progress | percent:'.1'"></mat-progress-bar>
           <ng-template #spacer><span class="example-spacer"></span></ng-template>
 
           <!-- 按钮 -->

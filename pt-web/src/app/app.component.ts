@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { IParticlesProps } from 'ng-particles/lib/ng-particles.module';
 import { Engine, HoverMode, MoveDirection, OutMode } from 'tsparticles-engine';
 import { loadFull } from 'tsparticles';
-import { QBInfo } from './types';
+import { QBInfo, SSHConfig } from './types';
 
 // 取数据
 @Component({
@@ -99,7 +99,8 @@ export class AppComponent {
   }
 
   test() {
-    this.api.test();
+    // this.api.test();
+    // window.electronAPI.create_ssh({});
   }
 }
 
@@ -109,6 +110,7 @@ declare global {
       import: (origin: string, pathname: string, platform: string) => Promise<void>;
       store_get: (key: string, defaultValue?: any) => Promise<QBInfo>;
       store_set: (key: string, value: any) => Promise<void>;
+      create_ssh: (sshCfg: SSHConfig) => Promise<void>;
       relaunch: () => Promise<void>;
     };
   }
