@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
-import { RegisterInfo, Resource, UserStat } from './types';
+import { RegisterInfo, Resource, SSHConfig, UserStat } from './types';
 import { NavigationEnd, Router } from '@angular/router';
 import { round } from 'lodash-es';
+import { readFileSync } from 'fs';
 
 @Injectable({
   providedIn: 'root',
@@ -179,7 +180,6 @@ export class ApiService {
   }
 
   async test() {
-    await window.electronAPI.relaunch();
     // const res = confirm('sometext');
     // if (res == true) {
     //   console.log('1');

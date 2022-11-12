@@ -111,7 +111,7 @@ declare global {
       store_get: (key: string, defaultValue?: any) => Promise<QBInfo>;
       store_set: (key: string, value: any) => Promise<void>;
       create_ssh: (sshCfg: SSHConfig) => Promise<void>;
-      relaunch: () => Promise<void>;
+      relaunch: () => Promise<number>;
     };
   }
 }

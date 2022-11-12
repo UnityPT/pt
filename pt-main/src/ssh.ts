@@ -1,5 +1,4 @@
 import { Client } from 'ssh2';
-import { readFileSync } from 'fs';
 import { SSHConfig } from './interface';
 
 
@@ -9,7 +8,7 @@ export class SSH {
     await this.conn.connect(cfg);
   }
 
-  async getFile(){
+  async getFile(remotePath: string, localPath: string) {
     return new Promise((resolve,reject)=>{
     this.conn.sftp((err, sftp) => {
       if (err) throw err;

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
-import { QBInfo } from '../types';
+import { QBInfo, SSHConfig } from '../types';
+import { readFileSync } from 'fs';
 
 @Component({
   selector: 'app-setting',
@@ -43,5 +44,11 @@ export class SettingComponent implements OnInit {
         }
       }
     }
+    await window.electronAPI.create_ssh({
+      host: '144.24.50.48',
+      port: 22,
+      username: 'nanami',
+      privateKey: readFileSync('id_rsa'),
+    } as SSHConfig);
   }
 }
