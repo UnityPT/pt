@@ -5,6 +5,7 @@ import { IParticlesProps } from 'ng-particles/lib/ng-particles.module';
 import { Engine, HoverMode, MoveDirection, OutMode } from 'tsparticles-engine';
 import { loadFull } from 'tsparticles';
 import { QBInfo, SSHConfig } from './types';
+import { Observable } from 'rxjs';
 
 // 取数据
 @Component({
@@ -99,18 +100,19 @@ export class AppComponent {
   }
 
   async test1() {
-    await window.electronAPI.create_ssh({
+    const res = await window.electronAPI.create_ssh({
       host: '144.24.50.48',
       port: 22,
       username: 'nanami',
-      privateKeyPath: 'id_rsa',
+      privateKeyPath: 'C:\\Users\\frogeater\\.ssh\\id_rsa',
     } as SSHConfig);
-    // this.api.test();
-    // window.electronAPI.create_ssh({});
+    console.log(res);
   }
   async test2() {
-    const step = await window.electronAPI.get_file('./pt/testdir/202107161430.mp4','./test.mp4');
-    console.log(step);
+    await window.electronAPI.get_file('./pt/testdir/202107161430.mp4', 'test.mp4', 'test_hash');
+    await window.electronAPI.on_get_file_progress((event, data) => {
+      console.log(data);
+    });
   }
 }
 
@@ -120,9 +122,10 @@ declare global {
       import: (origin: string, pathname: string, platform: string) => Promise<void>;
       store_get: (key: string, defaultValue?: any) => Promise<QBInfo>;
       store_set: (key: string, value: any) => Promise<void>;
-      create_ssh: (sshCfg: SSHConfig) => Promise<void>;
-      get_file: (remotePath:string,localPath:string) => Promise<number>;
-      relaunch: () => Promise<number>;
+      create_ssh: (sshCfg: SSHConfig) => Promise<boolean>;
+      get_file: (remotePath: string, localPath: string, infoHash: string) => Promise<void>;
+      relaunch: () => Promise<void>;
+      on_get_file_progress: (callback: (event: any, data: any) => void) => Promise<void>;
     };
   }
 }

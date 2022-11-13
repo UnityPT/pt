@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, shell} from 'electron';
 import { electronAPI } from './electronAPI';
 import path from 'path';
 import { autoUpdater } from 'electron-updater';
@@ -74,7 +74,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('store_get', electronAPI.store_get.bind(electronAPI));
   ipcMain.handle('store_set', electronAPI.store_set.bind(electronAPI));
   ipcMain.handle('create_ssh', (event, cfg: SSHConfig) => ssh.createConnect(cfg));
-  ipcMain.handle('get_file', (event, remotePath, localPath) => ssh.getFile(remotePath, localPath));
+  ipcMain.handle('get_file', (event, remotePath, localPath, infoHash) => ssh.getFile(remotePath, localPath, infoHash));
   ipcMain.handle('relaunch', () => {
     app.relaunch();
     app.exit();

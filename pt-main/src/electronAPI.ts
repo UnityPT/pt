@@ -1,6 +1,5 @@
 import {shell} from 'electron';
 import path from 'path';
-import { SSHConfig } from './interface';
 
 export class electronAPI {
   static store;

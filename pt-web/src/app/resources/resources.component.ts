@@ -9,6 +9,7 @@ import { ApiService } from '../api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { orderBy } from 'lodash-es';
 import { MatSelectionListChange } from '@angular/material/list';
+import { stringifyTask } from '@angular/compiler-cli/ngcc/src/execution/tasks/utils';
 
 @Component({
   selector: 'app-resources',
@@ -35,6 +36,8 @@ export class ResourcesComponent implements OnInit {
     map((value) => this.filter(value || '')),
   );
   selected?: ResourceMeta;
+
+  ssh_get_file_progress: Map<string, number> = new Map();
 
   // 取数据end
 

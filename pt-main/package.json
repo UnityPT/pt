@@ -69,6 +69,7 @@
     "node-ssh": "^13.0.0",
     "p-retry": "^5.1.1",
     "parse-torrent": "^9.1.5",
+    "rxjs": "^7.5.7",
     "ts-loader": "^9.3.1",
     "ts-node": "^10.9.1",
     "typed-struct": "^2.3.0",
