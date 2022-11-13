@@ -54,17 +54,18 @@ export interface QBInfo {
   qb_url: string;
   username: string;
   password: string;
-  savepath: string;
-  get_url: string;
+  get_protocol: string;
 }
 
 export interface UserStat {
   uploaded: number;
   downloaded: number;
 }
-export interface SSHConfig {
-  host: string;
-  port: number;
+export interface UserSSHConfig {
+  remotePath: string;
   username: string;
   privateKeyPath: string;
+}
+export interface SmbConfig {
+  get_url: string;
 }

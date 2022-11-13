@@ -1,10 +1,8 @@
-import { app, BrowserWindow, ipcMain, shell} from 'electron';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { electronAPI } from './electronAPI';
 import path from 'path';
 import { autoUpdater } from 'electron-updater';
 import Store from 'electron-store';
-import { SSH } from './ssh';
-import { SSHConfig } from './interface';
 
 const checkForUpdates = autoUpdater.checkForUpdatesAndNotify({
   title: '{appName} 已准备好更新',
@@ -23,11 +21,10 @@ const checkForUpdates = autoUpdater.checkForUpdatesAndNotify({
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const store = new Store();
-const ssh = new SSH();
 // store.set('qBittorrentOrigin', 'http://poi.lan:8080');
 // if(store.get('origin'))
 // @ts-ignore
-const qBittorrentOrigin = store.get('qbInfo', { qb_url: 'http://localhost:8080' }).qb_url;
+const qBittorrentOrigin = store.get('qbInfo', { qb_url: 'http://localhost:8080' }).qb_url || 'http://localhost:8080';
 app.commandLine.appendSwitch('unsafely-treat-insecure-origin-as-secure', qBittorrentOrigin);
 
 function createWindow() {
@@ -73,8 +70,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('import', electronAPI.import.bind(electronAPI));
   ipcMain.handle('store_get', electronAPI.store_get.bind(electronAPI));
   ipcMain.handle('store_set', electronAPI.store_set.bind(electronAPI));
-  ipcMain.handle('create_ssh', (event, cfg: SSHConfig) => ssh.createConnect(cfg));
-  ipcMain.handle('get_file', (event, remotePath, localPath, infoHash) => ssh.getFile(remotePath, localPath, infoHash));
+  ipcMain.handle('create_ssh', electronAPI.create_ssh.bind(electronAPI));
   ipcMain.handle('relaunch', () => {
     app.relaunch();
     app.exit();

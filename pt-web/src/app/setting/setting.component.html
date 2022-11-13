@@ -16,25 +16,21 @@
         <input matInput name="password" type="password" [(ngModel)]="qbInfo.password">
       </mat-form-field>
       <mat-form-field>
-        <mat-label>下载路径</mat-label>
-        <input matInput name="downloads" [(ngModel)]="qbInfo.savepath" >
+        <mat-label>取回协议</mat-label>
+        <input matInput name="downloads" [(ngModel)]="qbInfo.get_protocol" >
       </mat-form-field>
       <mat-form-field>
         <mat-label>取回url</mat-label>
-        <input matInput name="get_url" [(ngModel)]="qbInfo.get_url" [get_url]="qbInfo.get_url" #get_url = "ngModel">
-        <mat-error *ngIf="get_url.errors?.['get_url']">格式不正确</mat-error>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>host</mat-label>
-        <input matInput name="host" [(ngModel)]="sshConfig.host" >
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>port</mat-label>
-        <input matInput name="port" [(ngModel)]="sshConfig.port" required [valueAsNumber]='sshConfig.port'>
+        <input matInput name="smb_get_url" [(ngModel)]="smbConfig.get_url" [get_url]="smbConfig.get_url" #smb_get_url = "ngModel">
+        <mat-error *ngIf="smb_get_url.errors?.['smb_get_url']">格式不正确</mat-error>
       </mat-form-field>
       <mat-form-field>
         <mat-label>ssh用户名</mat-label>
         <input matInput name="ssh_username" [(ngModel)]="sshConfig.username" >
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>ssh路径</mat-label>
+        <input matInput name="ssh_path" [(ngModel)]="sshConfig.remotePath" >
       </mat-form-field>
       <mat-form-field>
         <mat-label>私钥路径</mat-label>

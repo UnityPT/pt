@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
-import { RegisterInfo, Resource, SSHConfig, UserStat } from './types';
+import { RegisterInfo, Resource, UserStat } from './types';
 import { NavigationEnd, Router } from '@angular/router';
 import { round } from 'lodash-es';
 import { readFileSync } from 'fs';
@@ -177,11 +177,6 @@ export class ApiService {
     if (size < 512) return round(size, 2) + 'GB';
     size /= 1024.0;
     return round(size, 2) + 'TB';
-  }
-
-  async createSSHConnect(sshConfig: SSHConfig) {
-    const res = await window.electronAPI.create_ssh(sshConfig);
-    console.log(res);
   }
 
   async test() {

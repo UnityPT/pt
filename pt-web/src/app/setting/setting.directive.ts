@@ -15,8 +15,9 @@ export class SettingDirective implements Validator {
 
 export function getUrlValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    if (navigator.userAgentData.platform == 'Windows' && control.value.startsWith('\\\\')) return null;
-    if (navigator.userAgentData.platform == 'macOS' && control.value.startsWith('smb://')) return null;
-    return { get_url: true };
+    // if (navigator.userAgentData.platform == 'Windows' && control.value.startsWith('\\\\')) return null;
+    // if (navigator.userAgentData.platform == 'macOS' && control.value.startsWith('smb://')) return null;
+    // return { get_url: true };
+    return null;
   };
 }

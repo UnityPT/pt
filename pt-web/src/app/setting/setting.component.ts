@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
-import { QBInfo, SSHConfig } from '../types';
-import { readFileSync } from 'fs';
+import { QBInfo, SmbConfig, UserSSHConfig } from '../types';
 
 @Component({
   selector: 'app-setting',
@@ -13,14 +12,15 @@ export class SettingComponent implements OnInit {
     qb_url: 'http://localhost:8080',
     username: 'admin',
     password: 'adminadmin',
-    savepath: '',
-    get_url: '',
+    get_protocol: '',
   };
-  sshConfig: SSHConfig = {
+  sshConfig: UserSSHConfig = {
     username: '',
-    host: '',
-    port: 22,
+    remotePath: '',
     privateKeyPath: '',
+  };
+  smbConfig: SmbConfig = {
+    get_url: '',
   };
   constructor(private api: ApiService) {
     this.init();
@@ -31,14 +31,15 @@ export class SettingComponent implements OnInit {
       qb_url: 'http://localhost:8080',
       username: 'admin',
       password: 'adminadmin',
-      downloads: '',
-      get_url: ' ',
+      get_protocol: '',
     });
     this.sshConfig = await window.electronAPI.store_get('sshConfig', {
       username: '',
-      host: '',
-      port: 22,
+      remotePath: '',
       privateKeyPath: '',
+    });
+    this.smbConfig = await window.electronAPI.store_get('smbConfig', {
+      get_url: '',
     });
   }
 
@@ -47,8 +48,12 @@ export class SettingComponent implements OnInit {
   async submit() {
     if (this.qbInfo) {
       await window.electronAPI.store_set('sshConfig', this.sshConfig);
+      await window.electronAPI.store_set('smbConfig', this.smbConfig);
       const old_qb_info = await window.electronAPI.store_get('qbInfo', this.qbInfo);
       await window.electronAPI.store_set('qbInfo', this.qbInfo);
+      if (this.qbInfo.get_protocol == 'sftp') {
+        await window.electronAPI.create_ssh();
+      }
       if (old_qb_info.qb_url != this.qbInfo.qb_url) {
         const cf = confirm('你修改了qb地址,需要重启客户端,是否重启?');
         if (cf == true) {

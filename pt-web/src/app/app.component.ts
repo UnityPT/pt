@@ -4,8 +4,6 @@ import { Router } from '@angular/router';
 import { IParticlesProps } from 'ng-particles/lib/ng-particles.module';
 import { Engine, HoverMode, MoveDirection, OutMode } from 'tsparticles-engine';
 import { loadFull } from 'tsparticles';
-import { QBInfo, SSHConfig } from './types';
-import { Observable } from 'rxjs';
 
 // 取数据
 @Component({
@@ -109,10 +107,11 @@ export class AppComponent {
   //   console.log(res);
   // }
   async test2() {
-    await window.electronAPI.get_file('./pt/testdir/202107161430.mp4', 'test.mp4', 'test_hash');
-    await window.electronAPI.on_get_file_progress((event, data) => {
-      console.log(data);
-    });
+    console.log(await window.electronAPI.create_ssh());
+    // await window.electronAPI.get_file('./pt/testdir/202107161430.mp4', 'test.mp4', 'test_hash');
+    // await window.electronAPI.on_get_file_progress((event, data) => {
+    //   console.log(data);
+    // });
   }
 }
 
@@ -122,8 +121,8 @@ declare global {
       import: (origin: string, pathname: string, platform: string) => Promise<void>;
       store_get: (key: string, defaultValue?: any) => Promise<any>;
       store_set: (key: string, value: any) => Promise<void>;
-      create_ssh: (sshCfg: SSHConfig) => Promise<boolean>;
-      get_file: (remotePath: string, localPath: string, infoHash: string) => Promise<void>;
+      create_ssh: () => Promise<boolean>;
+      get_file: (infoHash: string, filename: string) => Promise<void>;
       relaunch: () => Promise<void>;
       on_get_file_progress: (callback: (event: any, data: any) => void) => Promise<void>;
     };

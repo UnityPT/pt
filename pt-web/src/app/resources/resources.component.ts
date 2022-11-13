@@ -37,7 +37,7 @@ export class ResourcesComponent implements OnInit {
   );
   selected?: ResourceMeta;
 
-  ssh_get_file_progress: Map<string, number> = new Map();
+  ssh_get_file_progress: Record<string, number> = {};
 
   // 取数据end
 
@@ -70,23 +70,29 @@ export class ResourcesComponent implements OnInit {
 
   async download(resource: Resource) {
     const torrent = await this.api.download(resource.torrent_id);
+    console.log(resource);
     if (!torrent) return;
     await this.qBittorrent.torrentsAdd(torrent);
+  }
+  async test(torrent: Torrent) {
+    console.log(torrent);
   }
 
   async import(torrent: Torrent) {
     try {
       const files = await this.qBittorrent.torrentsFiles(torrent.hash);
-
-      const get_url = (await window.electronAPI.store_get('qbInfo', {})).get_url;
-      if (get_url) {
-        // if (get_url.startsWith('\\\\')) {
-        //   await window.electronAPI.import(get_url + '\\' + files[0].name);
-        // } else {
-        await window.electronAPI.import(get_url, files[0].name, navigator.userAgentData.platform);
-        // }
-      } else {
-        await window.electronAPI.import(torrent.save_path, files[0].name, navigator.userAgentData.platform);
+      const qb_info = await window.electronAPI.store_get('qbInfo', {});
+      if (qb_info.get_protocol === 'sftp') {
+        const sshConfig = await window.electronAPI.store_get('sshConfig', {});
+        await window.electronAPI.create_ssh();
+        await window.electronAPI.get_file(torrent.hash, torrent.name);
+      } else if (qb_info.get_protocol === 'smb') {
+        const get_url = (await window.electronAPI.store_get('smbConfig', {})).get_url;
+        if (get_url) {
+          await window.electronAPI.import(get_url, files[0].name, navigator.userAgentData.platform);
+        } else {
+          await window.electronAPI.import(torrent.save_path, files[0].name, navigator.userAgentData.platform);
+        }
       }
     } catch (error) {
       alert(error);
