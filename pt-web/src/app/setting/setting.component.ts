@@ -44,11 +44,5 @@ export class SettingComponent implements OnInit {
         }
       }
     }
-    await window.electronAPI.create_ssh({
-      host: '144.24.50.48',
-      port: 22,
-      username: 'nanami',
-      privateKey: readFileSync('id_rsa'),
-    } as SSHConfig);
   }
 }

@@ -98,9 +98,19 @@ export class AppComponent {
     await loadFull(engine);
   }
 
-  test() {
+  async test1() {
+    await window.electronAPI.create_ssh({
+      host: '144.24.50.48',
+      port: 22,
+      username: 'nanami',
+      privateKeyPath: 'id_rsa',
+    } as SSHConfig);
     // this.api.test();
     // window.electronAPI.create_ssh({});
+  }
+  async test2() {
+    const step = await window.electronAPI.get_file('./pt/testdir/202107161430.mp4','./test.mp4');
+    console.log(step);
   }
 }
 
@@ -111,6 +121,7 @@ declare global {
       store_get: (key: string, defaultValue?: any) => Promise<QBInfo>;
       store_set: (key: string, value: any) => Promise<void>;
       create_ssh: (sshCfg: SSHConfig) => Promise<void>;
+      get_file: (remotePath:string,localPath:string) => Promise<number>;
       relaunch: () => Promise<number>;
     };
   }
