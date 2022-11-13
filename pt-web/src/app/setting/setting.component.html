@@ -21,8 +21,24 @@
       </mat-form-field>
       <mat-form-field>
         <mat-label>取回url</mat-label>
-        <input matInput name="get_url" [(ngModel)]="qbInfo.get_url" required [get_url]="qbInfo.get_url" #get_url = "ngModel">
+        <input matInput name="get_url" [(ngModel)]="qbInfo.get_url" [get_url]="qbInfo.get_url" #get_url = "ngModel">
         <mat-error *ngIf="get_url.errors?.['get_url']">格式不正确</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>host</mat-label>
+        <input matInput name="host" [(ngModel)]="sshConfig.host" >
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>port</mat-label>
+        <input matInput name="port" [(ngModel)]="sshConfig.port" required [valueAsNumber]='sshConfig.port'>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>ssh用户名</mat-label>
+        <input matInput name="ssh_username" [(ngModel)]="sshConfig.username" >
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>私钥路径</mat-label>
+        <input matInput name="private_key" [(ngModel)]="sshConfig.privateKeyPath" >
       </mat-form-field>
       <button mat-raised-button color="primary"  [disabled]="!settingForm.form.valid">确定</button>
     </form>

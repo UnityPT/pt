@@ -16,7 +16,12 @@ export class SettingComponent implements OnInit {
     savepath: '',
     get_url: '',
   };
-
+  sshConfig: SSHConfig = {
+    username: '',
+    host: '',
+    port: 22,
+    privateKeyPath: '',
+  };
   constructor(private api: ApiService) {
     this.init();
   }
@@ -29,12 +34,19 @@ export class SettingComponent implements OnInit {
       downloads: '',
       get_url: ' ',
     });
+    this.sshConfig = await window.electronAPI.store_get('sshConfig', {
+      username: '',
+      host: '',
+      port: 22,
+      privateKeyPath: '',
+    });
   }
 
   ngOnInit() {}
 
   async submit() {
     if (this.qbInfo) {
+      await window.electronAPI.store_set('sshConfig', this.sshConfig);
       const old_qb_info = await window.electronAPI.store_get('qbInfo', this.qbInfo);
       await window.electronAPI.store_set('qbInfo', this.qbInfo);
       if (old_qb_info.qb_url != this.qbInfo.qb_url) {

@@ -179,6 +179,11 @@ export class ApiService {
     return round(size, 2) + 'TB';
   }
 
+  async createSSHConnect(sshConfig: SSHConfig) {
+    const res = await window.electronAPI.create_ssh(sshConfig);
+    console.log(res);
+  }
+
   async test() {
     // const res = confirm('sometext');
     // if (res == true) {

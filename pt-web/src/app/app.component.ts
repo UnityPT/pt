@@ -98,16 +98,16 @@ export class AppComponent {
   async particlesInit(engine: Engine): Promise<void> {
     await loadFull(engine);
   }
-
-  async test1() {
-    const res = await window.electronAPI.create_ssh({
-      host: '144.24.50.48',
-      port: 22,
-      username: 'nanami',
-      privateKeyPath: 'C:\\Users\\frogeater\\.ssh\\id_rsa',
-    } as SSHConfig);
-    console.log(res);
-  }
+  //
+  // async test1() {
+  //   const res = await window.electronAPI.create_ssh({
+  //     host: '144.24.50.48',
+  //     port: 22,
+  //     username: 'nanami',
+  //     privateKeyPath: 'C:\\Users\\frogeater\\.ssh\\id_rsa',
+  //   } as SSHConfig);
+  //   console.log(res);
+  // }
   async test2() {
     await window.electronAPI.get_file('./pt/testdir/202107161430.mp4', 'test.mp4', 'test_hash');
     await window.electronAPI.on_get_file_progress((event, data) => {
@@ -120,7 +120,7 @@ declare global {
   interface Window {
     electronAPI: {
       import: (origin: string, pathname: string, platform: string) => Promise<void>;
-      store_get: (key: string, defaultValue?: any) => Promise<QBInfo>;
+      store_get: (key: string, defaultValue?: any) => Promise<any>;
       store_set: (key: string, value: any) => Promise<void>;
       create_ssh: (sshCfg: SSHConfig) => Promise<boolean>;
       get_file: (remotePath: string, localPath: string, infoHash: string) => Promise<void>;
