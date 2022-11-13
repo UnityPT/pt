@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   store_get: (key, defaultValue) => ipcRenderer.invoke('store_get', key, defaultValue),
   store_set: (key, value) => ipcRenderer.invoke('store_set', key, value),
   create_ssh: () => ipcRenderer.invoke('create_ssh'),
+  get_file:(infoHash,fileName) => ipcRenderer.invoke('get_file',hashInfo,fileName),
   relaunch: () => ipcRenderer.invoke('relaunch'),
   //以下是main发web收
   on_get_file_progress: (callback) => ipcRenderer.on('get_file_progress', callback),

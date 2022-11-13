@@ -84,7 +84,6 @@ export class ResourcesComponent implements OnInit {
       const qb_info = await window.electronAPI.store_get('qbInfo', {});
       if (qb_info.get_protocol === 'sftp') {
         const sshConfig = await window.electronAPI.store_get('sshConfig', {});
-        await window.electronAPI.create_ssh();
         await window.electronAPI.get_file(torrent.hash, torrent.name);
       } else if (qb_info.get_protocol === 'smb') {
         const get_url = (await window.electronAPI.store_get('smbConfig', {})).get_url;

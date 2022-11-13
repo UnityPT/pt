@@ -29,8 +29,12 @@
         <input matInput name="ssh_username" [(ngModel)]="sshConfig.username" >
       </mat-form-field>
       <mat-form-field>
-        <mat-label>ssh路径</mat-label>
-        <input matInput name="ssh_path" [(ngModel)]="sshConfig.remotePath" >
+        <mat-label>ssh远端路径</mat-label>
+        <input matInput name="remote_path" [(ngModel)]="sshConfig.remotePath" >
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>本地路径</mat-label>
+        <input matInput name="local_path" [(ngModel)]="sshConfig.localPath" >
       </mat-form-field>
       <mat-form-field>
         <mat-label>私钥路径</mat-label>

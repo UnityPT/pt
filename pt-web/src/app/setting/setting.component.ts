@@ -17,6 +17,7 @@ export class SettingComponent implements OnInit {
   sshConfig: UserSSHConfig = {
     username: '',
     remotePath: '',
+    localPath: '',
     privateKeyPath: '',
   };
   smbConfig: SmbConfig = {
@@ -36,6 +37,7 @@ export class SettingComponent implements OnInit {
     this.sshConfig = await window.electronAPI.store_get('sshConfig', {
       username: '',
       remotePath: '',
+      localPath: '',
       privateKeyPath: '',
     });
     this.smbConfig = await window.electronAPI.store_get('smbConfig', {
@@ -52,7 +54,7 @@ export class SettingComponent implements OnInit {
       const old_qb_info = await window.electronAPI.store_get('qbInfo', this.qbInfo);
       await window.electronAPI.store_set('qbInfo', this.qbInfo);
       if (this.qbInfo.get_protocol == 'sftp') {
-        await window.electronAPI.create_ssh();
+        // console.log(await window.electronAPI.create_ssh());
       }
       if (old_qb_info.qb_url != this.qbInfo.qb_url) {
         const cf = confirm('你修改了qb地址,需要重启客户端,是否重启?');

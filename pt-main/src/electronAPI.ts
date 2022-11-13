@@ -1,10 +1,10 @@
 import {shell} from 'electron';
 import path from 'path';
-import {SSH} from './ssh';
+import { SSH } from './ssh';
+
 
 export class electronAPI {
   static store;
-  static ssh = new SSH();
   static async import(event, origin: string, pathname: string, platform: string) {
     if (platform == 'Windows') {
       return shell.openPath(path.join(origin, pathname));
@@ -26,8 +26,13 @@ export class electronAPI {
     return this.store.set(key, value);
   }
 
-  static async create_ssh(event) {
-    await this.ssh.createConnect(this.store.get('sshConfig'));
+
+
+  static async get_file(event,infoHash, filename) {
+    // const sshConfig = this.store.get('sshConfig');
+    // const remotePath = path.join(sshConfig.remotePath, filename);
+    // const localPath = path.join(sshConfig.localPath, filename);
+    // await this.ssh.getFile(remotePath, localPath, infoHash);
   }
 
 }

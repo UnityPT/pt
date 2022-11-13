@@ -116,7 +116,7 @@
           <!-- 下载完成-->
           <button mat-raised-button color="primary"
                   *ngIf="torrent && statusFinished.has(torrent.state)"
-                  (click)="test(torrent)">导入
+                  (click)="import(torrent)">导入
           </button>
         </div>
       </ng-container>

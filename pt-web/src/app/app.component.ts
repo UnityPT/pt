@@ -97,17 +97,12 @@ export class AppComponent {
     await loadFull(engine);
   }
   //
-  // async test1() {
-  //   const res = await window.electronAPI.create_ssh({
-  //     host: '144.24.50.48',
-  //     port: 22,
-  //     username: 'nanami',
-  //     privateKeyPath: 'C:\\Users\\frogeater\\.ssh\\id_rsa',
-  //   } as SSHConfig);
-  //   console.log(res);
-  // }
+  async test1() {
+    const res = await window.electronAPI.create_ssh();
+    console.log(res);
+  }
   async test2() {
-    console.log(await window.electronAPI.create_ssh());
+    // console.log(await window.electronAPI.create_ssh());
     // await window.electronAPI.get_file('./pt/testdir/202107161430.mp4', 'test.mp4', 'test_hash');
     // await window.electronAPI.on_get_file_progress((event, data) => {
     //   console.log(data);

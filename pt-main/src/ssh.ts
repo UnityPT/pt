@@ -1,20 +1,22 @@
 import { Client, ConnectConfig } from 'ssh2';
 import { readFileSync } from 'fs';
 import { webContents } from 'electron';
-import { UserSSHConfig } from './interface';
+import { electronAPI } from './electronAPI';
 
 export class SSH {
   conn = new Client();
 
-  async createConnect(cfg: UserSSHConfig) {
+  async createConnect() {
+    console.log("ccc");
+    const cfg = await electronAPI.store.get('sshConfig');
     const portExists = cfg.remotePath.split(':').length > 1;
     const connectCfg:ConnectConfig = {
       privateKey:readFileSync(cfg.privateKeyPath),
       username:cfg.username,
       host:cfg.remotePath.split(':')[0],
-      //是否为数字
-      port:portExists?parseInt(cfg.remotePath.split(':')[1]):22,
+      port:portExists? parseInt(cfg.remotePath.split(':')[1]) : 22,
     }
+    console.log(connectCfg);
     return new Promise((resolve, reject) => {
       this.conn.on('ready', () => {
         resolve(true);
