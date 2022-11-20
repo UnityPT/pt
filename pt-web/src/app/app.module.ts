@@ -36,6 +36,7 @@ import { InvitationComponent } from './invitation/invitation.component';
 import { JwtModule } from '@auth0/angular-jwt';
 import { SettingComponent } from './setting/setting.component';
 import { SettingDirective } from './setting/setting.directive';
+import {MatStepperModule} from "@angular/material/stepper";
 
 @NgModule({
   declarations: [
@@ -88,6 +89,7 @@ import { SettingDirective } from './setting/setting.directive';
         allowedDomains: ['localhost', 'frogeater.vip', 'pt.lolo.moe'],
       },
     }),
+    MatStepperModule,
   ],
   bootstrap: [AppComponent],
 })

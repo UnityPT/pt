@@ -7,12 +7,87 @@
 //  width: 40vw;
 //  object-fit: contain;
 //}
+.bgc {
+  width: 40%;
+  background-color: #fafafa;
+  margin: 1em auto;
+  border: 1px solid darkgray;
+  padding: 2em;
+  border-radius: 1em;
+  //box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+}
+
+h2 {
+  font-size: 2em;
+  color: #4252af;
+  text-align: left;
+  margin-bottom: 0.5em;
+}
+
+.hr-solid {
+  border: 0;
+  border-top: 1px solid #aeaeae;
+  margin-bottom: 1.2em;
+}
 
 :host {
   //background-color: #fafafa;
   position: relative;
   display: block;
   height: 100%;
+}
+
+.mat-stepper-vertical {
+  margin-top: 8px;
+}
+
+.mat-mdc-form-field {
+  margin-top: 16px;
+}
+
+.row {
+  //color: #4252af;
+  margin-bottom: 1em;
+  //font-weight: 700;
+}
+
+.lab {
+  color: #222529;
+  font-size: 1.2em;
+  display: inline-block;
+  margin-right: 1em;
+  margin-top: 1em;
+  width: 6em;
+  text-align: left;
+}
+
+.inputs {
+  //background: #4252af;
+  //margin-left: 1em;
+  padding: 1em;
+  border: 1px solid darkgray;
+  border-radius: 5px;
+  width: 30em;
+  height: 0.8em;
+  background-color: ghostwhite;
+}
+
+.left {
+  border-radius: 5px 0 0 5px;
+  width: 6em;
+  text-align: left;
+  height: 3.2em;
+  border: 1px solid darkgray;
+  border-right: 0;
+  padding: 0 1em;
+}
+
+.right {
+  border-radius: 0 5px 5px 0;
+  width: 24em;
+  height: 1em;
+  border: 1px solid darkgray;
+  padding: 1em;
 }
 
 mat-card {
@@ -24,4 +99,8 @@ mat-card {
 
 mat-form-field {
   display: block;
+}
+
+.btn {
+  text-align: right;
 }

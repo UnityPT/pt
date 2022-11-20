@@ -1,46 +1,56 @@
 <!--<img src="assets/logo.webp">-->
-<mat-card class="mat-elevation-z2">
-  <mat-card-content>
-    <form #settingForm="ngForm" (ngSubmit)="submit()">
-      <h2>qb设置</h2>
-      <mat-form-field>
-        <mat-label>远程qb地址</mat-label>
-        <input matInput name="qb_url" [(ngModel)]="qbInfo.qb_url">
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>用户名</mat-label>
-        <input matInput name="username" [(ngModel)]="qbInfo.username">
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>密码</mat-label>
-        <input matInput name="password" type="password" [(ngModel)]="qbInfo.password">
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>取回协议</mat-label>
-        <input matInput name="downloads" [(ngModel)]="qbInfo.get_protocol" >
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>取回url</mat-label>
-        <input matInput name="smb_get_url" [(ngModel)]="smbConfig.get_url" [get_url]="smbConfig.get_url" #smb_get_url = "ngModel">
-        <mat-error *ngIf="smb_get_url.errors?.['smb_get_url']">格式不正确</mat-error>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>ssh用户名</mat-label>
-        <input matInput name="ssh_username" [(ngModel)]="sshConfig.username" >
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>ssh远端路径</mat-label>
-        <input matInput name="remote_path" [(ngModel)]="sshConfig.remotePath" >
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>本地路径</mat-label>
-        <input matInput name="local_path" [(ngModel)]="sshConfig.localPath" >
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>私钥路径</mat-label>
-        <input matInput name="private_key" [(ngModel)]="sshConfig.privateKeyPath" >
-      </mat-form-field>
-      <button mat-raised-button color="primary"  [disabled]="!settingForm.form.valid">确定</button>
-    </form>
-  </mat-card-content>
-</mat-card>
+
+<div class="bgc mat-elevation-z3">
+  <!--  <mat-card-content>-->
+  <form #settingForm="ngForm" (ngSubmit)="submit()">
+    <h2>设置</h2>
+    <div class="title-right">
+      <hr class="hr-solid">
+    </div>
+    <!--表单样式-->
+    <div class="row">
+      <div class="lab">远程qb地址</div>
+      <input class="inputs" name="qb_url" [(ngModel)]="qbInfo.qb_url">
+    </div>
+    <div class="row">
+      <div class="lab">用户名</div>
+      <input class="inputs" name="username" [(ngModel)]="qbInfo.username">
+    </div>
+    <div class="row">
+      <div class="lab">密码</div>
+      <input class="inputs" ame="password" type="password" [(ngModel)]="qbInfo.password">
+    </div>
+
+    <div class="row">
+      <div class="lab">取回协议</div>
+      <select  class="left" name="downloads" [(ngModel)]="qbInfo.get_protocol">
+        <option value="sftp">sftp</option>
+        <option value="smb">smb</option>
+        <option value="http">http</option>
+      </select>
+      <input class="right" name="smb_get_url" [(ngModel)]="smbConfig.get_url" [get_url]="smbConfig.get_url"
+             #smb_get_url="ngModel">
+      <mat-error *ngIf="smb_get_url.errors?.['smb_get_url']">格式不正确</mat-error>
+    </div>
+    <div class="row">
+      <div class="lab" *ngIf="qbInfo.get_protocol=='sftp'" >ssh用户名</div>
+      <input class="inputs" *ngIf="qbInfo.get_protocol=='sftp'" name="ssh_username" [(ngModel)]="sshConfig.username">
+    </div>
+    <div class="row">
+      <div class="lab" *ngIf="qbInfo.get_protocol=='sftp'"  >ssh远端路径</div>
+      <input class="inputs" *ngIf="qbInfo.get_protocol=='sftp'" name="remote_path" [(ngModel)]="sshConfig.remotePath">
+    </div>
+    <div class="row">
+      <div class="lab">本地路径</div>
+      <input class="inputs" name="local_path" [(ngModel)]="sshConfig.localPath">
+    </div>
+    <div class="row">
+      <div class="lab">私钥路径</div>
+      <input class="inputs" name="private_key" [(ngModel)]="sshConfig.privateKeyPath">
+    </div>
+    <div class="btn">
+      <button mat-raised-button color="primary" [disabled]="!settingForm.form.valid">确定</button>
+    </div>
+  </form>
+  <!--  </mat-card-content>-->
+</div>

@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { ApiService } from '../api.service';
-import { QBInfo, SmbConfig, UserSSHConfig } from '../types';
+import {Component, OnInit} from '@angular/core';
+import {ApiService} from '../api.service';
+import {QBInfo, SmbConfig, UserSSHConfig} from '../types';
+import {FormBuilder, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-setting',
@@ -23,7 +24,17 @@ export class SettingComponent implements OnInit {
   smbConfig: SmbConfig = {
     get_url: '',
   };
-  constructor(private api: ApiService) {
+
+  firstFormGroup = this._formBuilder.group({
+    firstCtrl: ['', Validators.required],
+  });
+  secondFormGroup = this._formBuilder.group({
+    secondCtrl: ['', Validators.required],
+  });
+  isLinear = false;
+  isSmb = false;
+
+  constructor(private api: ApiService, private _formBuilder: FormBuilder) {
     this.init();
   }
 
@@ -45,7 +56,8 @@ export class SettingComponent implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+  }
 
   async submit() {
     if (this.qbInfo) {
@@ -58,10 +70,11 @@ export class SettingComponent implements OnInit {
       }
       if (old_qb_info.qb_url != this.qbInfo.qb_url) {
         const cf = confirm('你修改了qb地址,需要重启客户端,是否重启?');
-        if (cf == true) {
+        if (cf) {
           await window.electronAPI.relaunch();
         }
       }
+
     }
   }
 }
