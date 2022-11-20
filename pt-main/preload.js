@@ -5,8 +5,19 @@ contextBridge.exposeInMainWorld('electronAPI', {
   store_get: (key, defaultValue) => ipcRenderer.invoke('store_get', key, defaultValue),
   store_set: (key, value) => ipcRenderer.invoke('store_set', key, value),
   create_ssh: () => ipcRenderer.invoke('create_ssh'),
-  get_file:(infoHash,fileName) => ipcRenderer.invoke('get_file',hashInfo,fileName),
+  get_file:(infoHash,fileName) => ipcRenderer.invoke('get_file',infoHash,fileName),
   relaunch: () => ipcRenderer.invoke('relaunch'),
-  //以下是main发web收
-  on_get_file_progress: (callback) => ipcRenderer.on('get_file_progress', callback),
+  //以下是main发web收的
+  //接受main发来的消息
+  // onUpdateCounter: (func) => ipcRenderer.on('update-counter', func),
+  on : (channel, func) => ipcRenderer.on(channel, func),
+  // on: (event, func) => {
+  //   const validEvents = ['get_file_progress'];
+  //   if (validEvents.includes(event)) {
+  //     ipcRenderer.on(event, (event, data) => func(data));
+  //   } else {
+  //     console.log('invalid channel');
+  //   }
+  // },
 });
+

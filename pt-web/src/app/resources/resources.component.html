@@ -89,6 +89,10 @@
                             [value]="torrent.progress * 100"
                             [attr.data-progress]="torrent.progress | percent:'.1'"></mat-progress-bar>
          <ng-template #spacer><span class="example-spacer"></span></ng-template>
+          <mat-progress-bar *ngIf="torrent && ssh_get_file_progress[selected.resource.info_hash] && ssh_get_file_progress[selected.resource.info_hash] < 1; else spacer"
+                            [value]="ssh_get_file_progress[selected.resource.info_hash] * 100"
+                            [attr.data-progress]="ssh_get_file_progress[selected.resource.info_hash] | percent:'.1'"></mat-progress-bar>
+         <ng-template #spacer><span class="example-spacer"></span></ng-template>
 
           <!-- 按钮 -->
           <!-- 未下载-->

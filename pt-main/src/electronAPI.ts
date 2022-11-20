@@ -1,7 +1,5 @@
 import {shell} from 'electron';
 import path from 'path';
-import { SSH } from './ssh';
-
 
 export class electronAPI {
   static store;
@@ -24,15 +22,6 @@ export class electronAPI {
 
   static async store_set(event, key: string, value) {
     return this.store.set(key, value);
-  }
-
-
-
-  static async get_file(event,infoHash, filename) {
-    // const sshConfig = this.store.get('sshConfig');
-    // const remotePath = path.join(sshConfig.remotePath, filename);
-    // const localPath = path.join(sshConfig.localPath, filename);
-    // await this.ssh.getFile(remotePath, localPath, infoHash);
   }
 
 }

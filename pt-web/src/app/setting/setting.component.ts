@@ -12,7 +12,7 @@ export class SettingComponent implements OnInit {
     qb_url: 'http://localhost:8080',
     username: 'admin',
     password: 'adminadmin',
-    get_protocol: '',
+    get_protocol: '', // 'sftp'/'smb'/'http'
   };
   sshConfig: UserSSHConfig = {
     username: '',

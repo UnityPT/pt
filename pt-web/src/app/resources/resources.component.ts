@@ -61,6 +61,14 @@ export class ResourcesComponent implements OnInit {
     await this.loadTorrents();
     await this.refresh();
     setInterval(() => this.loadTorrents(), 800);
+
+    window.electronAPI.on('get_file_progress', async (event, data) => {
+      this.ssh_get_file_progress[data.infoHash] = data.progress;
+      if (data.progress === 1) {
+        const localPath = (await window.electronAPI.store_get('sshConfig', {})).localPath;
+        await window.electronAPI.import(localPath, this.torrents[data.infoHash].name, navigator.userAgentData.platform);
+      }
+    });
   }
 
   async loadTorrents() {
@@ -74,17 +82,20 @@ export class ResourcesComponent implements OnInit {
     if (!torrent) return;
     await this.qBittorrent.torrentsAdd(torrent);
   }
-  async test(torrent: Torrent) {
-    console.log(torrent);
-  }
 
   async import(torrent: Torrent) {
+    console.log('import');
     try {
       const files = await this.qBittorrent.torrentsFiles(torrent.hash);
+      console.log(torrent.hash, torrent.name);
       const qb_info = await window.electronAPI.store_get('qbInfo', {});
       if (qb_info.get_protocol === 'sftp') {
-        const sshConfig = await window.electronAPI.store_get('sshConfig', {});
-        await window.electronAPI.get_file(torrent.hash, torrent.name);
+        const res = await window.electronAPI.create_ssh();
+        if (res === true) {
+          await window.electronAPI.get_file(torrent.hash, torrent.name);
+        } else {
+          throw new Error('ssh连接失败');
+        }
       } else if (qb_info.get_protocol === 'smb') {
         const get_url = (await window.electronAPI.store_get('smbConfig', {})).get_url;
         if (get_url) {

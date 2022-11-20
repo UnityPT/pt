@@ -2,21 +2,20 @@ import { Client, ConnectConfig } from 'ssh2';
 import { readFileSync } from 'fs';
 import { webContents } from 'electron';
 import { electronAPI } from './electronAPI';
+import path from 'path';
 
 export class SSH {
   conn = new Client();
 
   async createConnect() {
-    console.log("ccc");
     const cfg = await electronAPI.store.get('sshConfig');
     const portExists = cfg.remotePath.split(':').length > 1;
-    const connectCfg:ConnectConfig = {
-      privateKey:readFileSync(cfg.privateKeyPath),
-      username:cfg.username,
-      host:cfg.remotePath.split(':')[0],
-      port:portExists? parseInt(cfg.remotePath.split(':')[1]) : 22,
-    }
-    console.log(connectCfg);
+    const connectCfg: ConnectConfig = {
+      privateKey: readFileSync(cfg.privateKeyPath),
+      username: cfg.username,
+      host: cfg.remotePath.split(':')[0],
+      port: portExists ? parseInt(cfg.remotePath.split(':')[1]) : 22,
+    };
     return new Promise((resolve, reject) => {
       this.conn.on('ready', () => {
         resolve(true);
@@ -31,9 +30,10 @@ export class SSH {
       if (err) throw err;
       sftp.fastGet(remotePath, localPath, {
         step: (total_transferred, chunk, total) => {
+          console.log(total_transferred, chunk, total);
           webContents.getFocusedWebContents().send('get_file_progress', {
             infoHash,
-            step: total_transferred / total * 100,
+            progress: total_transferred / total,
           });
         },
       }, (err) => {

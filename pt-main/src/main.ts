@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, shell, webContents } from 'electron';
 import { electronAPI } from './electronAPI';
 import path from 'path';
 import { autoUpdater } from 'electron-updater';
@@ -63,6 +63,7 @@ function createWindow() {
   } else {
     mainWindow.loadFile(path.join(__dirname, '..', 'pt-web/index.html'));
   }
+
 }
 
 // 这段程序将会在 Electron 结束初始化
@@ -73,10 +74,11 @@ app.whenReady().then(async () => {
   ipcMain.handle('import', electronAPI.import.bind(electronAPI));
   ipcMain.handle('store_get', electronAPI.store_get.bind(electronAPI));
   ipcMain.handle('store_set', electronAPI.store_set.bind(electronAPI));
-  ipcMain.handle('create_ssh', ()=>ssh.createConnect());
-  ipcMain.handle('get_file', async (event,infoHash,fileName)=>{
+  ipcMain.handle('create_ssh', async ()=>ssh.createConnect());
+  // ipcMain.handle('create_ssh', () =>webContents.getFocusedWebContents().send('get_file_progress', {progress: 0}));
+  ipcMain.handle('get_file', async (event, infoHash, fileName) => {
     const sshConfig = electronAPI.store.get('sshConfig') as UserSSHConfig;
-    const remotePath = path.join(sshConfig.remotePath, fileName);
+    const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1),fileName);
     const localPath = path.join(sshConfig.localPath, fileName);
     await ssh.getFile(remotePath, localPath, infoHash);
   });
