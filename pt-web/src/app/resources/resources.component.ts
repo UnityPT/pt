@@ -9,7 +9,7 @@ import { ApiService } from '../api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { orderBy } from 'lodash-es';
 import { MatSelectionListChange } from '@angular/material/list';
-import { stringifyTask } from '@angular/compiler-cli/ngcc/src/execution/tasks/utils';
+import 'user-agent-data-types';
 
 @Component({
   selector: 'app-resources',
@@ -66,7 +66,7 @@ export class ResourcesComponent implements OnInit {
       this.ssh_get_file_progress[data.infoHash] = data.progress;
       if (data.progress === 1) {
         const localPath = (await window.electronAPI.store_get('sshConfig', {})).localPath;
-        await window.electronAPI.import(localPath, this.torrents[data.infoHash].name, navigator.userAgentData.platform);
+        await window.electronAPI.import(localPath, this.torrents[data.infoHash].name, navigator.userAgentData!.platform);
       }
     });
   }
@@ -99,9 +99,9 @@ export class ResourcesComponent implements OnInit {
       } else if (qb_info.get_protocol === 'smb') {
         const get_url = (await window.electronAPI.store_get('smbConfig', {})).get_url;
         if (get_url) {
-          await window.electronAPI.import(get_url, files[0].name, navigator.userAgentData.platform);
+          await window.electronAPI.import(get_url, files[0].name, navigator.userAgentData!.platform);
         } else {
-          await window.electronAPI.import(torrent.save_path, files[0].name, navigator.userAgentData.platform);
+          await window.electronAPI.import(torrent.save_path, files[0].name, navigator.userAgentData!.platform);
         }
       }
     } catch (error) {
