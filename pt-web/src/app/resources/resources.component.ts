@@ -9,7 +9,7 @@ import { ApiService } from '../api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { orderBy } from 'lodash-es';
 import { MatSelectionListChange } from '@angular/material/list';
-import 'user-agent-data-types';
+// import 'user-agent-data-types';
 
 @Component({
   selector: 'app-resources',
