@@ -9,7 +9,7 @@ import { ApiService } from '../api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { orderBy } from 'lodash-es';
 import { MatSelectionListChange } from '@angular/material/list';
-import { stringifyTask } from '@angular/compiler-cli/ngcc/src/execution/tasks/utils';
+import { Navigator } from 'user-agent-data-types';
 
 @Component({
   selector: 'app-resources',
