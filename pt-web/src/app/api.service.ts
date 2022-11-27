@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
-import { RegisterInfo, Resource, UserStat } from './types';
+import { HttpConfig, RegisterInfo, Resource, UserStat } from './types';
 import { NavigationEnd, Router } from '@angular/router';
 import { round } from 'lodash-es';
-import { readFileSync } from 'fs';
 
 @Injectable({
   providedIn: 'root',
@@ -204,6 +203,7 @@ export class ApiService {
     // // 后面的是文件名字，可以更改
     // link.click();
     //
+    // this.httpDownload({ localPath: '', remotePath: 'https://frogeater.vip/pt' }, 'x', 'test 202107161430.mp4');
   }
 
   private dealWithError(e: HttpErrorResponse) {
@@ -212,5 +212,14 @@ export class ApiService {
       this.router.navigate(['login']);
     }
     return;
+  }
+
+  httpDownload(httpConfig: HttpConfig, fileName: string) {
+    return this.http.get(`${httpConfig.remotePath}/${fileName}`, {
+      responseType: 'blob',
+      withCredentials: false,
+      reportProgress: true,
+      observe: 'events',
+    });
   }
 }

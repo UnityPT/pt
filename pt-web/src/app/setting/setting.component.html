@@ -9,7 +9,7 @@
     </div>
     <!--表单样式-->
     <div class="row">
-      <div class="lab">远程qb地址</div>
+      <div class="lab">qb地址</div>
       <input class="inputs" name="qb_url" [(ngModel)]="qbInfo.qb_url">
     </div>
     <div class="row">
@@ -18,35 +18,49 @@
     </div>
     <div class="row">
       <div class="lab">密码</div>
-      <input class="inputs" ame="password" type="password" [(ngModel)]="qbInfo.password">
+      <input class="inputs" name="password" type="password" [(ngModel)]="qbInfo.password">
     </div>
 
     <div class="row">
       <div class="lab">取回协议</div>
       <select  class="left" name="downloads" [(ngModel)]="qbInfo.get_protocol">
+        <option value="local">local</option>
         <option value="sftp">sftp</option>
         <option value="smb">smb</option>
         <option value="http">http</option>
       </select>
-      <input class="right" name="smb_get_url" [(ngModel)]="smbConfig.get_url" [get_url]="smbConfig.get_url"
-             #smb_get_url="ngModel">
-      <mat-error *ngIf="smb_get_url.errors?.['smb_get_url']">格式不正确</mat-error>
     </div>
-    <div class="row">
-      <div class="lab" *ngIf="qbInfo.get_protocol=='sftp'" >ssh用户名</div>
-      <input class="inputs" *ngIf="qbInfo.get_protocol=='sftp'" name="ssh_username" [(ngModel)]="sshConfig.username">
+    <div class="row" *ngIf="qbInfo.get_protocol=='sftp'">
+      <div class="lab"  >ssh用户名</div>
+      <input class="inputs" name="ssh_username" [(ngModel)]="sshConfig.username">
     </div>
-    <div class="row">
-      <div class="lab" *ngIf="qbInfo.get_protocol=='sftp'"  >ssh远端路径</div>
-      <input class="inputs" *ngIf="qbInfo.get_protocol=='sftp'" name="remote_path" [(ngModel)]="sshConfig.remotePath">
+    <div class="row" *ngIf="qbInfo.get_protocol=='sftp'">
+      <div class="lab" >远端路径</div>
+      <input class="inputs" name="remote_path" [(ngModel)]="sshConfig.remotePath">
     </div>
-    <div class="row">
-      <div class="lab">本地路径</div>
+    <div class="row" *ngIf="qbInfo.get_protocol == 'sftp'">
+      <div class='lab'>
+        本地路径
+      </div>
       <input class="inputs" name="local_path" [(ngModel)]="sshConfig.localPath">
     </div>
-    <div class="row">
-      <div class="lab">私钥路径</div>
+    <div class="row" *ngIf="qbInfo.get_protocol == 'http'">
+      <div class="lab" >远端路径</div>
+      <input class="inputs" name="remote_path" [(ngModel)]="httpConfig.remotePath">
+    </div>
+    <div class="row" *ngIf="qbInfo.get_protocol=='http'">
+      <div class='lab'>
+        本地路径
+      </div>
+      <input class="inputs" name="local_path" [(ngModel)]="httpConfig.localPath">
+    </div>
+    <div class="row" *ngIf="qbInfo.get_protocol=='sftp'">
+      <div class="lab"  >私钥路径</div>
       <input class="inputs" name="private_key" [(ngModel)]="sshConfig.privateKeyPath">
+    </div>
+    <div class="row" *ngIf="qbInfo.get_protocol=='smb'" >
+      <div class="lab" >smb路径</div>
+      <input class="right" name="smb_get_url" [(ngModel)]="smbConfig.get_url" >
     </div>
     <div class="btn">
       <button mat-raised-button color="primary" [disabled]="!settingForm.form.valid">确定</button>

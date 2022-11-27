@@ -9,6 +9,7 @@ import { ApiService } from '../api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { orderBy } from 'lodash-es';
 import { MatSelectionListChange } from '@angular/material/list';
+import { defaultQBInfo, defaultSMBConfig } from '../setting/defaultSetting';
 // import 'user-agent-data-types';
 
 @Component({
@@ -84,11 +85,10 @@ export class ResourcesComponent implements OnInit {
   }
 
   async import(torrent: Torrent) {
-    console.log('import');
     try {
       const files = await this.qBittorrent.torrentsFiles(torrent.hash);
       console.log(torrent.hash, torrent.name);
-      const qb_info = await window.electronAPI.store_get('qbInfo', {});
+      const qb_info = await window.electronAPI.store_get('qbInfo', defaultQBInfo);
       if (qb_info.get_protocol === 'sftp') {
         const res = await window.electronAPI.create_ssh();
         if (res === true) {
@@ -96,8 +96,21 @@ export class ResourcesComponent implements OnInit {
         } else {
           throw new Error('ssh连接失败');
         }
+      } else if (qb_info.get_protocol === 'http') {
+        const httpConfig = await window.electronAPI.store_get('httpConfig', defaultSMBConfig);
+        if (httpConfig.remotePath && httpConfig.localPath) {
+          await this.api.httpDownload(httpConfig, torrent.name).subscribe((data) => {
+            if (data.type == 3) {
+              console.log(data.total);
+              console.log(torrent.total_size);
+              this.ssh_get_file_progress[torrent.hash] = data.loaded / torrent.total_size;
+            }
+          });
+        } else {
+          throw new Error('http路径配置错误');
+        }
       } else if (qb_info.get_protocol === 'smb') {
-        const get_url = (await window.electronAPI.store_get('smbConfig', {})).get_url;
+        const get_url = (await window.electronAPI.store_get('smbConfig', defaultSMBConfig)).get_url;
         if (get_url) {
           await window.electronAPI.import(get_url, files[0].name, navigator.userAgentData!.platform);
         } else {

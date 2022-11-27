@@ -70,3 +70,7 @@ export interface UserSSHConfig {
 export interface SmbConfig {
   get_url: string;
 }
+export interface HttpConfig {
+  remotePath: string;
+  localPath: string;
+}
