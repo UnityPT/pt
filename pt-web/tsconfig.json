@@ -23,9 +23,9 @@
       "dom",
       "ES2021.String"
     ],
-//    "types": [
-//      "./node_modules/user-agent-data-types"
-//    ]
+    "types": [
+      "./node_modules/user-agent-data-types"
+    ]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
