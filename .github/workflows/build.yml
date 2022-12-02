@@ -31,6 +31,7 @@ jobs:
           npm ci --prefix pt-web pt-web
           npm --prefix pt-web run build
           cp -r pt-web/dist pt-main/dist
+          sudo apt install cmake
           npm ci --prefix pt-main pt-main --no-optional
           npm --prefix pt-main run dist
         env:
