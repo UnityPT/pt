@@ -3,7 +3,7 @@ import { electronAPI } from './electronAPI';
 import path from 'path';
 import { autoUpdater } from 'electron-updater';
 import Store from 'electron-store';
-import { SSH } from './ssh';
+// import { SSH } from './ssh';
 import { UserSSHConfig } from './interface';
 
 const checkForUpdates = autoUpdater.checkForUpdatesAndNotify({
@@ -23,7 +23,7 @@ const checkForUpdates = autoUpdater.checkForUpdatesAndNotify({
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const store = new Store();
-const ssh = new SSH();
+// const ssh = new SSH();
 // store.set('qBittorrentOrigin', 'http://poi.lan:8080');
 // if(store.get('origin'))
 // @ts-ignore
@@ -74,13 +74,13 @@ app.whenReady().then(async () => {
   ipcMain.handle('import', electronAPI.import.bind(electronAPI));
   ipcMain.handle('store_get', electronAPI.store_get.bind(electronAPI));
   ipcMain.handle('store_set', electronAPI.store_set.bind(electronAPI));
-  ipcMain.handle('create_ssh', async ()=>ssh.createConnect());
+  // ipcMain.handle('create_ssh', async ()=>ssh.createConnect());
   // ipcMain.handle('create_ssh', () =>webContents.getFocusedWebContents().send('get_file_progress', {progress: 0}));
   ipcMain.handle('get_file', async (event, infoHash, fileName) => {
     const sshConfig = electronAPI.store.get('sshConfig') as UserSSHConfig;
     const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1),fileName);
     const localPath = path.join(sshConfig.localPath, fileName);
-    await ssh.getFile(remotePath, localPath, infoHash);
+    // await ssh.getFile(remotePath, localPath, infoHash);
   });
   ipcMain.handle('relaunch', () => {
     app.relaunch();
