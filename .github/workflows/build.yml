@@ -32,7 +32,7 @@ jobs:
           npm --prefix pt-web run build
           cp -r pt-web/dist pt-main/dist
           sudo apt install cmake
-          npm ci --prefix pt-main pt-main --no-optional
+          npm ci --prefix pt-main pt-main
           npm --prefix pt-main run dist
         env:
           CI_BUILD_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
