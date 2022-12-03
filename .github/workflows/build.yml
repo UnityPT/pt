@@ -33,6 +33,7 @@ jobs:
           cp -r pt-web/dist pt-main/dist
           sudo apt install cmake
           npm ci --prefix pt-main pt-main
+          npm uninstall --prefix pt-main cpu-features@0.0.4
           npm --prefix pt-main run dist
         env:
           CI_BUILD_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
