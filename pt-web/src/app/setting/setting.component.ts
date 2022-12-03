@@ -34,6 +34,10 @@ export class SettingComponent implements OnInit {
     this.sshConfig = await window.electronAPI.store_get('sshConfig', defaultSSHConfig);
     this.smbConfig = await window.electronAPI.store_get('smbConfig', defaultSMBConfig);
     this.httpConfig = await window.electronAPI.store_get('httpConfig', defaultHTTPConfig);
+    await window.electronAPI.store_set('qbInfo', this.qbInfo);
+    await window.electronAPI.store_set('sshConfig', this.sshConfig);
+    await window.electronAPI.store_set('smbConfig', this.smbConfig);
+    await window.electronAPI.store_set('httpConfig', this.httpConfig);
   }
 
   ngOnInit() {}
@@ -41,7 +45,6 @@ export class SettingComponent implements OnInit {
   async submit() {
     try {
       if (this.qbInfo) {
-        console.log(this.qbInfo);
         await window.electronAPI.store_set('sshConfig', this.sshConfig);
         await window.electronAPI.store_set('smbConfig', this.smbConfig);
         await window.electronAPI.store_set('httpConfig', this.httpConfig);
