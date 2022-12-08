@@ -32,9 +32,10 @@ jobs:
           npm --prefix pt-web run build
           cp -r pt-web/dist pt-main/dist
           npm ci --prefix pt-main pt-main --force
-      - run: |
+      - if: runner.os == 'ubuntu'
+        run: | 
+          echo "snap install............"
           sudo snap install snapcraft --classic
-        if: runner.os == 'ubuntu'
       - run: |
           npm --prefix pt-main run dist
         env:
