@@ -6,7 +6,7 @@ jobs:
   release:
     strategy:
       matrix:
-        os: [ windows-latest, macOS-latest]
+        os: [ windows-latest,macOS-latest,ubuntu-latest]
     runs-on:
 #      - self-hosted
       - ${{ matrix.os }}
@@ -32,6 +32,7 @@ jobs:
           npm --prefix pt-web run build
           cp -r pt-web/dist pt-main/dist
           npm ci --prefix pt-main pt-main --force
+          npm install --prefix pt-main pt-main snapcraft --force
           npm --prefix pt-main run dist
         env:
           CI_BUILD_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
