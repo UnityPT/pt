@@ -32,7 +32,10 @@ jobs:
           npm --prefix pt-web run build
           cp -r pt-web/dist pt-main/dist
           npm ci --prefix pt-main pt-main --force
+      - run: | 
           npm install --prefix pt-main pt-main snapcraft --force
+        if: runner.os == 'ubuntu'
+      - run: |
           npm --prefix pt-main run dist
         env:
           CI_BUILD_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
