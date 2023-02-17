@@ -17,6 +17,7 @@ jobs:
           echo "CSC_KEY_PASSWORD=${{secrets.MACOS_CSC_KEY_PASSWORD}}" >> $GITHUB_ENV
           echo "APPLE_ID=${{secrets.APPLE_ID}}" >> $GITHUB_ENV
           echo "APPLE_APP_SPECIFIC_PASSWORD=${{secrets.APPLE_APP_SPECIFIC_PASSWORD}}" >> $GITHUB_ENV
+          brew install python3
         if: runner.os == 'macOS'
       - run: |
           echo "TRAVIS_PULL_REQUEST=_no_notarize" >> $GITHUB_ENV
