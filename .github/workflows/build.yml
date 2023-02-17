@@ -18,9 +18,6 @@ jobs:
           echo "APPLE_ID=${{secrets.APPLE_ID}}" >> $GITHUB_ENV
           echo "APPLE_APP_SPECIFIC_PASSWORD=${{secrets.APPLE_APP_SPECIFIC_PASSWORD}}" >> $GITHUB_ENV
         if: runner.os == 'macOS'
-      - run: |
-          echo "TRAVIS_PULL_REQUEST=_no_notarize" >> $GITHUB_ENV
-        if: runner.os == 'macOS' && github.ref_type != 'tag'
       - uses: actions/setup-node@v3
         with:
           cache: 'npm'
