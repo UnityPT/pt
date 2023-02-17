@@ -24,6 +24,9 @@
       "verifyUpdateCodeSignature": false,
       "icon": "logo.ico"
     },
+    "linux": {
+      "target": "AppImage"
+    },
     "mac": {
       "icon": "icon.icns",
       "target": [
