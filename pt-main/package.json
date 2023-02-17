@@ -56,11 +56,14 @@
     "@types/klaw": "^3.0.3",
     "@types/parse-torrent": "^5.8.4",
     "@types/ssh2": "^1.11.6",
+    "@types/tough-cookie": "^4.0.2",
     "copy-webpack-plugin": "^11.0.0",
     "create-torrent": "^6.0.2",
-    "electron": "^22.0.0",
-    "electron-builder": "^24.0.0-alpha.5",
+    "electron": "^23.1.0",
+    "electron-builder": "^24.0.0-alpha.12",
+    "electron-builder-notarize": "^1.5.1",
     "electron-fetch": "^1.9.1",
+    "electron-store": "^8.1.0",
     "electron-updater": "^5.3.0",
     "form-data": "^4.0.0",
     "glob": "^8.0.3",
@@ -68,8 +71,9 @@
     "node-loader": "^2.0.0",
     "node-ssh": "^13.0.0",
     "p-retry": "^5.1.2",
-    "parse-torrent": "^10.0.1",
+    "parse-torrent": "^11.0.7",
     "rxjs": "^7.6.0",
+    "tough-cookie": "^4.1.2",
     "ts-loader": "^9.4.2",
     "ts-node": "^10.9.1",
     "typed-struct": "^2.3.0",
@@ -77,8 +81,6 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
-    "electron-builder-notarize": "^1.5.0",
-    "electron-store": "^8.1.0",
     "ssh2": "^1.11.0"
   }
 }

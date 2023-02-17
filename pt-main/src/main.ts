@@ -1,10 +1,12 @@
-import { app, BrowserWindow, ipcMain, shell, webContents } from 'electron';
-import { electronAPI } from './electronAPI';
+import {app, BrowserWindow, ipcMain, shell, webContents} from 'electron';
+import {electronAPI} from './electronAPI';
 import path from 'path';
-import { autoUpdater } from 'electron-updater';
+import {autoUpdater} from 'electron-updater';
 import Store from 'electron-store';
-import { SSH } from './ssh';
-import { UserSSHConfig } from './interface';
+import {SSH} from './ssh';
+import {UserSSHConfig} from './interface';
+
+import {Cookie} from "tough-cookie";
 
 const checkForUpdates = autoUpdater.checkForUpdatesAndNotify({
   title: '{appName} 已准备好更新',
@@ -24,10 +26,9 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const store = new Store();
 const ssh = new SSH();
-// store.set('qBittorrentOrigin', 'http://poi.lan:8080');
-// if(store.get('origin'))
+
 // @ts-ignore
-const qBittorrentOrigin = store.get('qbInfo', { qb_url: 'http://localhost:8080' }).qb_url || 'http://localhost:8080';
+const qBittorrentOrigin = store.get('qbInfo', {qb_url: 'http://localhost:8080'}).qb_url || 'http://localhost:8080';
 app.commandLine.appendSwitch('unsafely-treat-insecure-origin-as-secure', qBittorrentOrigin);
 
 function createWindow() {
@@ -42,20 +43,26 @@ function createWindow() {
     },
   });
 
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+  mainWindow.webContents.setWindowOpenHandler(({url}) => {
     shell.openExternal(url);
-    return { action: 'deny' };
+    return {action: 'deny'};
   });
-  mainWindow.webContents.session.webRequest.onBeforeSendHeaders({ urls: [qBittorrentOrigin + '/*'] }, (details, callback) => {
+  mainWindow.webContents.session.webRequest.onBeforeSendHeaders({urls: [qBittorrentOrigin + '/*']}, (details, callback) => {
     delete details.requestHeaders.Origin;
     delete details.requestHeaders.Referer;
-    callback({ requestHeaders: details.requestHeaders });
+    callback({requestHeaders: details.requestHeaders});
   });
-  mainWindow.webContents.session.webRequest.onHeadersReceived({ urls: [qBittorrentOrigin + '/*'] }, (details, callback) => {
-    if (details.responseHeaders['set-cookie']) {
-      details.responseHeaders['set-cookie'][0] = details.responseHeaders['set-cookie'][0].replace('SameSite=Strict', 'SameSite=None; Secure');
+  mainWindow.webContents.session.webRequest.onHeadersReceived({urls: [qBittorrentOrigin + '/*']}, (details, callback) => {
+    const cookies = details.responseHeaders["set-cookie"];
+    if (cookies) {
+      for (const [i, item] of cookies.entries()) {
+        const cookie = Cookie.parse(item);
+        cookie.sameSite = 'None'
+        cookie.secure = true;
+        cookies[i] = cookie.toString();
+      }
     }
-    callback({ responseHeaders: details.responseHeaders });
+    callback({responseHeaders: details.responseHeaders});
   });
 
   if (isDevelopment) {
@@ -74,11 +81,11 @@ app.whenReady().then(async () => {
   ipcMain.handle('import', electronAPI.import.bind(electronAPI));
   ipcMain.handle('store_get', electronAPI.store_get.bind(electronAPI));
   ipcMain.handle('store_set', electronAPI.store_set.bind(electronAPI));
-  ipcMain.handle('create_ssh', async ()=>ssh.createConnect());
+  ipcMain.handle('create_ssh', async () => ssh.createConnect());
   // ipcMain.handle('create_ssh', () =>webContents.getFocusedWebContents().send('get_file_progress', {progress: 0}));
   ipcMain.handle('get_file', async (event, infoHash, fileName) => {
     const sshConfig = electronAPI.store.get('sshConfig') as UserSSHConfig;
-    const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1),fileName);
+    const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), fileName);
     const localPath = path.join(sshConfig.localPath, fileName);
     await ssh.getFile(remotePath, localPath, infoHash);
   });

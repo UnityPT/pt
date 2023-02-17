@@ -30,4 +30,7 @@ export default {
       patterns: ['preload.js'],
     }),
   ],
+  externals: {
+    ssh2: 'commonjs ssh2'
+  },
 };
