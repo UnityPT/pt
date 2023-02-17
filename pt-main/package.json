@@ -28,6 +28,7 @@
       "target": "AppImage"
     },
     "mac": {
+      "category": "public.app-category.developer-tools",
       "icon": "icon.icns",
       "target": [
         {
@@ -37,11 +38,8 @@
             "arm64"
           ]
         }
-      ],
-      "hardenedRuntime": true,
-      "entitlements": "./node_modules/electron-builder-notarize/entitlements.mac.inherit.plist"
+      ]
     },
-    "afterSign": "electron-builder-notarize",
     "publish": {
       "provider": "s3",
       "endpoint": "https://ptdl.lolo.moe",
@@ -64,7 +62,6 @@
     "create-torrent": "^6.0.2",
     "electron": "^23.1.0",
     "electron-builder": "^24.0.0-alpha.12",
-    "electron-builder-notarize": "^1.5.1",
     "electron-fetch": "^1.9.1",
     "electron-store": "^8.1.0",
     "electron-updater": "^5.3.0",
