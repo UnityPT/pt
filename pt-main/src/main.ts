@@ -47,12 +47,13 @@ function createWindow() {
     shell.openExternal(url);
     return {action: 'deny'};
   });
-  mainWindow.webContents.session.webRequest.onBeforeSendHeaders({urls: [qBittorrentOrigin + '/*']}, (details, callback) => {
+  const qbUrl = new URL('*',qBittorrentOrigin);
+  mainWindow.webContents.session.webRequest.onBeforeSendHeaders({urls: [qbUrl.href]}, (details, callback) => {
     delete details.requestHeaders.Origin;
     delete details.requestHeaders.Referer;
     callback({requestHeaders: details.requestHeaders});
   });
-  mainWindow.webContents.session.webRequest.onHeadersReceived({urls: [qBittorrentOrigin + '/*']}, (details, callback) => {
+  mainWindow.webContents.session.webRequest.onHeadersReceived({urls: [qbUrl.href]}, (details, callback) => {
     const cookies = details.responseHeaders["set-cookie"];
     if (cookies) {
       for (const [i, item] of cookies.entries()) {
