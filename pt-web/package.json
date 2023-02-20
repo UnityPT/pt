@@ -24,7 +24,7 @@
     "@ctrl/qbittorrent": "^5.2.0",
     "@types/create-torrent": "^5.0.0",
     "@types/lodash-es": "^4.17.6",
-    "@types/parse-torrent": "^5.8.4",
+    "@types/node": "^18.14.0",
     "create-torrent": "^6.0.9",
     "electron-store": "^8.1.0",
     "lodash-es": "^4.17.21",

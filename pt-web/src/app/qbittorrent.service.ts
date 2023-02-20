@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { Torrent, TorrentFile } from '@ctrl/qbittorrent/dist/src/types';
+// @ts-ignore
 import parseTorrent from 'parse-torrent';
-import * as ParseTorrentFile from 'parse-torrent-file';
 import pRetry from 'p-retry';
 
 @Injectable({
@@ -24,7 +24,8 @@ export class QBittorrentService {
       })
     );
 
-    const info = <ParseTorrentFile.Instance>parseTorrent(Buffer.from(await torrent.arrayBuffer()));
+    const info = await parseTorrent(Buffer.from(await torrent.arrayBuffer()));
+    console.log(info);
     const hash = info.infoHash!;
 
     console.log(filename);
