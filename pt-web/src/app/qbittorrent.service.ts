@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { Torrent, TorrentFile } from '@ctrl/qbittorrent/dist/src/types';
 import parseTorrent from 'parse-torrent';
 import * as ParseTorrentFile from 'parse-torrent-file';
+import pRetry from 'p-retry';
 
 @Injectable({
   providedIn: 'root',
@@ -12,14 +13,16 @@ export class QBittorrentService {
   constructor(private http: HttpClient) {}
 
   async torrentsAdd(torrent: Blob, savepath?: string, filename?: string) {
-    savepath = (await window.electronAPI.store_get('qbInfo', {})).savepath;
-    await this.request('torrents/add', {
-      torrents: torrent,
-      savepath,
-      category: 'Unity',
-      paused: filename ? 'true' : 'false',
-      skip_checking: filename ? 'true' : 'false',
-    });
+    if (!savepath) savepath = (await window.electronAPI.store_get('qbInfo', {})).savepath;
+    await pRetry(() =>
+      this.request('torrents/add', {
+        torrents: torrent,
+        savepath,
+        category: 'Unity',
+        paused: filename ? 'true' : 'false',
+        skip_checking: filename ? 'true' : 'false',
+      })
+    );
 
     const info = <ParseTorrentFile.Instance>parseTorrent(Buffer.from(await torrent.arrayBuffer()));
     const hash = info.infoHash!;
@@ -97,7 +100,7 @@ export class QBittorrentService {
         // @ts-ignore
         responseType,
         withCredentials: true,
-      }),
+      })
     );
   }
 }
