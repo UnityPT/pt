@@ -6,9 +6,9 @@ import { map, startWith } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { QBittorrentService } from '../qbittorrent.service';
 import { ApiService } from '../api.service';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { orderBy } from 'lodash-es';
-import { MatSelectionListChange } from '@angular/material/list';
+import { MatLegacySelectionListChange as MatSelectionListChange } from '@angular/material/legacy-list';
 import { defaultQBInfo, defaultSMBConfig } from '../setting/defaultSetting';
 // import 'user-agent-data-types';
 
