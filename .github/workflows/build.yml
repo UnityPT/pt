@@ -21,15 +21,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: 'npm'
-          cache-dependency-path: |
-            pt-main/package-lock.json
-            pt-web/package-lock.json
       - run: |
-          npm ci --prefix pt-web pt-web
-          npm --prefix pt-web run build
+          npm ci
+          npm run build -w pt-web
           cp -r pt-web/dist pt-main/dist
-          npm ci --prefix pt-main pt-main
-          npm --prefix pt-main run dist
+          npm run dist -w pt-main
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

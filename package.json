@@ -1,0 +1,7 @@
+{
+  "name": "pt",
+  "workspaces": [
+    "pt-main",
+    "pt-web"
+  ]
+}
