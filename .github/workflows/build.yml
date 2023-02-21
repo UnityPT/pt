@@ -17,7 +17,7 @@ jobs:
           echo "CSC_KEY_PASSWORD=${{secrets.MACOS_CSC_KEY_PASSWORD}}" >> $GITHUB_ENV
           echo "APPLE_ID=${{secrets.APPLE_ID}}" >> $GITHUB_ENV
           echo "APPLE_APP_SPECIFIC_PASSWORD=${{secrets.APPLE_APP_SPECIFIC_PASSWORD}}" >> $GITHUB_ENV
-        if: runner.os == 'macOS'
+        if: runner.os == 'macOS' && github.ref_type == 'tag'
       - uses: actions/setup-node@v3
         with:
           cache: 'npm'
@@ -25,7 +25,6 @@ jobs:
             pt-main/package-lock.json
             pt-web/package-lock.json
       - run: |
-          env | base64
           npm ci --prefix pt-web pt-web
           npm --prefix pt-web run build
           cp -r pt-web/dist pt-main/dist
