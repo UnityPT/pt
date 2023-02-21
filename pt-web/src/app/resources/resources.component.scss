@@ -8,18 +8,6 @@
   flex: 1 1 auto;
 }
 
-//搜索栏开始
-.example-form {
-  min-width: 150px;
-  max-width: 500px;
-  width: 100%;
-}
-
-//搜索栏结束
-.example-full-width {
-  width: 100%;
-}
-
 
 //列表结束
 
@@ -34,15 +22,19 @@
     display: flex;
     flex-direction: column;
 
-    > form {
-      ::ng-deep .mat-form-field-wrapper {
-        padding-bottom: initial;
+    // 搜索栏开始
 
-        .mat-form-field-underline {
-          bottom: initial;
-        }
+    > form {
+      width: 100%;
+
+      mat-form-field {
+        min-width: 150px;
+        max-width: 500px;
+        width: 100%;
       }
     }
+
+    // 搜索栏结束
 
     > mat-selection-list {
       flex-grow: 1;
@@ -54,33 +46,15 @@
 
         ::ng-deep .cdk-virtual-scroll-content-wrapper {
           width: 100%;
-        }
 
-        //列表开始
-        .mat-list-icon {
-          color: rgba(0, 0, 0, 0.54);
-          font-size: initial;
+          //列表开始
+          mat-list-option {
+            height: 40px;
 
-        }
-
-        .mat-list-icon, .mat-icon {
-          line-height: initial;
-        }
-
-        mat-list-option {
-          height: 40px !important;
-        }
-
-        mat-progress-spinner {
-          padding: 6px;
-        }
-
-        mat-progress-spinner::ng-deep > svg {
-          position: initial;
-        }
-
-        ::ng-deep .mat-list-item-content {
-          padding-right: 0;
+            [matListItemIcon] {
+              margin-right: 12px;
+            }
+          }
         }
 
         .line {
@@ -97,6 +71,23 @@
             flex: 0;
           }
         }
+      }
+    }
+
+    #status-left {
+      padding: 0 12px;
+      display: flex;
+      line-height: 40px;
+      background-color: #fafafa;
+
+      > span {
+        padding: 0 12px;
+      }
+
+      > button {
+        width: 40px;
+        height: 40px;
+        padding: 8px;
       }
     }
   }
@@ -145,14 +136,6 @@
 
       > dl {
         margin: 0;
-
-        //> dt {
-        //  font-weight: bold;
-        //}
-        //
-        //> dd {
-        //  margin: 0;
-        //}
       }
 
       .box {
@@ -167,8 +150,8 @@
       margin-right: 12px;
 
       mat-progress-bar {
-        height: 24px;
         margin: 8px;
+        --mdc-linear-progress-track-height: 24px;
 
         &::after {
           content: attr(data-progress);
@@ -188,25 +171,5 @@
       }
     }
   }
-
 }
 
-//
-//app-test {
-//  background: red;
-//}
-
-#status {
-  padding: 0 12px;
-  display: flex;
-  line-height: 40px;
-  background-color: #fafafa;
-
-  > span {
-    padding: 0 12px;
-  }
-
-  > button {
-    height: 32px;
-  }
-}

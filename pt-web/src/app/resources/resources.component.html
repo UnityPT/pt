@@ -1,47 +1,38 @@
-<div id="main">
-  <div id="left">
-    <form class="example-form" (submit)="nothing($event)">
-      <mat-form-field class="example-full-width" appearance="fill">
+<div id='main'>
+  <div id='left'>
+    <form (submit)='nothing($event)'>
+      <mat-form-field appearance='fill' subscriptSizing='dynamic'>
         <mat-label>搜索标题或ID</mat-label>
-        <input matInput [formControl]="myControl">
+        <input matInput [formControl]='myControl'>
+        <mat-icon matPrefix>search</mat-icon>
       </mat-form-field>
     </form>
     <!--列表开始-->
 
-    <mat-selection-list #list [multiple]="false" (selectionChange)="select($event)">
-      <cdk-virtual-scroll-viewport itemSize="40" class="example-viewport">
-        <mat-list-option *cdkVirtualFor="let item of filteredOptions | async; trackBy: trackById"
-                         [value]="item">
-          <div class="line" mat-line>
-            <span class="title">{{item.meta.title}}</span>
-            <span class="version">{{item.meta.version}}</span>
+    <mat-selection-list #list [multiple]='false' (selectionChange)='select($event)' hideSingleSelectionIndicator>
+      <cdk-virtual-scroll-viewport itemSize='40' class='example-viewport'>
+        <mat-list-option *cdkVirtualFor='let item of filteredOptions | async; trackBy: trackById' [value]='item'>
+          <div class='line' mat-line>
+            <span class='title'>{{item.meta.title}}</span>
+            <span class='version'>{{item.meta.version}}</span>
           </div>
 
-          <button mat-icon-button mat-list-icon
-                  *ngIf="!torrents[item.resource.info_hash]"
-                  (click)="download(item.resource)"
-                  [disabled]="requesting.has(item.resource.info_hash)">
-            <mat-icon>download</mat-icon>
-          </button>
+          <mat-icon matListItemIcon *ngIf='!torrents[item.resource.info_hash]'>download</mat-icon>
 
-          <mat-progress-spinner mat-list-icon
-                                *ngIf="torrents[item.resource.info_hash] && statusDownloading.has(torrents[item.resource.info_hash].state)"
-                                [value]="torrents[item.resource.info_hash].progress * 100" [diameter]="20">
+          <mat-progress-spinner matListItemIcon
+                                *ngIf='torrents[item.resource.info_hash] && statusDownloading.has(torrents[item.resource.info_hash].state)'
+                                [value]='torrents[item.resource.info_hash].progress * 100' [diameter]='20'>
           </mat-progress-spinner>
 
-          <button mat-icon-button mat-list-icon
-                  *ngIf="torrents[item.resource.info_hash] && statusFinished.has(torrents[item.resource.info_hash].state)"
-                  (click)="import(torrents[item.resource.info_hash])">
-            <mat-icon>create_new_folder</mat-icon>
-          </button>
-
-          <!--      <mat-icon mat-list-icon (click)="download(resource)" *ngIf="!torrent">download</mat-icon>-->
-          <!--      <mat-icon mat-list-icon (click)="import(torrent)" *ngIf="torrent">create_new_folder</mat-icon>-->
+          <mat-icon matListItemIcon
+                    *ngIf='torrents[item.resource.info_hash] && statusFinished.has(torrents[item.resource.info_hash].state)'>
+            create_new_folder
+          </mat-icon>
         </mat-list-option>
       </cdk-virtual-scroll-viewport>
     </mat-selection-list>
-    <div id="status-left">
-      <button mat-icon-button (click)="refresh()">
+    <div id='status-left'>
+      <button mat-icon-button (click)='refresh()'>
         <mat-icon>refresh</mat-icon>
       </button>
       <span>更新于 {{refreshed_at | date:'shortTime'}}，{{items.length}} 个资源</span>
@@ -49,25 +40,26 @@
   </div>
   <!--列表结束-->
 
-  <div id="right">
-    <ng-container *ngIf="selected">
-      <ng-container *ngVar="torrents[selected.resource.info_hash] as torrent">
-        <div id="info">
-          <div class="box" id="meta">
-            <h2 class="mat-h1">{{selected.meta.title}}</h2>
-            <a target="_blank"
+  <div id='right'>
+    <ng-container *ngIf='selected'>
+      <ng-container *ngVar='torrents[selected.resource.info_hash] as torrent'>
+        <div id='info'>
+          <div class='box' id='meta'>
+            <h2 class='mat-h1'>{{selected.meta.title}}</h2>
+            <a target='_blank'
                [href]="'https://assetstore.unity.com/publishers/' + selected.meta.publisher.id">{{selected.meta.publisher.label}}</a>
             <div><span>版本 {{selected.meta.version}} - {{selected.meta.pubdate | date:'longDate'}}</span><span
-              id="asset-store-logo">asset store</span>
+              id='asset-store-logo'>asset store</span>
             </div>
 
-            <a target="_blank" [href]="'https://assetstore.unity.com/packages/p/' + selected.meta.link.id">
+            <a target='_blank' [href]="'https://assetstore.unity.com/packages/p/' + selected.meta.link.id">
               在 Asset Store 中查看</a>
           </div>
-          <div class="box" id="description" [innerHTML]="selected.meta.description"
-               *ngIf="selected.meta.description"></div>
 
-          <dl class="box" id="package">
+          <div class='box' id='description' [innerHTML]='selected.meta.description'
+               *ngIf='selected.meta.description'></div>
+
+          <dl class='box' id='package'>
             <dt>支持的 Unity 版本</dt>
             <dd>{{selected.meta.unity_version}} 或更高</dd>
             <dt>资源包大小</dt>
@@ -76,51 +68,52 @@
             <dd>{{selected.meta.category.label}}</dd>
           </dl>
 
-          <dl class="box" id="upload">
+          <dl class='box' id='upload'>
             <dt>发布者</dt>
             <dd>{{selected.resource.username}}</dd>
             <dt>上传日期</dt>
             <dd>{{selected.resource.submitted | date:'longDate'}}</dd>
           </dl>
         </div>
-        <div id="status-right">
+        <div id='status-right'>
           <!-- 进度条或占位符 -->
-          <mat-progress-bar *ngIf="torrent && statusDownloading.has(torrent.state); else spacer"
-                            [value]="torrent.progress * 100"
+          <mat-progress-bar *ngIf='torrent && statusDownloading.has(torrent.state); else spacer'
+                            [value]='torrent.progress * 100'
                             [attr.data-progress]="torrent.progress | percent:'.1'"></mat-progress-bar>
-         <ng-template #spacer><span class="example-spacer"></span></ng-template>
-          <mat-progress-bar *ngIf="torrent && ssh_get_file_progress[selected.resource.info_hash] && ssh_get_file_progress[selected.resource.info_hash] < 1; else spacer"
-                            [value]="ssh_get_file_progress[selected.resource.info_hash] * 100"
-                            [attr.data-progress]="ssh_get_file_progress[selected.resource.info_hash] | percent:'.1'"></mat-progress-bar>
-         <ng-template #spacer><span class="example-spacer"></span></ng-template>
+          <ng-template #spacer><span class='example-spacer'></span></ng-template>
+          <mat-progress-bar
+            *ngIf='torrent && ssh_get_file_progress[selected.resource.info_hash] && ssh_get_file_progress[selected.resource.info_hash] < 1; else spacer'
+            [value]='ssh_get_file_progress[selected.resource.info_hash] * 100'
+            [attr.data-progress]="ssh_get_file_progress[selected.resource.info_hash] | percent:'.1'"></mat-progress-bar>
+          <ng-template #spacer><span class='example-spacer'></span></ng-template>
 
           <!-- 按钮 -->
           <!-- 未下载-->
-          <button mat-raised-button color="primary"
-                  *ngIf="!torrent"
-                  (click)="download(selected.resource)"
-                  [disabled]="requesting.has(selected.resource.info_hash)">下载
+          <button mat-raised-button color='primary'
+                  *ngIf='!torrent'
+                  (click)='download(selected.resource)'
+                  [disabled]='requesting.has(selected.resource.info_hash)'>下载
           </button>
           <!-- 正在下载-->
           <button mat-raised-button
-                  *ngIf="torrent && statusDownloading.has(torrent.state)"
-                  (click)="cancel(torrent)"
-                  [disabled]="requesting.has(torrent.hash)">取消
+                  *ngIf='torrent && statusDownloading.has(torrent.state)'
+                  (click)='cancel(torrent)'
+                  [disabled]='requesting.has(torrent.hash)'>取消
           </button>
           <button mat-raised-button
                   *ngIf="torrent && statusDownloading.has(torrent.state) && torrent.state != 'pausedDL'"
-                  (click)="pause(torrent)"
-                  [disabled]="requesting.has(torrent.hash)">暂停
+                  (click)='pause(torrent)'
+                  [disabled]='requesting.has(torrent.hash)'>暂停
           </button>
           <button mat-raised-button
                   *ngIf="torrent && statusDownloading.has(torrent.state) && torrent.state == 'pausedDL'"
-                  (click)="resume(torrent)"
-                  [disabled]="requesting.has(torrent.hash)">继续
+                  (click)='resume(torrent)'
+                  [disabled]='requesting.has(torrent.hash)'>继续
           </button>
           <!-- 下载完成-->
-          <button mat-raised-button color="primary"
-                  *ngIf="torrent && statusFinished.has(torrent.state)"
-                  (click)="import(torrent)">导入
+          <button mat-raised-button color='primary'
+                  *ngIf='torrent && statusFinished.has(torrent.state)'
+                  (click)='import(torrent)'>导入
           </button>
         </div>
       </ng-container>

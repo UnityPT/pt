@@ -15,7 +15,6 @@ mat-toolbar {
   }
 
   > button {
-    //margin: 0 4px;
     &:hover {
       background: rgba(0, 0, 0, .4);
     }
@@ -25,8 +24,12 @@ mat-toolbar {
     }
   }
 
-  #user, #stat {
+  #user, .stat {
     padding: 0 6px;
+  }
+
+  .stat {
+    color: var(--mdc-text-button-label-text-color, inherit);
   }
 
   #stat span {
