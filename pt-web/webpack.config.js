@@ -18,20 +18,6 @@ module.exports = {
           },
         ],
       },
-      // {
-      //   test: /struct\.js/,
-      //   use: [
-      //     {
-      //       loader: 'imports-loader',
-      //       options: {
-      //         imports: [
-      //           'named @ctrl/qbittorrent QBittorrent'
-      //         ],
-      //         additionalCode: "var myVariable = false;",
-      //       },
-      //     },
-      //   ],
-      // },
     ],
   },
   resolve: {

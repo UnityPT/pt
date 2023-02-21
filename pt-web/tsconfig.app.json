@@ -4,13 +4,12 @@
   "compilerOptions": {
     "outDir": "./out-tsc/app",
     "types": [
-      "./node_modules/user-agent-data-types"
+      "user-agent-data-types"
     ],
     "esModuleInterop": true
   },
   "files": [
-    "src/main.ts",
-    "src/polyfills.ts"
+    "src/main.ts"
   ],
   "include": [
     "src/**/*.d.ts"

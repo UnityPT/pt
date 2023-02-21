@@ -17,16 +17,12 @@
     "moduleResolution": "node",
     "importHelpers": true,
     "target": "ES2022",
-    "module": "es2020",
+    "module": "ES2022",
+    "useDefineForClassFields": false,
     "lib": [
-      "es2020",
-      "dom",
-      "ES2021.String"
+      "ES2022",
+      "dom"
     ],
-    "types": [
-      "./node_modules/user-agent-data-types"
-    ],
-    "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
