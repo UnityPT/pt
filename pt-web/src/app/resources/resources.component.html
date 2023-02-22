@@ -9,7 +9,7 @@
     </form>
     <!--列表开始-->
 
-    <mat-selection-list #list [multiple]='false' (selectionChange)='select($event)' hideSingleSelectionIndicator>
+    <mat-selection-list #list [multiple]='false' (selectionChange)='select($event.options[0].value)' hideSingleSelectionIndicator>
       <cdk-virtual-scroll-viewport itemSize='40' class='example-viewport'>
         <mat-list-option *cdkVirtualFor='let item of filteredOptions | async; trackBy: trackById' [value]='item'>
           <div class='line' mat-line>
@@ -56,24 +56,34 @@
               在 Asset Store 中查看</a>
           </div>
 
-          <div class='box' id='description' [innerHTML]='selected.meta.description'
-               *ngIf='selected.meta.description'></div>
-
-          <dl class='box' id='package'>
-            <dt>支持的 Unity 版本</dt>
-            <dd>{{selected.meta.unity_version}} 或更高</dd>
-            <dt>资源包大小</dt>
-            <dd>{{selected.resource.total_size | filesize}}</dd>
-            <dt>分类</dt>
-            <dd>{{selected.meta.category.label}}</dd>
-          </dl>
-
-          <dl class='box' id='upload'>
-            <dt>发布者</dt>
-            <dd>{{selected.resource.username}}</dd>
-            <dt>上传日期</dt>
-            <dd>{{selected.resource.submitted | date:'longDate'}}</dd>
-          </dl>
+          <mat-tab-group>
+            <mat-tab label='描述'>
+              <div class='box' id='description' [innerHTML]='selected.meta.description'
+                   *ngIf='selected.meta.description'></div>
+              <dl class='box' id='package'>
+                <dt>支持的 Unity 版本</dt>
+                <dd>{{selected.meta.unity_version}} 或更高</dd>
+                <dt>资源包大小</dt>
+                <dd>{{selected.resource.total_size | filesize}}</dd>
+                <dt>分类</dt>
+                <dd>{{selected.meta.category.label}}</dd>
+              </dl>
+              <dl class='box' id='upload'>
+                <dt>发布者</dt>
+                <dd>{{selected.resource.username}}</dd>
+                <dt>上传日期</dt>
+                <dd>{{selected.resource.submitted | date:'longDate'}}</dd>
+              </dl>
+            </mat-tab>
+            <mat-tab label='版本'>
+              <mat-nav-list>
+                <a mat-list-item *ngFor="let version of itemsGroup[selected.meta.id]" [activated]="version === selected" (click)='select(version)'>
+                  {{version.meta.version}} - {{version.meta.pubdate | date:'longDate'}}
+                </a>
+              </mat-nav-list>
+            </mat-tab>
+            <mat-tab label='做种'></mat-tab>
+          </mat-tab-group>
         </div>
         <div id='status-right'>
           <!-- 进度条或占位符 -->

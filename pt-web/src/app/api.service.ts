@@ -20,7 +20,7 @@ export class ApiService {
 
   constructor(
     private http: HttpClient,
-    private router: Router, // private jwtHelperService: JwtHelperService
+    private router: Router // private jwtHelperService: JwtHelperService
   ) {
     this.router.events.subscribe((data) => {
       if (data instanceof NavigationEnd) {
@@ -46,8 +46,8 @@ export class ApiService {
         {
           responseType: 'text',
           withCredentials: true,
-        },
-      ),
+        }
+      )
     );
     localStorage.setItem('access_token', JSON.parse(res).access_token);
     this.setUser(username);
@@ -65,9 +65,7 @@ export class ApiService {
 
   async index(forceRefresh = false) {
     const url = new URL(this.url('index'));
-    if (forceRefresh) {
-      url.searchParams.append('t', Date.now().toString());
-    }
+    if (forceRefresh) url.searchParams.append('t', Date.now().toString());
 
     let body = [] as Resource[];
     try {
@@ -75,7 +73,7 @@ export class ApiService {
         this.http.get<Resource[]>(url.href, {
           withCredentials: true,
           observe: 'response',
-        }),
+        })
       );
       body = ret.body ?? ([] as Resource[]);
     } catch (e) {
@@ -97,7 +95,7 @@ export class ApiService {
         this.http.post(this.url('upload'), body, {
           withCredentials: true,
           responseType: 'blob',
-        }),
+        })
       );
     } catch (e) {
       this.dealWithError(e as HttpErrorResponse);
@@ -112,7 +110,7 @@ export class ApiService {
           params: { id: id.toString() },
           responseType: 'blob',
           withCredentials: true,
-        }),
+        })
       );
     } catch (e) {
       this.dealWithError(e as HttpErrorResponse);
@@ -129,7 +127,7 @@ export class ApiService {
       this.http.post(this.url('register'), registerInfo, {
         responseType: 'text',
         withCredentials: true,
-      }),
+      })
     );
   }
 
@@ -144,8 +142,8 @@ export class ApiService {
           {
             responseType: 'text',
             withCredentials: true,
-          },
-        ),
+          }
+        )
       );
     } catch (e) {
       return this.dealWithError(e as HttpErrorResponse);
@@ -156,7 +154,7 @@ export class ApiService {
     const user_stat = await firstValueFrom(
       this.http.get<UserStat>(this.url('userstat'), {
         withCredentials: true,
-      }),
+      })
     );
     this.user_stat_uploaded = this.formatSize(user_stat.uploaded);
     this.user_stat_downloaded = this.formatSize(user_stat.downloaded);

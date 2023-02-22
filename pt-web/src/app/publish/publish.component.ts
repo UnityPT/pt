@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ExtraField } from '../gzip';
 import { Meta } from '../types';
 import createTorrent from 'create-torrent';
 import { ApiService } from '../api.service';
 import { QBittorrentService } from '../qbittorrent.service';
 import path from 'path';
+import { MatTable } from '@angular/material/table';
+import util from 'util';
 
 @Component({
   selector: 'app-publish',
@@ -12,6 +14,10 @@ import path from 'path';
   styleUrls: ['./publish.component.scss'],
 })
 export class PublishComponent implements OnInit {
+  displayedColumns: string[] = ['file', 'version_id', 'create_torrent', 'qBittorrent'];
+  dataSource: PublishLog[] = [];
+  @ViewChild(MatTable) table!: MatTable<PublishLog>;
+
   constructor(private api: ApiService, private qBittorrent: QBittorrentService) {}
 
   ngOnInit(): void {}
@@ -19,22 +25,38 @@ export class PublishComponent implements OnInit {
   async publish(files: FileList | null) {
     if (!files) return;
 
-    const items = await this.api.index(true);
-    const taskHashes = (await this.qBittorrent.torrentsInfo({ category: 'Unity' })).map((t) => t.hash);
-    const resourceVersionIds = items.map((item) => item.meta.version_id);
+    this.dataSource = [];
 
     for (let i = 0; i < files.length; i++) {
       const file = files.item(i)!;
+      this.dataSource.push({ file: file.name });
+    }
+    this.table.renderRows();
+
+    const items = await this.api.index(true);
+    const taskHashes = (await this.qBittorrent.torrentsInfo({ category: 'Unity' })).map((t) => t.hash);
+    const resourceVersionIds = []; //items.map((item) => item.meta.version_id);
+
+    for (let i = 0; i < files.length; i++) {
+      document.querySelector(`tr:nth-child(${i + 1})`)?.scrollIntoView({ block: 'nearest' });
+      const file = files.item(i)!;
+      const progress = this.dataSource[i];
       const description = await ExtraField(file, 65, 36);
       if (!description) {
+        progress.version_id = false;
+        this.table.renderRows();
         console.log(`${file.webkitRelativePath} is not a unity asset store package`);
         continue;
       }
       const meta = <Meta>JSON.parse(description);
       if (!meta.version_id) {
+        progress.version_id = false;
+        this.table.renderRows();
         console.log(`${file.webkitRelativePath} is strange`);
         continue;
       }
+      progress.version_id = meta.version_id;
+      this.table.renderRows();
 
       // @ts-ignore
       const p = file.path // provided by electron, not works in chrome.
@@ -50,47 +72,68 @@ export class PublishComponent implements OnInit {
         const { resource, meta } = item;
         // 本地有，远端有，qb 有 => 什么都不做
         if (taskHashes.includes(resource.info_hash)) {
+          progress.qBittorrent = 'skipped';
         } else {
           if (description === resource.description) {
             // 本地有，远端有，qb 无，一致 => 添加下载任务
             console.log(`downloading ${meta.title}`);
+            progress.create_torrent = 'downloading';
+            this.table.renderRows();
             const torrent = await this.api.download(resource.torrent_id);
             if (torrent) {
               await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
+              progress.create_torrent = 'downloaded';
+              this.table.renderRows();
               taskHashes.push(resource.info_hash);
             }
           } else {
             // 本地有，远端有，qb 无，不一致 => 忽略
             console.log(`${p} has same version_id with server but not same file`);
+            progress.create_torrent = 'conflict';
+            this.table.renderRows();
           }
         }
       } else {
         // 本地有，远端无 => 发布资源并添加下载任务
         console.log(`uploading ${meta.title}`);
+        progress.create_torrent = 'creating';
+        this.table.renderRows();
+
         const name = meta.title
           .replace(/[<>:"\/\\|?*+#&().,—!™'\[\]]/g, '')
           .replace(/ {2,}/g, ' ')
           .trim();
 
-        const torrent0: Uint8Array = await new Promise((resolve, reject) => {
-          createTorrent(
-            file,
-            {
-              name: `[${meta.version_id}] ${name} ${meta.version}.unitypackage`,
-              createdBy: 'UnityPT 1.0',
-              announceList: [],
-              private: true,
-            },
-            (err: any, torrent: any) => (err ? reject(err) : resolve(torrent)),
-          );
+        // @ts-ignore
+        const torrent0: Buffer = await util.promisify(createTorrent)(file, {
+          name: `[${meta.version_id}] ${name} ${meta.version}.unitypackage`,
+          createdBy: 'UnityPT 1.0',
+          announceList: [],
+          private: true,
         });
 
+        progress.create_torrent = 'uploading';
+        this.table.renderRows();
+
         const torrent = await this.api.upload(torrent0, description, `${name}.torrent`);
-        if (!torrent) return;
+        if (!torrent) continue;
+        progress.create_torrent = 'uploaded';
+        this.table.renderRows();
+
         const hash = await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
+        progress.qBittorrent = 'added';
+        this.table.renderRows();
+
         resourceVersionIds.push(meta.version_id);
         taskHashes.push(hash);
       }
     }
   }
+}
+
+export interface PublishLog {
+  file: string;
+  version_id?: string | boolean;
+  create_torrent?: 'downloading' | 'downloaded' | 'creating' | 'uploading' | 'uploaded' | 'conflict';
+  qBittorrent?: 'added' | 'skipped';
 }

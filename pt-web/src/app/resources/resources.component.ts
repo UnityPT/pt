@@ -7,9 +7,9 @@ import { HttpClient } from '@angular/common/http';
 import { QBittorrentService } from '../qbittorrent.service';
 import { ApiService } from '../api.service';
 import { MatDialog } from '@angular/material/dialog';
-import { orderBy } from 'lodash-es';
-import { MatSelectionListChange } from '@angular/material/list';
+import { mapValues, orderBy } from 'lodash-es';
 import { defaultQBInfo, defaultSMBConfig } from '../setting/defaultSetting';
+
 // import 'user-agent-data-types';
 
 @Component({
@@ -18,10 +18,8 @@ import { defaultQBInfo, defaultSMBConfig } from '../setting/defaultSetting';
   styleUrls: ['./resources.component.scss'],
 })
 export class ResourcesComponent implements OnInit {
-  // 列表开始
-  //   resources: Resource[] = [];
-  //   meta: Meta[] = []
   items: ResourceMeta[] = [];
+  itemsGroup: Record<string, ResourceMeta[]> = {};
   torrents: Record<string, Torrent> = {};
   refreshed_at: Date = new Date();
   requesting: Set<string> = new Set();
@@ -34,7 +32,7 @@ export class ResourcesComponent implements OnInit {
   myControl = new FormControl('');
   filteredOptions = this.myControl.valueChanges.pipe(
     startWith(''),
-    map((value) => this.filter(value || '')),
+    map((value) => this.filter(value || ''))
   );
   selected?: ResourceMeta;
 
@@ -135,19 +133,27 @@ export class ResourcesComponent implements OnInit {
   }
 
   async refresh() {
-    this.items = orderBy(
-      (this.items = await this.api.index()),
-      [(item) => item.meta.title, (item) => item.meta.version_id],
-      ['asc', 'desc'],
+    const items = await this.api.index();
+
+    this.itemsGroup = mapValues(
+      // @ts-ignore
+      items.group(({ meta }) => meta.id),
+      (arr) => orderBy(arr, [({ meta }) => meta.version_id], ['desc'])
     );
+    this.items = orderBy(
+      Object.values(this.itemsGroup).map((arr) => arr[0]),
+      [(item) => item.meta.title],
+      ['asc']
+    );
+
     this.refreshed_at = new Date();
-    this.api.user_stat_published = this.items.filter(({ resource }) => resource.username === this.api.username).length;
+    this.api.user_stat_published = items.filter(({ resource }) => resource.username === this.api.username).length;
     await this.api.refreshUserStat();
     this.myControl.reset();
   }
 
-  select(event: MatSelectionListChange) {
-    this.selected = event.options[0].value;
+  select(event: ResourceMeta) {
+    this.selected = event;
   }
 
   nothing($event: SubmitEvent) {

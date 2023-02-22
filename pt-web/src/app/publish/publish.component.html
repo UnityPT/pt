@@ -1,6 +1,47 @@
- <mat-card appearance="outlined" class="mat-elevation-z2">
-    <mat-card-content>
-      <input #dir type="file" webkitdirectory (change)="publish(dir.files)">
+<mat-card appearance='outlined' class='mat-elevation-z2'>
+  <mat-card-content>
+    <input #dir type='file' webkitdirectory (change)='publish(dir.files)'>
 
-    </mat-card-content>
-  </mat-card>
+  </mat-card-content>
+</mat-card>
+<table mat-table [dataSource]='dataSource' [hidden]='!dataSource.length'>
+
+  <!--- Note that these columns can be defined in any order.
+        The actual rendered columns are set as a property on the row definition" -->
+
+  <!-- Position Column -->
+  <ng-container matColumnDef='file'>
+    <th mat-header-cell *matHeaderCellDef>文件</th>
+    <td mat-cell *matCellDef='let element'> {{element.file}} </td>
+  </ng-container>
+
+  <!-- Name Column -->
+  <ng-container matColumnDef='version_id'>
+    <th mat-header-cell *matHeaderCellDef>资源ID</th>
+    <td mat-cell *matCellDef='let element'> {{element.version_id}} </td>
+  </ng-container>
+
+  <!-- Weight Column -->
+  <ng-container matColumnDef='create_torrent'>
+    <th mat-header-cell *matHeaderCellDef>制作种子</th>
+    <td mat-cell *matCellDef='let element' [ngSwitch]='element.create_torrent'>
+      <mat-icon *ngSwitchCase='"downloading"'>download</mat-icon>
+      <mat-icon *ngSwitchCase='"downloaded"'>done</mat-icon>
+      <mat-icon *ngSwitchCase='"creating"'>pending</mat-icon>
+      <mat-icon *ngSwitchCase='"uploading"'>upload</mat-icon>
+      <mat-icon *ngSwitchCase='"uploaded"'>done</mat-icon>
+    </td>
+  </ng-container>
+
+  <!-- Symbol Column -->
+  <ng-container matColumnDef='qBittorrent'>
+    <th mat-header-cell *matHeaderCellDef>qb</th>
+    <td mat-cell *matCellDef='let element' [ngSwitch]='element.qBittorrent'>
+      <mat-icon *ngSwitchCase='"added"'>done</mat-icon>
+      <ng-container *ngSwitchCase='"skipped"'>跳过</ng-container>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef='displayedColumns'></tr>
+  <tr mat-row *matRowDef='let row; columns: displayedColumns;'></tr>
+</table>

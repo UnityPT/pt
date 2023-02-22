@@ -36,7 +36,9 @@ import { InvitationComponent } from './invitation/invitation.component';
 import { JwtModule } from '@auth0/angular-jwt';
 import { SettingComponent } from './setting/setting.component';
 import { SettingDirective } from './setting/setting.directive';
-import {MatStepperModule} from "@angular/material/stepper";
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @NgModule({
   declarations: [
@@ -90,6 +92,8 @@ import {MatStepperModule} from "@angular/material/stepper";
       },
     }),
     MatStepperModule,
+    MatTableModule,
+    MatTabsModule,
   ],
   bootstrap: [AppComponent],
 })
