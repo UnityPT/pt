@@ -5,7 +5,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development"
+    "watch": "ng build --watch --configuration development",
+    "gen": "ng-openapi-gen --input http://10.198.11.148:3000/api-json --output src/app/api"
   },
   "private": true,
   "dependencies": {
@@ -48,6 +49,7 @@
     "@types/node": "^18.14.0",
     "html-loader": "^4.2.0",
     "markdown-loader": "^8.0.0",
+    "ng-openapi-gen": "^0.24.0",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
     "typescript": "4.9",

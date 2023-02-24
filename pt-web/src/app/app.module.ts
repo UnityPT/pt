@@ -39,6 +39,7 @@ import { SettingDirective } from './setting/setting.directive';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
+import { ApiModule } from './api/api.module';
 
 @NgModule({
   declarations: [
@@ -52,7 +53,7 @@ import { MatTabsModule } from '@angular/material/tabs';
     HelpComponent,
     PublishComponent,
     InvitationComponent,
-    SettingComponent,
+    SettingComponent
   ],
   imports: [
     BrowserModule,
@@ -84,17 +85,16 @@ import { MatTabsModule } from '@angular/material/tabs';
     NgParticlesModule,
     JwtModule.forRoot({
       config: {
-        tokenGetter: () => {
-          return localStorage.getItem('access_token');
-        },
-        //80端口和443端口不写 :80/443
-        allowedDomains: ['localhost', 'frogeater.vip', 'pt.lolo.moe'],
-      },
+        tokenGetter: () => localStorage.getItem('access_token'),
+        allowedDomains: ['localhost', 'frogeater.vip', 'pt.lolo.moe'] //80端口和443端口不写 :80/443
+      }
     }),
     MatStepperModule,
     MatTableModule,
     MatTabsModule,
+    ApiModule.forRoot({ rootUrl: 'http://10.198.11.148:3000/api' })
   ],
-  bootstrap: [AppComponent],
+  bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule {
+}
