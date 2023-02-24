@@ -1,3 +1,20 @@
+<button mat-button (click)='browseRemote()'>从远程发布</button>
+<!--<mat-list>-->
+<!--  <div mat-subheader>Folders</div>-->
+<!--  <mat-list-item *ngFor="let folder of folders">-->
+<!--    <mat-icon matListItemIcon>folder</mat-icon>-->
+<!--    <div matListItemTitle>{{folder.name}}</div>-->
+<!--    <div matListItemLine>{{folder.updated | date}}</div>-->
+<!--  </mat-list-item>-->
+<!--  <mat-divider></mat-divider>-->
+<!--  <div mat-subheader>Notes</div>-->
+<!--  <mat-list-item *ngFor="let note of notes">-->
+<!--    <mat-icon matListItemIcon>note</mat-icon>-->
+<!--    <div matListItemTitle>{{note.name}}</div>-->
+<!--    <div matListItemLine>{{note.updated | date}}</div>-->
+<!--  </mat-list-item>-->
+<!--</mat-list>-->
+
 <mat-card appearance='outlined' class='mat-elevation-z2'>
   <mat-card-content>
     <input #dir type='file' webkitdirectory (change)='publish(dir.files)'>

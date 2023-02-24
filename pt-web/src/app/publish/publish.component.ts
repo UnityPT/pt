@@ -17,6 +17,7 @@ export class PublishComponent implements OnInit {
   displayedColumns: string[] = ['file', 'version_id', 'create_torrent', 'qBittorrent'];
   dataSource: PublishLog[] = [];
   @ViewChild(MatTable) table!: MatTable<PublishLog>;
+  public browsingRemote = false;
 
   constructor(private api: ApiService, private qBittorrent: QBittorrentService) {}
 
@@ -29,13 +30,14 @@ export class PublishComponent implements OnInit {
 
     for (let i = 0; i < files.length; i++) {
       const file = files.item(i)!;
+      path.extname(file.name);
       this.dataSource.push({ file: file.name });
     }
     this.table.renderRows();
 
     const items = await this.api.index(true);
     const taskHashes = (await this.qBittorrent.torrentsInfo({ category: 'Unity' })).map((t) => t.hash);
-    const resourceVersionIds = []; //items.map((item) => item.meta.version_id);
+    const resourceVersionIds = items.map((item) => item.meta.version_id);
 
     for (let i = 0; i < files.length; i++) {
       document.querySelector(`tr:nth-child(${i + 1})`)?.scrollIntoView({ block: 'nearest' });
@@ -128,6 +130,10 @@ export class PublishComponent implements OnInit {
         taskHashes.push(hash);
       }
     }
+  }
+
+  browseRemote() {
+    this.browsingRemote = true;
   }
 }
 
