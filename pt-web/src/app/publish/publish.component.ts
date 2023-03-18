@@ -145,8 +145,10 @@ export class PublishComponent implements OnInit {
 
   async browseRemote() {
     this.browsingRemote = true;
-    const directoryItems = await this.client.getDirectoryContents('/', { deep: true });
-    console.log(directoryItems);
+    // const directoryItems = await this.client.getDirectoryContents('/', { deep: true });
+    // console.log(directoryItems);
+
+    await window.electronAPI.create_ssh();
 
     const dialogRef = this.dialog.open(BrowseRemoteComponent, {
       width: '600px',

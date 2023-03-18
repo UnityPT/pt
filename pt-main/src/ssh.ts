@@ -50,4 +50,14 @@ export class SSH {
       );
     });
   }
+
+  async getDir(remotePath: string) {
+    this.conn.sftp((err, sftp) => {
+      if (err) throw err;
+      sftp.readdir(remotePath.split(':').at(-1), (err, list) => {
+        if (err) throw err;
+        console.log(list);
+      });
+    });
+  }
 }
