@@ -15,8 +15,8 @@ export class ApiService {
   username = localStorage.getItem('username');
   curPage = '';
   user_stat_published = 0;
-  user_stat_uploaded = '0B';
-  user_stat_downloaded = '0B';
+  user_stat_uploaded = 0;
+  user_stat_downloaded = 0;
 
   constructor(
     private http: HttpClient,
@@ -156,25 +156,25 @@ export class ApiService {
         withCredentials: true,
       })
     );
-    this.user_stat_uploaded = this.formatSize(user_stat.uploaded);
-    this.user_stat_downloaded = this.formatSize(user_stat.downloaded);
+    this.user_stat_uploaded = +user_stat.uploaded;
+    this.user_stat_downloaded = +user_stat.downloaded;
   }
 
   checkShowParticles() {
     return !this.username && this.curPage != '/help';
   }
 
-  formatSize(size: number) {
-    if (size < 512) return round(size, 2) + 'B';
-    size /= 1024.0;
-    if (size < 512) return round(size, 2) + 'KB';
-    size /= 1024.0;
-    if (size < 512) return round(size, 2) + 'MB';
-    size /= 1024.0;
-    if (size < 512) return round(size, 2) + 'GB';
-    size /= 1024.0;
-    return round(size, 2) + 'TB';
-  }
+  // formatSize(size: number) {
+  //   if (size < 512) return round(size, 2) + 'B';
+  //   size /= 1024.0;
+  //   if (size < 512) return round(size, 2) + 'KB';
+  //   size /= 1024.0;
+  //   if (size < 512) return round(size, 2) + 'MB';
+  //   size /= 1024.0;
+  //   if (size < 512) return round(size, 2) + 'GB';
+  //   size /= 1024.0;
+  //   return round(size, 2) + 'TB';
+  // }
 
   async test() {
     // const res = confirm('sometext');

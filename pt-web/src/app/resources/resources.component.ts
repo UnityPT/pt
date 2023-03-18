@@ -88,12 +88,8 @@ export class ResourcesComponent implements OnInit {
       console.log(torrent.hash, torrent.name);
       const qb_info = await window.electronAPI.store_get('qbInfo', defaultQBInfo);
       if (qb_info.get_protocol === 'sftp') {
-        const res = await window.electronAPI.create_ssh();
-        if (res === true) {
-          await window.electronAPI.get_file(torrent.hash, torrent.name);
-        } else {
-          throw new Error('ssh连接失败');
-        }
+        await window.electronAPI.create_ssh();
+        await window.electronAPI.get_file(torrent.hash, torrent.name);
       } else if (qb_info.get_protocol === 'http') {
         const httpConfig = await window.electronAPI.store_get('httpConfig', defaultSMBConfig);
         if (httpConfig.remotePath && httpConfig.localPath) {

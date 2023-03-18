@@ -97,21 +97,7 @@ export class AppComponent {
     await loadFull(engine);
   }
   //
-  async test1() {
-    const res = await window.electronAPI.create_ssh();
-    console.log(res);
-    // await window.electronAPI.get_file('xxx', '1.txt');
-  }
-  async test2() {
-    // window.electronAPI.on('get_file_progress', (data) => {
-    //   console.log(data);
-    // });
-    // console.log(await window.electronAPI.create_ssh());
-    // await window.electronAPI.get_file('./pt/testdir/202107161430.mp4', 'test.mp4', 'test_hash');
-    // await window.electronAPI.on_get_file_progress((event, data) => {
-    //   console.log(data);
-    // });
-  }
+  async test1() {}
 }
 
 declare global {
@@ -120,7 +106,7 @@ declare global {
       import: (origin: string, pathname: string, platform: string) => Promise<void>;
       store_get: (key: string, defaultValue?: any) => Promise<any>;
       store_set: (key: string, value: any) => Promise<void>;
-      create_ssh: () => Promise<boolean>;
+      create_ssh: () => Promise<void>;
       get_file: (infoHash: string, filename: string) => Promise<void>;
       relaunch: () => Promise<void>;
       on: (channel: string, func: (event: any, data: any) => void) => void;

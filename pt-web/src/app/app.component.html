@@ -20,10 +20,10 @@
     <button mat-menu-item class="button" (click)="logout()">退出登录</button>
   </mat-menu>
   <button mat-button class="stat" *ngIf="api.username" disabled>
-    <mat-icon>upload</mat-icon>{{api.user_stat_uploaded}}
+    <mat-icon>upload</mat-icon>{{api.user_stat_uploaded | filesize}}
   </button>
   <button mat-button class="stat" *ngIf="api.username" disabled>
-    <mat-icon>download</mat-icon>{{api.user_stat_downloaded}}
+    <mat-icon>download</mat-icon>{{api.user_stat_downloaded| filesize}}
   </button>
   <button mat-button class="stat" *ngIf="api.username" disabled>
     <mat-icon>emoji_events</mat-icon>{{api.user_stat_published}}
