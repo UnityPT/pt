@@ -1,0 +1,26 @@
+.file-picker-dialog-content {
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+  overflow: hidden;
+}
+
+.file-picker-toolbar {
+  height: 56px;
+}
+
+.file-picker-breadcrumb {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 96px);
+}
+
+.no-selection {
+  pointer-events: none;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}

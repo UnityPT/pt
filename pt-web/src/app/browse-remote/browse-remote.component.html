@@ -1,0 +1,38 @@
+<!--<h2 mat-dialog-title>{{ title }}</h2>-->
+<!--<div mat-dialog-content>-->
+<!--  <mat-list>-->
+<!--    <div mat-subheader>Folders</div>-->
+<!--    <mat-list-item *ngFor="let folder of items">-->
+<!--      <mat-icon matListItemIcon>folder</mat-icon>-->
+<!--      <div matListItemTitle>{{folder.name}}</div>-->
+<!--    </mat-list-item>-->
+<!--    <mat-divider></mat-divider>-->
+<!--  </mat-list>-->
+<!--</div>-->
+<!--<div mat-dialog-actions>-->
+<!--  <button mat-button (click)="onCancelClick()">取消</button>-->
+<!--  <button mat-button color="primary" [disabled]="selectedItem === null" (click)="onSelectClick()">选择</button>-->
+<!--</div>-->
+<mat-dialog-content>
+  <div class="file-picker-dialog-content">
+    <div class="file-picker-toolbar">
+      <mat-toolbar color="primary">
+        <mat-toolbar-row>
+          <button mat-icon-button color="primary" *ngIf="selectedItem !== null" (click)="onBackClick()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <div class="file-picker-breadcrumb">
+            <span *ngFor="let item of breadcrumb">{{item.name}} / </span>
+          </div>
+          <div class="spacer"></div>
+        </mat-toolbar-row>
+      </mat-toolbar>
+    </div>
+    <mat-selection-list [ngClass]="{'no-selection': selectedItem === null}">
+      <mat-list-option *ngFor="let item of items" [value]="item" (click)="onItemClick(item)">
+        <mat-icon mat-list-icon>{{item.isDirectory ? 'folder' : 'file'}}</mat-icon>
+        <span mat-line>{{item.name}}</span>
+      </mat-list-option>
+    </mat-selection-list>
+  </div>
+</mat-dialog-content>
