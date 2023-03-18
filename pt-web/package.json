@@ -37,6 +37,7 @@
     "tsparticles": "^2.9.3",
     "tsparticles-engine": "^2.9.3",
     "typed-struct": "^2.3.0",
+    "webdav": "^5.0.0-r3",
     "zone.js": "~0.12.0"
   },
   "devDependencies": {

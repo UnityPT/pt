@@ -7,6 +7,9 @@ import { QBittorrentService } from '../qbittorrent.service';
 import path from 'path';
 import { MatTable } from '@angular/material/table';
 import util from 'util';
+import { AuthType, createClient, FileStat, WebDAVClient } from 'webdav';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { BrowseRemoteComponent } from '../browse-remote/browse-remote.component';
 
 @Component({
   selector: 'app-publish',
@@ -18,10 +21,18 @@ export class PublishComponent implements OnInit {
   dataSource: PublishLog[] = [];
   @ViewChild(MatTable) table!: MatTable<PublishLog>;
   public browsingRemote = false;
+  public client!: WebDAVClient;
 
-  constructor(private api: ApiService, private qBittorrent: QBittorrentService) {}
+  constructor(private api: ApiService, private qBittorrent: QBittorrentService, private dialog: MatDialog) {}
 
-  ngOnInit(): void {}
+  async ngOnInit() {
+    this.client = createClient('https://frogeater.vip/webdav/', {
+      authType: AuthType.Password,
+      username: 'frogeater',
+      password: '123456',
+    });
+    console.log('this.client: ');
+  }
 
   async publish(files: FileList | null) {
     if (!files) return;
@@ -132,8 +143,18 @@ export class PublishComponent implements OnInit {
     }
   }
 
-  browseRemote() {
+  async browseRemote() {
     this.browsingRemote = true;
+    const directoryItems = await this.client.getDirectoryContents('/', { deep: true });
+    console.log(directoryItems);
+
+    const dialogRef = this.dialog.open(BrowseRemoteComponent, {
+      width: '600px',
+      data: {
+        title: 'xxx',
+        items: [{ name: '1', path: '1', isDirectory: false, isFile: true, size: 1, children: [] }],
+      },
+    });
   }
 }
 
