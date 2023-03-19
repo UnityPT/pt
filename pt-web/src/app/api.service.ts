@@ -4,7 +4,6 @@ import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { FileItem, HttpConfig, RegisterInfo, Resource, UserStat } from './types';
 import { NavigationEnd, Router } from '@angular/router';
 import { round } from 'lodash-es';
-import { electronAPI } from 'pt/src/electronAPI';
 
 @Injectable({
   providedIn: 'root',
