@@ -4,3 +4,8 @@ export interface UserSSHConfig {
   username: string;
   privateKeyPath: string;
 }
+export interface FileItem {
+  name: string;
+  isDirectory: boolean;
+  children?: FileItem[];
+}

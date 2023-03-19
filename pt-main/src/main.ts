@@ -86,6 +86,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('store_get', electronAPI.store_get.bind(electronAPI));
   ipcMain.handle('store_set', electronAPI.store_set.bind(electronAPI));
   ipcMain.handle('create_ssh', async () => ssh.createConnect());
+  ipcMain.handle('get_list', async () => ssh.getList());
   ipcMain.handle('get_file', async (event, infoHash, fileName) => {
     const sshConfig = electronAPI.store.get('sshConfig') as UserSSHConfig;
     const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), fileName);

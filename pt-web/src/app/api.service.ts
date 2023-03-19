@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
-import { HttpConfig, RegisterInfo, Resource, UserStat } from './types';
+import { FileItem, HttpConfig, RegisterInfo, Resource, UserStat } from './types';
 import { NavigationEnd, Router } from '@angular/router';
 import { round } from 'lodash-es';
+import { electronAPI } from 'pt/src/electronAPI';
 
 @Injectable({
   providedIn: 'root',
@@ -164,18 +165,6 @@ export class ApiService {
     return !this.username && this.curPage != '/help';
   }
 
-  // formatSize(size: number) {
-  //   if (size < 512) return round(size, 2) + 'B';
-  //   size /= 1024.0;
-  //   if (size < 512) return round(size, 2) + 'KB';
-  //   size /= 1024.0;
-  //   if (size < 512) return round(size, 2) + 'MB';
-  //   size /= 1024.0;
-  //   if (size < 512) return round(size, 2) + 'GB';
-  //   size /= 1024.0;
-  //   return round(size, 2) + 'TB';
-  // }
-
   async test() {
     // const res = confirm('sometext');
     // if (res == true) {
@@ -219,5 +208,13 @@ export class ApiService {
       reportProgress: true,
       observe: 'events',
     });
+  }
+
+  async getRemoteDir() {
+    const items = [];
+    // const remotePath = (await window.electronAPI.store_get('sshConfig')).remotePath.split(':').at(-1);
+    // const paths = (await window.electronAPI.get_list()).split('\n').map((path) => {
+    //   path = path.replace(remotePath, '');
+    // });
   }
 }

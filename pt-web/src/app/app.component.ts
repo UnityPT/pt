@@ -97,7 +97,10 @@ export class AppComponent {
     await loadFull(engine);
   }
   //
-  async test1() {}
+  async test1() {
+    console.log(await window.electronAPI.create_ssh());
+    console.log(await window.electronAPI.get_list());
+  }
 }
 
 declare global {
@@ -106,7 +109,8 @@ declare global {
       import: (origin: string, pathname: string, platform: string) => Promise<void>;
       store_get: (key: string, defaultValue?: any) => Promise<any>;
       store_set: (key: string, value: any) => Promise<void>;
-      create_ssh: () => Promise<void>;
+      create_ssh: () => Promise<boolean>;
+      get_list: () => Promise<string>;
       get_file: (infoHash: string, filename: string) => Promise<void>;
       relaunch: () => Promise<void>;
       on: (channel: string, func: (event: any, data: any) => void) => void;

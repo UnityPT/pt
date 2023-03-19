@@ -74,3 +74,9 @@ export interface HttpConfig {
   remotePath: string;
   localPath: string;
 }
+
+export interface FileItem {
+  name: string;
+  isDirectory: boolean;
+  children?: FileItem[];
+}
