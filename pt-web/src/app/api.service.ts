@@ -210,10 +210,22 @@ export class ApiService {
   }
 
   async getRemoteDir() {
-    const items = [];
-    // const remotePath = (await window.electronAPI.store_get('sshConfig')).remotePath.split(':').at(-1);
-    // const paths = (await window.electronAPI.get_list()).split('\n').map((path) => {
-    //   path = path.replace(remotePath, '');
-    // });
+    const remotePath = (await window.electronAPI.store_get('sshConfig')).remotePath.split(':').at(-1);
+    const paths = (await window.electronAPI.get_list()).split('\n');
+    const dirs: Record<string, FileItem> = {};
+    paths.forEach((path) => {
+      const parts = path.replace(remotePath, '').split('/');
+      if (parts.length < 2) return;
+      let dir = dirs;
+      for (let i = 1; i < parts.length; i++) {
+        const part = parts.at(i)!;
+        if (dir.hasOwnProperty(part)) {
+          dir = dir[part].children;
+        } else {
+          dir[part] = { name: part, path, children: {} } as FileItem;
+        }
+      }
+    });
+    return dirs;
   }
 }

@@ -77,6 +77,6 @@ export interface HttpConfig {
 
 export interface FileItem {
   name: string;
-  isDirectory: boolean;
-  children?: FileItem[];
+  path: string;
+  children: Record<string, FileItem>;
 }

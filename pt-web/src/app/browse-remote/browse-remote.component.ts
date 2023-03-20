@@ -15,8 +15,7 @@ interface FileItem {
 })
 export class BrowseRemoteComponent implements OnInit {
   @Output() select: EventEmitter<FileItem> = new EventEmitter<FileItem>();
-  title: string;
-  items: FileItem[];
+  items: FileItem[] = [];
   breadcrumb: FileItem[] = [];
   selectedItem: FileItem | null = null;
 
@@ -25,25 +24,23 @@ export class BrowseRemoteComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer
-  ) {
-    this.title = data.title;
-    this.items = data.items;
-  }
+  ) {}
 
   ngOnInit() {
     this.matIconRegistry.addSvgIcon('folder', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/folder.svg'));
-    this.matIconRegistry.addSvgIcon('file', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/file.svg'));
+    // this.matIconRegistry.addSvgIcon('file', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/file.svg'));
+    this.loadFolder('/');
   }
 
   onItemClick(item: FileItem) {
-    if (item.isDirectory) {
-      // Load selected folder
-      const path = this.breadcrumb.map((item) => item.name).join('/') + '/' + item.name;
-      this.loadFolder(path);
-    } else {
-      // Select file
-      this.selectedItem = item;
-    }
+    // if (item.isDirectory) {
+    //   // Load selected folder
+    //   const path = this.breadcrumb.map((item) => item.name).join('/') + '/' + item.name;
+    //   this.loadFolder(path);
+    // } else {
+    //   // Select file
+    //   this.selectedItem = item;
+    // }
   }
 
   onCancelClick() {
@@ -51,10 +48,10 @@ export class BrowseRemoteComponent implements OnInit {
   }
 
   onSelectClick() {
-    if (this.selectedItem !== null) {
-      this.select.emit(this.selectedItem);
-      this.dialogRef.close();
-    }
+    // if (this.selectedItem !== null) {
+    //   this.select.emit(this.selectedItem);
+    //   this.dialogRef.close();
+    // }
   }
 
   onBackClick() {
@@ -97,13 +94,13 @@ export class BrowseRemoteComponent implements OnInit {
       }
 
       // Load folder contents
-      this.items = contents.filter((item) => {
-        if (item.isDirectory) {
-          return item.name.startsWith(folders[folders.length - 1]);
-        } else {
-          return true;
-        }
-      });
+      // this.items = contents.filter((item) => {
+      //   if (item.isDirectory) {
+      //     return item.name.startsWith(folders[folders.length - 1]);
+      //   } else {
+      //     return true;
+      //   }
+      // });
     }, 500);
   }
 }

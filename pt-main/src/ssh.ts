@@ -77,18 +77,23 @@ export class SSH {
         let buffer = '';
         let list: FileItem[] = [];
         stream
-          .on('close', (code, signal) => {
-            buffer.split('\n').map((item) => {});
-            this.conn.exec(`find ${remotePath} -type f`, (err, stream) => {
-              if (err) throw err;
-              buffer = '';
-              stream.on('close', (code, signal) => {
-                const list = buffer.split('\n').filter((item) => item);
-              });
-            });
-          })
           .on('data', (data) => {
             buffer += data;
+          })
+          .on('close', (code, signal) => {
+            resolve(buffer);
+            // this.conn.exec(`ls -l ${remotePath}`, (err, stream) => {
+            //   if (err) throw err;
+            //   buffer = '';
+            //   stream
+            //     .on('data', (data) => {
+            //       buffer += data;
+            //     })
+            //     .on('close', (code, signal) => {
+            //       // const list = buffer.split('\n').filter((item) => item);
+            //       console.log(buffer);
+            //     });
+            // });
           })
           .stderr.on('data', (data) => {
             reject(data);

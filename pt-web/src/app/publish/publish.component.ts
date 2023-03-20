@@ -152,13 +152,12 @@ export class PublishComponent implements OnInit {
 
     //ssh
     const directoryItems = await this.api.getRemoteDir();
-
-    // const dialogRef = this.dialog.open(BrowseRemoteComponent, {
-    //   width: '600px',
-    //   data: {
-    //     items: directoryItems,
-    //   },
-    // });
+    const dialogRef = this.dialog.open(BrowseRemoteComponent, {
+      width: '600px',
+      data: {
+        directoryItems,
+      },
+    });
   }
 }
 
