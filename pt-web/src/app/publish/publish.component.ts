@@ -237,8 +237,7 @@ export class PublishComponent implements OnInit {
               .replace(/ {2,}/g, ' ')
               .trim();
 
-            // @ts-ignore
-            const torrent0: Buffer = await util.promisify(createTorrent)(file, {
+            const torrent0: Buffer = await window.electronAPI.create_torrent(filepath, {
               name: `[${meta.version_id}] ${name} ${meta.version}.unitypackage`,
               createdBy: 'UnityPT 1.0',
               announceList: [],

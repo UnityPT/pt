@@ -137,4 +137,8 @@ export class SSH {
       });
     });
   }
+
+  createTorrent(path: string, options: any) {
+    return Promise.resolve(undefined);
+  }
 }

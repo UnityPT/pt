@@ -93,6 +93,7 @@ app.whenReady().then(async () => {
     const localPath = path.join(sshConfig.localPath, fileName);
     await ssh.getFile(remotePath, localPath, infoHash);
   });
+  ipcMain.handle('create_torrent', async (event, path, options) => ssh.createTorrent(path, options));
   ipcMain.handle('extra_field', async (event, path) => ssh.ExtraField(path));
   ipcMain.handle('relaunch', () => {
     app.relaunch();

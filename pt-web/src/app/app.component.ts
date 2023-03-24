@@ -113,6 +113,10 @@ declare global {
       relaunch: () => Promise<void>;
       on: (channel: string, func: (event: any, data: any) => void) => void;
       extra_field: (path: string) => Promise<string>;
+      create_torrent: (
+        filepath: string,
+        opts: { private: boolean; createdBy: string; name: string; announceList: any[] }
+      ) => Promise<Buffer>;
     };
   }
 }
