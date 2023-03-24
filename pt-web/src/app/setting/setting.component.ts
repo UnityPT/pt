@@ -56,6 +56,7 @@ export class SettingComponent implements OnInit {
             await window.electronAPI.relaunch();
           }
         }
+        alert('保存成功');
       }
     } catch (error) {
       alert('保存失败');

@@ -2,7 +2,7 @@ import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FileItem } from '../types';
+import { DirItem } from '../types';
 
 @Component({
   selector: 'app-browse-remote',
@@ -10,14 +10,14 @@ import { FileItem } from '../types';
   styleUrls: ['./browse-remote.component.scss'],
 })
 export class BrowseRemoteComponent implements OnInit {
-  items: FileItem[] = [];
-  breadcrumb: FileItem[] = [];
-  selectedItem: FileItem | null = null;
+  items: DirItem[] = [];
+  breadcrumb: DirItem[] = [];
+  selectedItem: DirItem | null = null;
 
   constructor(public dialogRef: MatDialogRef<BrowseRemoteComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {}
 
   ngOnInit() {
-    this.items = Object.values(this.data.directoryItems);
+    this.items = [this.data.home];
   }
 
   onCancelClick() {
@@ -28,13 +28,13 @@ export class BrowseRemoteComponent implements OnInit {
     this.dialogRef.close(this.selectedItem);
   }
 
-  onDblClick(item: FileItem) {
+  onDblClick(item: DirItem) {
     this.breadcrumb.push(item);
     this.items = Object.values(item.children!);
   }
 
   onHomeClick() {
-    this.items = Object.values(this.data.directoryItems);
+    this.items = [this.data.home];
     this.breadcrumb = [];
   }
 

@@ -5,6 +5,7 @@ import { IParticlesProps } from 'ng-particles/lib/ng-particles.module';
 import { Engine, HoverMode, MoveDirection, OutMode } from 'tsparticles-engine';
 import { loadFull } from 'tsparticles';
 import { FileStat } from 'webdav';
+import { DirItem } from './types';
 
 // 取数据
 @Component({
@@ -108,7 +109,7 @@ declare global {
       store_get: (key: string, defaultValue?: any) => Promise<any>;
       store_set: (key: string, value: any) => Promise<void>;
       create_ssh: () => Promise<boolean>;
-      get_list: (path: string, type: 'd' | 'f') => Promise<string>;
+      get_list: (path: string, type: 'd' | 'f') => Promise<DirItem | string[]>;
       get_file: (infoHash: string, filename: string) => Promise<void>;
       relaunch: () => Promise<void>;
       on: (channel: string, func: (event: any, data: any) => void) => void;

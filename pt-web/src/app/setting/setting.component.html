@@ -22,6 +22,11 @@
     </div>
 
     <div class="row">
+      <div class="lab">默认保存路径</div>
+      <input  class="inputs" name="save_path" [(ngModel)]="qbInfo.save_path">
+    </div>
+
+    <div class="row">
       <div class="lab">取回协议</div>
       <select  class="left" name="downloads" [(ngModel)]="qbInfo.get_protocol">
         <option value="local">local</option>

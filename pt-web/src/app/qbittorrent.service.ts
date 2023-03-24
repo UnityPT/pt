@@ -62,6 +62,22 @@ export class QBittorrentService {
     return this.request<Torrent[]>('torrents/info', params, 'json');
   }
 
+  // async setDefaultSavePath(save_path: string) {
+  //   return lastValueFrom(
+  //     this.http.post(
+  //       `${(await window.electronAPI.store_get('qbInfo')).qb_url}/api/v2/app/setPreferences`,
+  //       { save_path },
+  //       {
+  //         withCredentials: true,
+  //       }
+  //     )
+  //   );
+  // }
+
+  async getDefaultSavePath() {
+    return this.request('app/defaultSavePath', {});
+  }
+
   torrentsDelete(hash: string) {
     return this.request('torrents/delete', { hashes: hash, deleteFiles: 'true' });
   }
@@ -96,11 +112,15 @@ export class QBittorrentService {
     }
     // @ts-ignore
     return firstValueFrom(
-      this.http.post<T>(`${(await window.electronAPI.store_get('qbInfo')).qb_url}/api/v2/${method}`, body, {
-        // @ts-ignore
-        responseType,
-        withCredentials: true,
-      })
+      this.http.post<T>(
+        `${(await window.electronAPI.store_get('qbInfo')).qb_url}/api/v2/${method}`,
+        Object.keys(params).length == 0 ? null : body,
+        {
+          // @ts-ignore
+          responseType,
+          withCredentials: true,
+        }
+      )
     );
   }
 }

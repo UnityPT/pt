@@ -92,7 +92,7 @@ export class ResourcesComponent implements OnInit {
       } else if (qb_info.get_protocol === 'http') {
         const httpConfig = await window.electronAPI.store_get('httpConfig', defaultSMBConfig);
         if (httpConfig.remotePath && httpConfig.localPath) {
-          await this.api.httpDownload(httpConfig, torrent.name).subscribe((data) => {
+          this.api.httpDownload(httpConfig, torrent.name).subscribe((data) => {
             if (data.type == 3) {
               console.log(data.total);
               console.log(torrent.total_size);

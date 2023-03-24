@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ExtraField } from '../gzip';
-import { FileItem, Meta } from '../types';
+import { Meta } from '../types';
 import createTorrent from 'create-torrent';
 import { ApiService } from '../api.service';
 import { QBittorrentService } from '../qbittorrent.service';
@@ -11,6 +11,7 @@ import { AuthType, createClient, FileStat, WebDAVClient } from 'webdav';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { BrowseRemoteComponent } from '../browse-remote/browse-remote.component';
 import * as fs from 'fs';
+import { Buffer } from 'buffer';
 
 @Component({
   selector: 'app-publish',
@@ -151,21 +152,22 @@ export class PublishComponent implements OnInit {
     // http
     // const directoryItems = await this.client.getDirectoryContents('/', { deep: true });
     // console.log(directoryItems);
-    //
+
     if (remoteType === 'sftp') {
       //ssh
-      const directoryItems = await this.api.getRemoteDir();
+      const remotePath = (await window.electronAPI.store_get('sshConfig')).remotePath.split(':').at(-1);
+      const home = await window.electronAPI.get_list(remotePath, 'd');
       const dialogRef = this.dialog.open(BrowseRemoteComponent, {
         width: '600px',
         data: {
-          directoryItems,
+          home,
         },
       });
       dialogRef.afterClosed().subscribe(async (result) => {
         if (!result) return;
         this.dataSource = [];
         const filepaths: string[] = [];
-        (await window.electronAPI.get_list(result[0].path, 'f')).split('\n').forEach((filepath) => {
+        ((await window.electronAPI.get_list(result[0].path, 'f')) as string[]).forEach((filepath) => {
           if (!filepath) return;
           if (path.extname(filepath) !== '.unitypackage') return;
           this.dataSource.push({ file: path.basename(filepath) });

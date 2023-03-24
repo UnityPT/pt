@@ -54,7 +54,8 @@ export interface QBInfo {
   qb_url: string;
   username: string;
   password: string;
-  get_protocol: string;
+  save_path: string;
+  get_protocol: 'local' | 'sftp' | 'smb' | 'http';
 }
 
 export interface UserStat {
@@ -75,8 +76,7 @@ export interface HttpConfig {
   localPath: string;
 }
 
-export interface FileItem {
+export interface DirItem {
   name: string;
-  path: string;
-  children?: Record<string, FileItem>;
+  children: Record<string, DirItem>;
 }

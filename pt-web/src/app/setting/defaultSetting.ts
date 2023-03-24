@@ -4,7 +4,8 @@ const defaultQBInfo: QBInfo = {
   qb_url: 'http://localhost:8080',
   username: 'admin',
   password: 'adminadmin',
-  get_protocol: 'local', // 'local'/'sftp'/'smb'/'http',
+  save_path: '',
+  get_protocol: 'local',
 };
 
 const defaultSSHConfig: UserSSHConfig = {
