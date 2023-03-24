@@ -5,8 +5,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   store_get: (key, defaultValue) => ipcRenderer.invoke('store_get', key, defaultValue),
   store_set: (key, value) => ipcRenderer.invoke('store_set', key, value),
   create_ssh: () => ipcRenderer.invoke('create_ssh'),
-  get_list: () => ipcRenderer.invoke('get_list'),
+  get_list: (path, type) => ipcRenderer.invoke('get_list', path, type),
   get_file: (infoHash, fileName) => ipcRenderer.invoke('get_file', infoHash, fileName),
+  extra_field: (path) => ipcRenderer.invoke('extra_field', path),
   relaunch: () => ipcRenderer.invoke('relaunch'),
   //以下是main发web收的
   //接受main发来的消息

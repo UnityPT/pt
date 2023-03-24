@@ -16,7 +16,8 @@
     "upload": "npm run build && electron-builder --publish always"
   },
   "dependencies": {
-    "ssh2": "^1.11.0"
+    "ssh2": "^1.11.0",
+    "typed-struct": "^2.3.0"
   },
   "devDependencies": {
     "@types/ssh2": "^1.11.6",

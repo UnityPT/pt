@@ -2,8 +2,10 @@ import { Client, ConnectConfig } from 'ssh2';
 import { readFileSync } from 'fs';
 import { webContents } from 'electron';
 import { electronAPI } from './electronAPI';
-import path from 'path';
-import { FileItem } from './interface';
+import Struct from 'typed-struct';
+
+const Member = new Struct('Member').UInt8('ID1').UInt8('ID2').UInt8('CM').UInt8('FLG').UInt32LE('MTIME').UInt8('XFL').UInt8('OS').compile();
+const Extra = new Struct('Extra').UInt8('SI1').UInt8('SI2').UInt16LE('LEN').Buffer('data').compile();
 
 export class SSH {
   conn = new Client();
@@ -54,6 +56,7 @@ export class SSH {
         {
           step: (total_transferred, chunk, total) => {
             console.log(total_transferred, chunk, total);
+            //todo: on minimize, stop sending, on restore, send again;
             webContents.getFocusedWebContents().send('get_file_progress', {
               infoHash,
               progress: total_transferred / total,
@@ -68,36 +71,69 @@ export class SSH {
     });
   }
 
-  async getList() {
+  async getList(path: string, type: 'd' | 'f') {
+    console.log(path, type);
     if (!this.ready) await this.createConnect();
-    const remotePath = electronAPI.store.get('sshConfig').remotePath.split(':').at(-1);
     return new Promise((resolve, reject) => {
-      this.conn.exec(`find ${remotePath} -type d`, (err, stream) => {
+      this.conn.exec(`find ${path} -type ${type}`, (err, stream) => {
         if (err) throw err;
         let buffer = '';
-        let list: FileItem[] = [];
         stream
           .on('data', (data) => {
             buffer += data;
           })
           .on('close', (code, signal) => {
             resolve(buffer);
-            // this.conn.exec(`ls -l ${remotePath}`, (err, stream) => {
-            //   if (err) throw err;
-            //   buffer = '';
-            //   stream
-            //     .on('data', (data) => {
-            //       buffer += data;
-            //     })
-            //     .on('close', (code, signal) => {
-            //       // const list = buffer.split('\n').filter((item) => item);
-            //       console.log(buffer);
-            //     });
-            // });
           })
           .stderr.on('data', (data) => {
             reject(data);
           });
+      });
+    });
+  }
+
+  async ExtraField(path: string) {
+    const SI1 = 65;
+    const SI2 = 36;
+    if (!this.ready) await this.createConnect();
+    return new Promise((resolve, reject) => {
+      this.conn.sftp((err, sftp) => {
+        let position = 0;
+        sftp.open(path, 'r', async (err, handle) => {
+          if (err) throw err;
+          async function read(length: number): Promise<Buffer> {
+            const buffer = Buffer.alloc(length);
+            return new Promise((resolve, reject) => {
+              sftp.read(handle, buffer, 0, length, position, (err, bytesRead, buffer) => {
+                if (err) reject(err);
+                position += length;
+                resolve(buffer);
+              });
+            });
+          }
+
+          const headerBuffer = await read(Member.baseSize);
+          const member = new Member(headerBuffer);
+          if (member.ID1 != 31 || member.ID2 != 139) {
+            throw new Error('invalid file signature:' + member.ID1 + ',' + member.ID2);
+          }
+          if (member.CM != 8) {
+            throw new Error('invalid compression method:' + member.CM);
+          }
+          const flagsMask = { FTEXT: 1, FHCRC: 2, FEXTRA: 4, FNAME: 8, FCOMMENT: 16 };
+          if ((member.FLG & flagsMask.FEXTRA) !== 0) {
+            const lengthBuffer = await read(2);
+            const length = lengthBuffer.readUInt16LE(0);
+            const extraBuffer = await read(length);
+            for (let offset = 0; offset < length; ) {
+              const extra = new Extra(extraBuffer.subarray(offset));
+              if (extra.SI1 == SI1 && extra.SI2 == SI2) {
+                return resolve(extra.data.subarray(offset, offset + extra.LEN).toString());
+              }
+              offset += Extra.baseSize + extra.LEN;
+            }
+          }
+        });
       });
     });
   }

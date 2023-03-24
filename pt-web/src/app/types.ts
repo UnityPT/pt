@@ -78,5 +78,5 @@ export interface HttpConfig {
 export interface FileItem {
   name: string;
   path: string;
-  children: Record<string, FileItem>;
+  children?: Record<string, FileItem>;
 }

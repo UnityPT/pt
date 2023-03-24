@@ -86,13 +86,14 @@ app.whenReady().then(async () => {
   ipcMain.handle('store_get', electronAPI.store_get.bind(electronAPI));
   ipcMain.handle('store_set', electronAPI.store_set.bind(electronAPI));
   ipcMain.handle('create_ssh', async () => ssh.createConnect());
-  ipcMain.handle('get_list', async () => ssh.getList());
+  ipcMain.handle('get_list', async (event, path, type) => ssh.getList(path, type));
   ipcMain.handle('get_file', async (event, infoHash, fileName) => {
     const sshConfig = electronAPI.store.get('sshConfig') as UserSSHConfig;
     const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), fileName);
     const localPath = path.join(sshConfig.localPath, fileName);
     await ssh.getFile(remotePath, localPath, infoHash);
   });
+  ipcMain.handle('extra_field', async (event, path) => ssh.ExtraField(path));
   ipcMain.handle('relaunch', () => {
     app.relaunch();
     app.exit();

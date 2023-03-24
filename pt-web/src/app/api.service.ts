@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { FileItem, HttpConfig, RegisterInfo, Resource, UserStat } from './types';
 import { NavigationEnd, Router } from '@angular/router';
-import { round } from 'lodash-es';
+import * as path from 'path';
 
 @Injectable({
   providedIn: 'root',
@@ -211,7 +211,7 @@ export class ApiService {
 
   async getRemoteDir() {
     const remotePath = (await window.electronAPI.store_get('sshConfig')).remotePath.split(':').at(-1);
-    const paths = (await window.electronAPI.get_list()).split('\n');
+    const paths = (await window.electronAPI.get_list(remotePath, 'd')).split('\n');
     const dirs: Record<string, FileItem> = {};
     paths.forEach((path) => {
       const parts = path.replace(remotePath, '').split('/');
@@ -220,12 +220,13 @@ export class ApiService {
       for (let i = 1; i < parts.length; i++) {
         const part = parts.at(i)!;
         if (dir.hasOwnProperty(part)) {
-          dir = dir[part].children;
+          dir = dir[part].children!;
         } else {
           dir[part] = { name: part, path, children: {} } as FileItem;
         }
       }
     });
-    return dirs;
+    const homeName = path.basename(remotePath);
+    return { [homeName]: { name: homeName, path: path.dirname(remotePath), children: dirs } as FileItem };
   }
 }

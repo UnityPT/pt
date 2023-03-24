@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { IParticlesProps } from 'ng-particles/lib/ng-particles.module';
 import { Engine, HoverMode, MoveDirection, OutMode } from 'tsparticles-engine';
 import { loadFull } from 'tsparticles';
+import { FileStat } from 'webdav';
 
 // 取数据
 @Component({
@@ -97,10 +98,7 @@ export class AppComponent {
     await loadFull(engine);
   }
   //
-  async test1() {
-    console.log(await window.electronAPI.create_ssh());
-    console.log(await window.electronAPI.get_list());
-  }
+  async test1() {}
 }
 
 declare global {
@@ -110,10 +108,11 @@ declare global {
       store_get: (key: string, defaultValue?: any) => Promise<any>;
       store_set: (key: string, value: any) => Promise<void>;
       create_ssh: () => Promise<boolean>;
-      get_list: () => Promise<string>;
+      get_list: (path: string, type: 'd' | 'f') => Promise<string>;
       get_file: (infoHash: string, filename: string) => Promise<void>;
       relaunch: () => Promise<void>;
       on: (channel: string, func: (event: any, data: any) => void) => void;
+      extra_field: (path: string) => Promise<string>;
     };
   }
 }

@@ -2,11 +2,7 @@ import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-
-interface FileItem {
-  name: string;
-  isDirectory: boolean;
-}
+import { FileItem } from '../types';
 
 @Component({
   selector: 'app-browse-remote',
@@ -14,33 +10,14 @@ interface FileItem {
   styleUrls: ['./browse-remote.component.scss'],
 })
 export class BrowseRemoteComponent implements OnInit {
-  @Output() select: EventEmitter<FileItem> = new EventEmitter<FileItem>();
   items: FileItem[] = [];
   breadcrumb: FileItem[] = [];
   selectedItem: FileItem | null = null;
 
-  constructor(
-    public dialogRef: MatDialogRef<BrowseRemoteComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private matIconRegistry: MatIconRegistry,
-    private domSanitizer: DomSanitizer
-  ) {}
+  constructor(public dialogRef: MatDialogRef<BrowseRemoteComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {}
 
   ngOnInit() {
-    this.matIconRegistry.addSvgIcon('folder', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/folder.svg'));
-    // this.matIconRegistry.addSvgIcon('file', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/file.svg'));
-    this.loadFolder('/');
-  }
-
-  onItemClick(item: FileItem) {
-    // if (item.isDirectory) {
-    //   // Load selected folder
-    //   const path = this.breadcrumb.map((item) => item.name).join('/') + '/' + item.name;
-    //   this.loadFolder(path);
-    // } else {
-    //   // Select file
-    //   this.selectedItem = item;
-    // }
+    this.items = Object.values(this.data.directoryItems);
   }
 
   onCancelClick() {
@@ -48,59 +25,21 @@ export class BrowseRemoteComponent implements OnInit {
   }
 
   onSelectClick() {
-    // if (this.selectedItem !== null) {
-    //   this.select.emit(this.selectedItem);
-    //   this.dialogRef.close();
-    // }
+    this.dialogRef.close(this.selectedItem);
   }
 
-  onBackClick() {
-    // Remove last item from breadcrumb
-    this.breadcrumb.pop();
-
-    // Get parent folder path
-    const path = this.breadcrumb.map((item) => item.name).join('/');
-
-    // Load parent folder
-    this.loadFolder(path);
+  onDblClick(item: FileItem) {
+    this.breadcrumb.push(item);
+    this.items = Object.values(item.children!);
   }
 
-  loadFolder(path: string) {
-    // Mock loading of folder contents
-    setTimeout(() => {
-      // Simulate folder contents
-      const contents: FileItem[] = [{ name: 'Documents', isDirectory: true }];
+  onHomeClick() {
+    this.items = Object.values(this.data.directoryItems);
+    this.breadcrumb = [];
+  }
 
-      // Clear breadcrumb and selected item
-      this.breadcrumb = [];
-      this.selectedItem = null;
-
-      // Split path into individual folders
-      const folders = path.split('/');
-
-      // Generate breadcrumb for current path
-      let currentPath = '';
-      for (const folder of folders) {
-        if (folder === '') {
-          // Skip empty folders
-          continue;
-        }
-        currentPath += '/' + folder;
-        const breadcrumbItem: FileItem = {
-          name: folder,
-          isDirectory: true,
-        };
-        this.breadcrumb.push(breadcrumbItem);
-      }
-
-      // Load folder contents
-      // this.items = contents.filter((item) => {
-      //   if (item.isDirectory) {
-      //     return item.name.startsWith(folders[folders.length - 1]);
-      //   } else {
-      //     return true;
-      //   }
-      // });
-    }, 500);
+  onBreadClick(item: any) {
+    this.items = Object.values(item.children);
+    this.breadcrumb = this.breadcrumb.slice(0, this.breadcrumb.indexOf(item) + 1);
   }
 }
