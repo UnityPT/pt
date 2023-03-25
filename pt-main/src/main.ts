@@ -87,12 +87,8 @@ app.whenReady().then(async () => {
   ipcMain.handle('store_set', electronAPI.store_set.bind(electronAPI));
   ipcMain.handle('create_ssh', async () => ssh.createConnect());
   ipcMain.handle('get_list', async (event, path, type) => ssh.getList(path, type));
-  ipcMain.handle('get_file', async (event, infoHash, fileName) => {
-    const sshConfig = electronAPI.store.get('sshConfig') as UserSSHConfig;
-    const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), fileName);
-    const localPath = path.join(sshConfig.localPath, fileName);
-    await ssh.getFile(remotePath, localPath, infoHash);
-  });
+  ipcMain.handle('get_file', async (event, infoHash, fileName) => ssh.getFile(infoHash, fileName));
+  ipcMain.handle('upload_file', async (event, path) => ssh.uploadFile(path));
   ipcMain.handle('create_torrent', async (event, path, options) => ssh.createTorrent(path, options));
   ipcMain.handle('extra_field', async (event, path) => ssh.ExtraField(path));
   ipcMain.handle('relaunch', () => {

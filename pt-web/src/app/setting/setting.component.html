@@ -32,7 +32,7 @@
         <option value="local">local</option>
         <option value="sftp">sftp</option>
         <option value="smb">smb</option>
-        <option value="http">http</option>
+        <option value="webdav">webdav</option>
       </select>
     </div>
     <div class="row" *ngIf="qbInfo.get_protocol=='sftp'">
@@ -49,11 +49,11 @@
       </div>
       <input class="inputs" name="local_path" [(ngModel)]="sshConfig.localPath">
     </div>
-    <div class="row" *ngIf="qbInfo.get_protocol == 'http'">
+    <div class="row" *ngIf="qbInfo.get_protocol == 'webdav'">
       <div class="lab" >远端路径</div>
       <input class="inputs" name="remote_path" [(ngModel)]="httpConfig.remotePath">
     </div>
-    <div class="row" *ngIf="qbInfo.get_protocol=='http'">
+    <div class="row" *ngIf="qbInfo.get_protocol=='webdav'">
       <div class='lab'>
         本地路径
       </div>

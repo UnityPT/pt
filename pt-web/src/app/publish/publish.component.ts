@@ -10,7 +10,6 @@ import util from 'util';
 import { AuthType, createClient, FileStat, WebDAVClient } from 'webdav';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { BrowseRemoteComponent } from '../browse-remote/browse-remote.component';
-import * as fs from 'fs';
 import { Buffer } from 'buffer';
 
 @Component({
@@ -23,27 +22,30 @@ export class PublishComponent implements OnInit {
   dataSource: PublishLog[] = [];
   @ViewChild(MatTable) table!: MatTable<PublishLog>;
   public browsingRemote = false;
-  public webDavClient!: WebDAVClient;
+  public webDavClient: WebDAVClient | undefined;
 
   constructor(private api: ApiService, private qBittorrent: QBittorrentService, private dialog: MatDialog) {}
 
   async ngOnInit() {
-    this.webDavClient = createClient('https://frogeater.vip/webdav/', {
-      authType: AuthType.Password,
-      username: 'frogeater',
-      password: '123456',
-    });
-    console.log('this.client: ');
+    const protocol = (await window.electronAPI.store_get('qbInfo')).get_protocol;
+    if (protocol === 'webdav') {
+      this.webDavClient = createClient('https://frogeater.vip/webdav/', {
+        authType: AuthType.Password,
+        username: 'frogeater',
+        password: '123456',
+      });
+    }
   }
 
-  async publish(files: FileList | null) {
-    if (!files) return;
+  async publish(selectFiles: FileList | null) {
+    if (!selectFiles) return;
 
     this.dataSource = [];
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files.item(i)!;
+    const files: File[] = [];
+    for (let i = 0; i < selectFiles.length; i++) {
+      const file = selectFiles[i];
       if (path.extname(file.name) !== '.unitypackage') continue;
+      files.push(file);
       this.dataSource.push({ file: file.name });
     }
     this.table.renderRows();
@@ -54,7 +56,7 @@ export class PublishComponent implements OnInit {
 
     for (let i = 0; i < files.length; i++) {
       document.querySelector(`tr:nth-child(${i + 1})`)?.scrollIntoView({ block: 'nearest' });
-      const file = files.item(i)!;
+      const file = files[i];
       const progress = this.dataSource[i];
       const description = await ExtraField(file, 65, 36);
       if (!description) {
@@ -96,7 +98,14 @@ export class PublishComponent implements OnInit {
             this.table.renderRows();
             const torrent = await this.api.download(resource.torrent_id);
             if (torrent) {
-              await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
+              const protocol = (await window.electronAPI.store_get('qbInfo')).get_protocol;
+              if (protocol == 'local') {
+                await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
+              } else if (protocol == 'sftp') {
+                // @ts-ignore
+                await window.electronAPI.upload_file(file.path);
+                await this.qBittorrent.torrentsAdd(torrent);
+              }
               progress.create_torrent = 'downloaded';
               this.table.renderRows();
               taskHashes.push(resource.info_hash);
@@ -135,7 +144,21 @@ export class PublishComponent implements OnInit {
         progress.create_torrent = 'uploaded';
         this.table.renderRows();
 
-        const hash = await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
+        const protocol = (await window.electronAPI.store_get('qbInfo')).get_protocol;
+        let dirpath = '';
+        console.log('xxxxxxxxxxxxxxxxxxxx', protocol);
+        if (protocol === 'local') {
+          dirpath = path.dirname(p);
+        } else if (protocol === 'sftp') {
+          console.log('xxx');
+          // @ts-ignore
+          await window.electronAPI.upload_file(file.path!);
+          dirpath = (await window.electronAPI.store_get('sshConfig')).remotePath.split(':').at(-1);
+        } else if (protocol === 'smb') {
+        } else if (protocol === 'webdav') {
+        }
+
+        const hash = await this.qBittorrent.torrentsAdd(torrent, dirpath, path.basename(p));
         progress.qBittorrent = 'added';
         this.table.renderRows();
 

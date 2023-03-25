@@ -102,13 +102,8 @@ export class AppComponent {
   }
   //
   async test1() {
-    const obj = await window.electronAPI.create_torrent('/data/drive3/qbittorrent/downloads/test/[320891] 2D Tools 1.6.unitypackage', {
-      name: `test.unitypackage`,
-      createdBy: 'UnityPT 1.0',
-      announceList: [],
-      private: true,
-    });
-    console.log(obj);
+    const p = 'C:\\Users\\frogeater\\Desktop\\test\\POLYGON - War Pack1.0.unitypackage';
+    await window.electronAPI.upload_file(p);
   }
 }
 
@@ -121,6 +116,7 @@ declare global {
       create_ssh: () => Promise<boolean>;
       get_list: (path: string, type: 'd' | 'f') => Promise<DirItem | string[]>;
       get_file: (infoHash: string, filename: string) => Promise<void>;
+      upload_file: (path: string) => Promise<void>;
       relaunch: () => Promise<void>;
       on: (channel: string, func: (event: any, data: any) => void) => void;
       extra_field: (path: string) => Promise<string>;

@@ -4,7 +4,7 @@ import { webContents } from 'electron';
 import { electronAPI } from './electronAPI';
 import Struct from 'typed-struct';
 import path from 'path';
-import { DirItem } from './interface';
+import { DirItem, UserSSHConfig } from './interface';
 import util from 'util';
 import createTorrent from 'create-torrent';
 
@@ -50,7 +50,10 @@ export class SSH {
     });
   }
 
-  async getFile(remotePath: string, localPath: string, infoHash: string) {
+  async getFile(infoHash: string, fileName: string) {
+    const sshConfig = electronAPI.store.get('sshConfig') as UserSSHConfig;
+    const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), fileName);
+    const localPath = path.join(sshConfig.localPath, fileName);
     if (!this.ready) await this.createConnect();
     const sftp = await util.promisify(this.conn.sftp).bind(this.conn)();
     sftp.fastGet(
@@ -156,8 +159,8 @@ export class SSH {
     const sftp = await util.promisify(this.conn.sftp).bind(this.conn)();
     const stat = await util.promisify(sftp.stat).bind(sftp)(p);
     const handle = await util.promisify(sftp.open).bind(sftp)(p, 'r');
-    // options.size = stat.size;
-    // const closePromise = util.promisify(sftp.close).bind(sftp)(handle);
+    options.size = stat.size;
+    const closePromise = util.promisify(sftp.close).bind(sftp)(handle);
     // return { handle, size: stat.size, closePromise };
     // createTorrent(handle, options, (err, torrent) => {
     //   if (err) throw err;
@@ -165,8 +168,20 @@ export class SSH {
     //   return torrent;
     // });
 
-    // @ts-ignore
+    //@ts-ignore
     const torrent = await util.promisify(createTorrent)(handle, options);
+    await closePromise();
     return torrent;
+  }
+
+  async uploadFile(p: string) {
+    console.log('uploadFile', p);
+    if (!this.ready) await this.createConnect();
+    const sftp = await util.promisify(this.conn.sftp).bind(this.conn)();
+    const sshConfig = electronAPI.store.get('sshConfig') as UserSSHConfig;
+    const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), path.basename(p));
+    await util.promisify(sftp.fastPut).bind(sftp)(p, remotePath, {
+      mode: '0755',
+    });
   }
 }

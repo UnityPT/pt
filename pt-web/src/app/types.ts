@@ -55,7 +55,7 @@ export interface QBInfo {
   username: string;
   password: string;
   save_path: string;
-  get_protocol: 'local' | 'sftp' | 'smb' | 'http';
+  get_protocol: 'local' | 'sftp' | 'smb' | 'webdav';
 }
 
 export interface UserStat {

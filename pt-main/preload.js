@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   create_ssh: () => ipcRenderer.invoke('create_ssh'),
   get_list: (path, type) => ipcRenderer.invoke('get_list', path, type),
   get_file: (infoHash, fileName) => ipcRenderer.invoke('get_file', infoHash, fileName),
+  upload_file: (path) => ipcRenderer.invoke('upload_file', path),
   create_torrent: (path, options) => ipcRenderer.invoke('create_torrent', path, options),
   extra_field: (path) => ipcRenderer.invoke('extra_field', path),
   relaunch: () => ipcRenderer.invoke('relaunch'),
