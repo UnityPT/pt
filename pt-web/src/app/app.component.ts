@@ -6,6 +6,8 @@ import { Engine, HoverMode, MoveDirection, OutMode } from 'tsparticles-engine';
 import { loadFull } from 'tsparticles';
 import { FileStat } from 'webdav';
 import { DirItem } from './types';
+import { Buffer } from 'buffer';
+import createTorrent from 'create-torrent';
 
 // 取数据
 @Component({
@@ -99,7 +101,15 @@ export class AppComponent {
     await loadFull(engine);
   }
   //
-  async test1() {}
+  async test1() {
+    const obj = await window.electronAPI.create_torrent('/data/drive3/qbittorrent/downloads/test/[320891] 2D Tools 1.6.unitypackage', {
+      name: `test.unitypackage`,
+      createdBy: 'UnityPT 1.0',
+      announceList: [],
+      private: true,
+    });
+    console.log(obj);
+  }
 }
 
 declare global {
@@ -114,10 +124,7 @@ declare global {
       relaunch: () => Promise<void>;
       on: (channel: string, func: (event: any, data: any) => void) => void;
       extra_field: (path: string) => Promise<string>;
-      create_torrent: (
-        filepath: string,
-        opts: { private: boolean; createdBy: string; name: string; announceList: any[] }
-      ) => Promise<Buffer>;
+      create_torrent: (filepath: string, opts: { private: boolean; createdBy: string; name: string; announceList: any[] }) => Promise<any>;
     };
   }
 }

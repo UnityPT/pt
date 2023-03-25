@@ -37,6 +37,6 @@
   </div>
   <div mat-dialog-actions >
     <button mat-button (click)="onCancelClick()">取消</button>
-    <button mat-button [mat-dialog-close]="selectedItem"  [disabled]="selectedItem === null" (click)="onSelectClick()">选择</button>
+    <button mat-button [disabled]="selectedItem === null" (click)="onSelectClick()">选择</button>
   </div>
 </mat-dialog-content>

@@ -167,7 +167,8 @@ export class PublishComponent implements OnInit {
         if (!result) return;
         this.dataSource = [];
         const filepaths: string[] = [];
-        ((await window.electronAPI.get_list(result[0].path, 'f')) as string[]).forEach((filepath) => {
+        const absolutePath = path.posix.join(remotePath, result);
+        ((await window.electronAPI.get_list(absolutePath, 'f')) as string[]).forEach((filepath) => {
           if (!filepath) return;
           if (path.extname(filepath) !== '.unitypackage') return;
           this.dataSource.push({ file: path.basename(filepath) });
@@ -182,6 +183,7 @@ export class PublishComponent implements OnInit {
           const filepath = filepaths[i];
           const progress = this.dataSource[i];
           const description = await window.electronAPI.extra_field(filepath);
+          console.log(description);
           if (!description) {
             progress.version_id = false;
             this.table.renderRows();
