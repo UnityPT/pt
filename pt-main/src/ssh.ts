@@ -1,4 +1,4 @@
-import { Client, ConnectConfig } from 'ssh2';
+import { Client, ConnectConfig, utils } from 'ssh2';
 import { readFileSync } from 'fs';
 import { webContents } from 'electron';
 import { electronAPI } from './electronAPI';
@@ -7,6 +7,7 @@ import path from 'path';
 import { DirItem, UserSSHConfig } from './interface';
 import util from 'util';
 import createTorrent from 'create-torrent';
+import sftp = utils.sftp;
 
 const Member = new Struct('Member').UInt8('ID1').UInt8('ID2').UInt8('CM').UInt8('FLG').UInt32LE('MTIME').UInt8('XFL').UInt8('OS').compile();
 const Extra = new Struct('Extra').UInt8('SI1').UInt8('SI2').UInt16LE('LEN').Buffer('data').compile();
@@ -82,13 +83,13 @@ export class SSH {
     const rootDirItem: DirItem = type == 'd' ? ({ name: path.basename(p), children: {} } as DirItem) : null;
     const listPromise = await util.promisify(sftp.readdir).bind(sftp);
     return await readdir(p, rootDirItem?.children);
-    //todo: 目录改成点开再readdir第一次打开更快？
     async function readdir(p: string, dir?: Record<string, DirItem>) {
       const list = await listPromise(p);
       for (const x of list) {
         if (x.longname[0] == 'd') {
           if (type == 'd') {
             dir[x.filename] = { name: x.filename, children: {} } as DirItem;
+            //todo: 目录改成点开再readdir而不是一次性递归获取全部？
             await readdir(path.posix.join(p, x.filename), dir[x.filename].children);
           } else {
             await readdir(path.posix.join(p, x.filename), null);
@@ -157,21 +158,8 @@ export class SSH {
   async createTorrent(p: string, options: any) {
     if (!this.ready) await this.createConnect();
     const sftp = await util.promisify(this.conn.sftp).bind(this.conn)();
-    const stat = await util.promisify(sftp.stat).bind(sftp)(p);
-    const handle = await util.promisify(sftp.open).bind(sftp)(p, 'r');
-    options.size = stat.size;
-    const closePromise = util.promisify(sftp.close).bind(sftp)(handle);
-    // return { handle, size: stat.size, closePromise };
-    // createTorrent(handle, options, (err, torrent) => {
-    //   if (err) throw err;
-    //   util.promisify(sftp.close).bind(sftp)(handle);
-    //   return torrent;
-    // });
-
     //@ts-ignore
-    const torrent = await util.promisify(createTorrent)(handle, options);
-    await closePromise();
-    return torrent;
+    return await util.promisify(createTorrent)(sftp.createReadStream(p), options);
   }
 
   async uploadFile(p: string) {

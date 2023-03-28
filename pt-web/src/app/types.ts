@@ -50,7 +50,7 @@ export interface RegisterInfo {
   invitation: string;
 }
 
-export interface QBInfo {
+export interface QBConfig {
   qb_url: string;
   username: string;
   password: string;
@@ -69,7 +69,7 @@ export interface UserSSHConfig {
   privateKeyPath: string;
 }
 export interface SmbConfig {
-  get_url: string;
+  remotePath: string;
 }
 export interface HttpConfig {
   remotePath: string;

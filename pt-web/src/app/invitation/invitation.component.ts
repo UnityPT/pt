@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./invitation.component.scss'],
 })
 export class InvitationComponent implements OnInit {
-  email = '';
+  email = '@';
   invitation_key = '';
   title = '';
 

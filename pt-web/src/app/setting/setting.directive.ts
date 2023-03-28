@@ -2,11 +2,11 @@ import { Directive, Input } from '@angular/core';
 import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
 
 @Directive({
-  selector: '[get_url]',
+  selector: '[smb_remote_path]',
   providers: [{ provide: NG_VALIDATORS, useExisting: SettingDirective, multi: true }],
 })
 export class SettingDirective implements Validator {
-  @Input('get_url') get_url = '';
+  @Input('smb_remote_path') smb_remote_path = '';
 
   validate(control: AbstractControl): ValidationErrors | null {
     return getUrlValidator()(control);

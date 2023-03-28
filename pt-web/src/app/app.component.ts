@@ -8,6 +8,7 @@ import { FileStat } from 'webdav';
 import { DirItem } from './types';
 import { Buffer } from 'buffer';
 import createTorrent from 'create-torrent';
+import * as path from 'path';
 
 // 取数据
 @Component({
@@ -101,10 +102,7 @@ export class AppComponent {
     await loadFull(engine);
   }
   //
-  async test1() {
-    const p = 'C:\\Users\\frogeater\\Desktop\\test\\POLYGON - War Pack1.0.unitypackage';
-    await window.electronAPI.upload_file(p);
-  }
+  async test1() {}
 }
 
 declare global {
@@ -114,7 +112,7 @@ declare global {
       store_get: (key: string, defaultValue?: any) => Promise<any>;
       store_set: (key: string, value: any) => Promise<void>;
       create_ssh: () => Promise<boolean>;
-      get_list: (path: string, type: 'd' | 'f') => Promise<DirItem | string[]>;
+      get_list: (path: string, type: 'd' | 'f', protocol: string) => Promise<DirItem | string[]>;
       get_file: (infoHash: string, filename: string) => Promise<void>;
       upload_file: (path: string) => Promise<void>;
       relaunch: () => Promise<void>;

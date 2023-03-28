@@ -10,62 +10,62 @@
     <!--表单样式-->
     <div class="row">
       <div class="lab">qb地址</div>
-      <input class="inputs" name="qb_url" [(ngModel)]="qbInfo.qb_url">
+      <input class="inputs" name="qb_url" [(ngModel)]="qbConfig.qb_url" (ngModelChange)="onInputChange()">
     </div>
     <div class="row">
       <div class="lab">用户名</div>
-      <input class="inputs" name="username" [(ngModel)]="qbInfo.username">
+      <input class="inputs" name="username" [(ngModel)]="qbConfig.username">
     </div>
     <div class="row">
       <div class="lab">密码</div>
-      <input class="inputs" name="password" type="password" [(ngModel)]="qbInfo.password">
+      <input class="inputs" name="password" type="password" [(ngModel)]="qbConfig.password">
     </div>
 
     <div class="row">
       <div class="lab">默认保存路径</div>
-      <input  class="inputs" name="save_path" [(ngModel)]="qbInfo.save_path">
+      <input  class="inputs" name="save_path" [(ngModel)]="qbConfig.save_path">
     </div>
 
     <div class="row">
       <div class="lab">取回协议</div>
-      <select  class="left" name="downloads" [(ngModel)]="qbInfo.get_protocol">
-        <option value="local">local</option>
-        <option value="sftp">sftp</option>
-        <option value="smb">smb</option>
-        <option value="webdav">webdav</option>
+      <select class="left" name="downloads" [(ngModel)]="qbConfig.get_protocol" required>
+        <option value="local" *ngIf="localQb()">local</option>
+        <option value="sftp" *ngIf="!localQb()">sftp</option>
+        <option value="smb" *ngIf="!localQb()">smb</option>
+        <option value="webdav" *ngIf="!localQb()">webdav</option>
       </select>
     </div>
-    <div class="row" *ngIf="qbInfo.get_protocol=='sftp'">
+    <div class="row" *ngIf="qbConfig.get_protocol=='sftp'">
       <div class="lab"  >ssh用户名</div>
       <input class="inputs" name="ssh_username" [(ngModel)]="sshConfig.username">
     </div>
-    <div class="row" *ngIf="qbInfo.get_protocol=='sftp'">
+    <div class="row" *ngIf="qbConfig.get_protocol=='sftp'">
       <div class="lab" >远端路径</div>
       <input class="inputs" name="remote_path" [(ngModel)]="sshConfig.remotePath">
     </div>
-    <div class="row" *ngIf="qbInfo.get_protocol == 'sftp'">
+    <div class="row" *ngIf="qbConfig.get_protocol == 'sftp'">
       <div class='lab'>
         本地路径
       </div>
       <input class="inputs" name="local_path" [(ngModel)]="sshConfig.localPath">
     </div>
-    <div class="row" *ngIf="qbInfo.get_protocol == 'webdav'">
+    <div class="row" *ngIf="qbConfig.get_protocol == 'webdav'">
       <div class="lab" >远端路径</div>
       <input class="inputs" name="remote_path" [(ngModel)]="httpConfig.remotePath">
     </div>
-    <div class="row" *ngIf="qbInfo.get_protocol=='webdav'">
+    <div class="row" *ngIf="qbConfig.get_protocol=='webdav'">
       <div class='lab'>
         本地路径
       </div>
       <input class="inputs" name="local_path" [(ngModel)]="httpConfig.localPath">
     </div>
-    <div class="row" *ngIf="qbInfo.get_protocol=='sftp'">
+    <div class="row" *ngIf="qbConfig.get_protocol=='sftp'">
       <div class="lab"  >私钥路径</div>
       <input class="inputs" name="private_key" [(ngModel)]="sshConfig.privateKeyPath">
     </div>
-    <div class="row" *ngIf="qbInfo.get_protocol=='smb'" >
+    <div class="row" *ngIf="qbConfig.get_protocol=='smb'" >
       <div class="lab" >smb路径</div>
-      <input class="right" name="smb_get_url" [(ngModel)]="smbConfig.get_url" >
+      <input class="right" name="remote_path" [(ngModel)]="smbConfig.remotePath" >
     </div>
     <div class="btn">
       <button mat-raised-button color="primary" [disabled]="!settingForm.form.valid">确定</button>

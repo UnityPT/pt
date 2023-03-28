@@ -208,4 +208,52 @@ export class ApiService {
       observe: 'events',
     });
   }
+
+  public async getRemotePath(protocol: string) {
+    if (protocol === 'sftp') {
+      return (await window.electronAPI.store_get('sshConfig')).remotePath.split(':').at(-1);
+    } else if (protocol === 'smb') {
+      // return (await window.electronAPI.store_get('smbConfig')).remotePath;
+    } else if (protocol === 'webdav') {
+      // return (await window.electronAPI.store_get('httpConfig')).remotePath;
+    }
+    console.log('getRemotePath: protocol error', protocol);
+    return '';
+  }
+
+  public async getDirList(protocol: string, remotePath: string) {
+    if (protocol === 'sftp') {
+      return await window.electronAPI.get_list(remotePath, 'd', 'sftp');
+    } else if (protocol === 'smb') {
+    } else if (protocol === 'webdav') {
+    }
+
+    return console.log('getDirList: protocol error', protocol);
+  }
+
+  public async getFileList(protocol: any, dirPath: string) {
+    if (protocol === 'sftp') {
+      return await window.electronAPI.get_list(dirPath, 'f', 'sftp');
+    } else if (protocol === 'smb') {
+    } else if (protocol === 'webdav') {
+    }
+    return console.log('getFileList: protocol error', protocol);
+  }
+
+  public async extraField(protocol: string, filepath: string) {
+    if (protocol === 'sftp') {
+      return await window.electronAPI.extra_field(filepath);
+    } else if (protocol === 'smb') {
+    } else if (protocol === 'webdav') {
+    }
+    return console.log('extraField: protocol error', protocol);
+  }
+
+  public async createTorrent(protocal: string, filepath: string, options: any) {
+    if (protocal === 'sftp') {
+      return await window.electronAPI.create_torrent(filepath, options);
+    } else if (protocal === 'smb') {
+    } else if (protocal === 'webdav') {
+    }
+  }
 }

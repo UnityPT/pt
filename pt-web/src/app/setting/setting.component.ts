@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
-import { HttpConfig, QBInfo, SmbConfig, UserSSHConfig } from '../types';
+import { HttpConfig, QBConfig, SmbConfig, UserSSHConfig } from '../types';
 import { FormBuilder, Validators } from '@angular/forms';
 import { QBittorrentService } from '../qbittorrent.service';
-import { defaultHTTPConfig, defaultQBInfo, defaultSMBConfig, defaultSSHConfig } from './defaultSetting';
+import { defaultHTTPConfig, defaultQBConfig, defaultSMBConfig, defaultSSHConfig } from './defaultSetting';
+import { isEqual } from 'lodash-es';
 
 @Component({
   selector: 'app-setting',
@@ -11,7 +12,7 @@ import { defaultHTTPConfig, defaultQBInfo, defaultSMBConfig, defaultSSHConfig } 
   styleUrls: ['./setting.component.scss'],
 })
 export class SettingComponent implements OnInit {
-  qbInfo: QBInfo = defaultQBInfo;
+  qbConfig: QBConfig = defaultQBConfig;
   sshConfig: UserSSHConfig = defaultSSHConfig;
   smbConfig: SmbConfig = defaultSMBConfig;
   httpConfig: HttpConfig = defaultHTTPConfig;
@@ -30,11 +31,11 @@ export class SettingComponent implements OnInit {
   }
 
   async init() {
-    this.qbInfo = await window.electronAPI.store_get('qbInfo', defaultQBInfo);
+    this.qbConfig = await window.electronAPI.store_get('qbConfig', defaultQBConfig);
     this.sshConfig = await window.electronAPI.store_get('sshConfig', defaultSSHConfig);
     this.smbConfig = await window.electronAPI.store_get('smbConfig', defaultSMBConfig);
     this.httpConfig = await window.electronAPI.store_get('httpConfig', defaultHTTPConfig);
-    await window.electronAPI.store_set('qbInfo', this.qbInfo);
+    await window.electronAPI.store_set('qbConfig', this.qbConfig);
     await window.electronAPI.store_set('sshConfig', this.sshConfig);
     await window.electronAPI.store_set('smbConfig', this.smbConfig);
     await window.electronAPI.store_set('httpConfig', this.httpConfig);
@@ -44,14 +45,14 @@ export class SettingComponent implements OnInit {
 
   async submit() {
     try {
-      if (this.qbInfo) {
+      if (this.qbConfig) {
         await window.electronAPI.store_set('sshConfig', this.sshConfig);
         await window.electronAPI.store_set('smbConfig', this.smbConfig);
         await window.electronAPI.store_set('httpConfig', this.httpConfig);
-        const old_qb_info = await window.electronAPI.store_get('qbInfo', this.qbInfo);
-        await window.electronAPI.store_set('qbInfo', this.qbInfo);
-        if (old_qb_info.qb_url != this.qbInfo.qb_url) {
-          const cf = confirm('你修改了qb地址,需要重启客户端,是否重启?');
+        const old_qb_info = await window.electronAPI.store_get('qbConfig', this.qbConfig);
+        await window.electronAPI.store_set('qbConfig', this.qbConfig);
+        if (!isEqual(old_qb_info.qb_url, this.qbConfig.qb_url)) {
+          const cf = confirm('你修改了qb信息,需要重启客户端,是否重启?');
           if (cf) {
             await window.electronAPI.relaunch();
           }
@@ -61,6 +62,18 @@ export class SettingComponent implements OnInit {
     } catch (error) {
       alert('保存失败');
       throw error;
+    }
+  }
+
+  localQb() {
+    return this.qbConfig.qb_url.split('://')[1].startsWith('localhost');
+  }
+
+  onInputChange() {
+    if (this.localQb()) {
+      this.qbConfig.get_protocol = 'local';
+    } else {
+      this.qbConfig.get_protocol = 'sftp';
     }
   }
 }

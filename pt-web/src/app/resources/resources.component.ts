@@ -8,7 +8,7 @@ import { QBittorrentService } from '../qbittorrent.service';
 import { ApiService } from '../api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { mapValues, orderBy } from 'lodash-es';
-import { defaultQBInfo, defaultSMBConfig } from '../setting/defaultSetting';
+import { defaultQBConfig, defaultSMBConfig } from '../setting/defaultSetting';
 
 // import 'user-agent-data-types';
 
@@ -86,10 +86,10 @@ export class ResourcesComponent implements OnInit {
     try {
       const files = await this.qBittorrent.torrentsFiles(torrent.hash);
       console.log(torrent.hash, torrent.name);
-      const qb_info = await window.electronAPI.store_get('qbInfo', defaultQBInfo);
+      const qb_info = await window.electronAPI.store_get('qbConfig', defaultQBConfig);
       if (qb_info.get_protocol === 'sftp') {
         await window.electronAPI.get_file(torrent.hash, torrent.name);
-      } else if (qb_info.get_protocol === 'http') {
+      } else if (qb_info.get_protocol === 'webdav') {
         const httpConfig = await window.electronAPI.store_get('httpConfig', defaultSMBConfig);
         if (httpConfig.remotePath && httpConfig.localPath) {
           this.api.httpDownload(httpConfig, torrent.name).subscribe((data) => {
