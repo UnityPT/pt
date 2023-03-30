@@ -174,15 +174,6 @@ export class ApiService {
     return;
   }
 
-  httpDownload(httpConfig: HttpConfig, fileName: string) {
-    return this.http.get(`${httpConfig.remotePath}/${fileName}`, {
-      responseType: 'blob',
-      withCredentials: false,
-      reportProgress: true,
-      observe: 'events',
-    });
-  }
-
   public async getRemotePath(protocol: string) {
     if (protocol === 'sftp') {
       return (await window.electronAPI.store_get('sshConfig')).remotePath.split(':').at(-1);
