@@ -3,9 +3,10 @@ import { AuthType, createClient } from 'webdav';
 import { electronAPI } from './electronAPI';
 import path from 'path';
 import * as fs from 'fs';
-import { DirItem } from './interface';
+import { DirItem, QBConfig } from './interface';
 import util from 'util';
 import createTorrent from 'create-torrent';
+import { webContents } from 'electron';
 
 const Member = new Struct('Member').UInt8('ID1').UInt8('ID2').UInt8('CM').UInt8('FLG').UInt32LE('MTIME').UInt8('XFL').UInt8('OS').compile();
 const Extra = new Struct('Extra').UInt8('SI1').UInt8('SI2').UInt16LE('LEN').Buffer('data').compile();
@@ -23,38 +24,34 @@ export class Webdav {
     this.ready = true;
   }
 
-  async getFile(infoHash: string, fileName: string) {
+  async getFile(infoHash: string, p: string) {
     if (!this.ready) this.createConnect();
-    // console.log(await this.webDavClient?.getDirectoryContents('/'));
-    // //下载文件
-    // const s = await this.webDavClient?.createReadStream('1.txt');
-    //
-    // let buffer = Buffer.alloc(4096);
-    // s?.on('data', (chunk) => {
-    //   console.log(chunk.toString());
-    // });
-    // const sshConfig = electronAPI.store.get('sshConfig') as SSHConfig;
-    // const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), fileName);
-    // const localPath = path.join(sshConfig.localPath, fileName);
-    // if (!this.ready) await this.createConnect();
-    // const sftp = await util.promisify(this.conn.sftp).bind(this.conn)();
-    // sftp.fastGet(
-    //   remotePath,
-    //   localPath,
-    //   {
-    //     step: (total_transferred, chunk, total) => {
-    //       console.log(total_transferred, chunk, total);
-    //       //todo: on minimize, stop sending, on restore, send again;
-    //       webContents.getFocusedWebContents().send('get_file_progress', {
-    //         infoHash,
-    //         progress: total_transferred / total,
-    //       });
-    //     },
-    //   },
-    //   (err) => {
-    //     if (err) throw err;
-    //   }
-    // );
+    const qbConfig = electronAPI.store.get('qbConfig') as QBConfig;
+    p = p.replace(qbConfig.save_path, '');
+    const stream = this.webDavClient.createReadStream(p);
+    //进度条
+    const total = await this.webDavClient.getFileSize(p);
+    let total_transferred = 0;
+    stream.on('data', (chunk) => {
+      total_transferred += chunk.length;
+      console.log(total_transferred, chunk.length, total);
+      webContents.getFocusedWebContents()?.send('get_file_progress', {
+        infoHash,
+        progress: total_transferred / total,
+      });
+    });
+    return new Promise((resolve, reject) => {
+      stream
+        .on('end', () => {
+          resolve(null);
+        })
+        .on('error', (err) => {
+          reject(err);
+        })
+        .on('close', () => {
+          resolve(null);
+        });
+    });
   }
 
   async getList(p: string, type: 'd' | 'f') {

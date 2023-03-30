@@ -194,16 +194,4 @@ export class ApiService {
     console.log('getRemotePath: protocol error', protocol);
     return '';
   }
-  public async trans2QbPath(p: string, protocol: string) {
-    const qbSavePath = (await window.electronAPI.store_get('qbConfig')).save_path;
-    const remotePath = await this.getRemotePath(protocol);
-    if (protocol === 'sftp') {
-      return path.posix.join(qbSavePath, p.replace(remotePath, ''));
-    } else if (protocol === 'smb') {
-    } else if (protocol === 'webdav') {
-      return path.posix.join(qbSavePath, p.replace(remotePath, ''));
-    }
-    console.log('trans2QbPath: protocol error', protocol);
-    return '';
-  }
 }

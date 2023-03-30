@@ -9,6 +9,7 @@ import { ApiService } from '../api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { mapValues, orderBy } from 'lodash-es';
 import { defaultQBConfig, defaultSMBConfig } from '../setting/defaultSetting';
+import * as path from 'path';
 
 // import 'user-agent-data-types';
 
@@ -79,22 +80,23 @@ export class ResourcesComponent implements OnInit {
     const torrent = await this.api.download(resource.torrent_id);
     console.log(resource);
     if (!torrent) return;
-    await this.qBittorrent.torrentsAdd(torrent);
+    const qb_cfg = await window.electronAPI.store_get('qbConfig', defaultQBConfig);
+    await this.qBittorrent.torrentsAdd(torrent, qb_cfg.save_path);
   }
 
   async import(torrent: Torrent) {
     try {
-      const files = await this.qBittorrent.torrentsFiles(torrent.hash);
-      console.log(torrent.hash, torrent.name);
+      console.log(torrent);
       const qb_cfg = await window.electronAPI.store_get('qbConfig', defaultQBConfig);
       if (qb_cfg.protocol === 'sftp' || qb_cfg.protocol === 'webdav') {
-        await window.electronAPI.get_file(torrent.hash, torrent.name);
+        // @ts-ignore
+        await window.electronAPI.get_file(torrent.hash, torrent.content_path);
       } else if (qb_cfg.protocol === 'smb') {
         const remotePath = (await window.electronAPI.store_get('smbConfig', defaultSMBConfig)).remotePath;
         if (remotePath) {
-          await window.electronAPI.import(remotePath, files[0].name, navigator.userAgentData!.platform);
+          await window.electronAPI.import(remotePath, torrent.name, navigator.userAgentData!.platform);
         } else {
-          await window.electronAPI.import(torrent.save_path, files[0].name, navigator.userAgentData!.platform);
+          await window.electronAPI.import(torrent.save_path, torrent.name, navigator.userAgentData!.platform);
         }
       }
     } catch (error) {

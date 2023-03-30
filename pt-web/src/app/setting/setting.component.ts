@@ -44,6 +44,9 @@ export class SettingComponent implements OnInit {
   ngOnInit() {}
 
   async submit() {
+    if (this.qbConfig.save_path.endsWith('/')) {
+      this.qbConfig.save_path = this.qbConfig.save_path.slice(0, -1);
+    }
     try {
       if (this.qbConfig) {
         await window.electronAPI.store_set('sshConfig', this.sshConfig);

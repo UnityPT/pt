@@ -43,12 +43,13 @@ export class SSH {
     });
   }
 
-  async getFile(infoHash: string, fileName: string) {
-    console.log('getFile', infoHash, fileName);
+  async getFile(infoHash: string, p: string) {
+    console.log('getFile', infoHash, p);
     const sshConfig = electronAPI.store.get('sshConfig') as SSHConfig;
     const qbConfig = electronAPI.store.get('qbConfig') as QBConfig;
-    const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), fileName);
-    const localPath = path.join(qbConfig.local_path, fileName);
+    p = p.replace(qbConfig.save_path, '');
+    const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), p);
+    const localPath = path.join(qbConfig.local_path, path.posix.basename(p));
     if (!this.ready) await this.createConnect();
     const sftp = await util.promisify(this.conn.sftp).bind(this.conn)();
     sftp.fastGet(
@@ -57,8 +58,7 @@ export class SSH {
       {
         step: (total_transferred, chunk, total) => {
           console.log(total_transferred, chunk, total);
-          //todo: on minimize, stop sending, on restore, send again;
-          webContents.getFocusedWebContents().send('get_file_progress', {
+          webContents.getFocusedWebContents()?.send('get_file_progress', {
             infoHash,
             progress: total_transferred / total,
           });
