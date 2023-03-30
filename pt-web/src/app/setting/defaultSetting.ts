@@ -1,23 +1,24 @@
-import { HttpConfig, QBConfig, SmbConfig, UserSSHConfig } from '../types';
+import { HttpConfig, QBConfig, SmbConfig, SSHConfig } from '../types';
 
 const defaultQBConfig: QBConfig = {
   qb_url: 'http://localhost:8080',
   username: 'admin',
   password: 'adminadmin',
   save_path: '/downloads',
-  get_protocol: 'local',
+  local_path: '',
+  protocol: 'local',
 };
 
-const defaultSSHConfig: UserSSHConfig = {
+const defaultSSHConfig: SSHConfig = {
   username: '',
   remotePath: '',
-  localPath: '',
   privateKeyPath: '',
 };
 
 const defaultHTTPConfig: HttpConfig = {
   remotePath: '',
-  localPath: '',
+  username: '',
+  password: '',
 };
 
 const defaultSMBConfig: SmbConfig = {

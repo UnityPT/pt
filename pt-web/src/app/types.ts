@@ -55,17 +55,17 @@ export interface QBConfig {
   username: string;
   password: string;
   save_path: string;
-  get_protocol: 'local' | 'sftp' | 'smb' | 'webdav';
+  local_path: string;
+  protocol: 'local' | 'sftp' | 'smb' | 'webdav';
 }
 
 export interface UserStat {
   uploaded: number;
   downloaded: number;
 }
-export interface UserSSHConfig {
+export interface SSHConfig {
   remotePath: string;
   username: string;
-  localPath: string;
   privateKeyPath: string;
 }
 export interface SmbConfig {
@@ -73,7 +73,8 @@ export interface SmbConfig {
 }
 export interface HttpConfig {
   remotePath: string;
-  localPath: string;
+  username: string;
+  password: string;
 }
 
 export interface DirItem {

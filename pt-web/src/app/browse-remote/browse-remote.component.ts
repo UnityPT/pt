@@ -18,7 +18,7 @@ export class BrowseRemoteComponent implements OnInit {
   constructor(public dialogRef: MatDialogRef<BrowseRemoteComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {}
 
   ngOnInit() {
-    this.items = [this.data.home];
+    this.items = this.data.dirItems;
   }
 
   onCancelClick() {
@@ -37,7 +37,7 @@ export class BrowseRemoteComponent implements OnInit {
   }
 
   onHomeClick() {
-    this.items = [this.data.home];
+    this.items = this.data.dirItems;
     this.breadcrumb = [];
   }
 

@@ -164,33 +164,7 @@ export class ApiService {
     return !this.username && this.curPage != '/help';
   }
 
-  async test() {
-    // const res = confirm('sometext');
-    // if (res == true) {
-    //   console.log('1');
-    // } else {
-    //   console.log('2');
-    // }
-    // const blob = await lastValueFrom(this.http.get(this.url('download'), {
-    //   params: {id: 22},
-    //   responseType: 'blob',
-    //   withCredentials: true
-    // }));
-    //
-    // var url = window.URL.createObjectURL(blob)
-    // // 上面这个是创建一个blob的对象连链接，
-    // var link = document.createElement('a')
-    // // 创建一个链接元素，是属于 a 标签的链接元素，所以括号里才是a，
-    //
-    // link.href = url;
-    // // 把上面获得的blob的对象链接赋值给新创建的这个 a 链接
-    // link.setAttribute('download', "test.torrent")
-    // // 设置下载的属性（所以使用的是download），这个是a 标签的一个属性
-    // // 后面的是文件名字，可以更改
-    // link.click();
-    //
-    // this.httpDownload({ localPath: '', remotePath: 'https://frogeater.vip/pt' }, 'x', 'test 202107161430.mp4');
-  }
+  async test() {}
 
   private dealWithError(e: HttpErrorResponse) {
     if (e.status == 401) {
@@ -213,47 +187,23 @@ export class ApiService {
     if (protocol === 'sftp') {
       return (await window.electronAPI.store_get('sshConfig')).remotePath.split(':').at(-1);
     } else if (protocol === 'smb') {
-      // return (await window.electronAPI.store_get('smbConfig')).remotePath;
+      return (await window.electronAPI.store_get('smbConfig')).remotePath;
     } else if (protocol === 'webdav') {
-      // return (await window.electronAPI.store_get('httpConfig')).remotePath;
+      return (await window.electronAPI.store_get('httpConfig')).remotePath;
     }
     console.log('getRemotePath: protocol error', protocol);
     return '';
   }
-
-  public async getDirList(protocol: string, remotePath: string) {
+  public async trans2QbPath(p: string, protocol: string) {
+    const qbSavePath = (await window.electronAPI.store_get('qbConfig')).save_path;
+    const remotePath = await this.getRemotePath(protocol);
     if (protocol === 'sftp') {
-      return await window.electronAPI.get_list(remotePath, 'd', 'sftp');
+      return path.posix.join(qbSavePath, p.replace(remotePath, ''));
     } else if (protocol === 'smb') {
     } else if (protocol === 'webdav') {
+      return path.posix.join(qbSavePath, p.replace(remotePath, ''));
     }
-
-    return console.log('getDirList: protocol error', protocol);
-  }
-
-  public async getFileList(protocol: any, dirPath: string) {
-    if (protocol === 'sftp') {
-      return await window.electronAPI.get_list(dirPath, 'f', 'sftp');
-    } else if (protocol === 'smb') {
-    } else if (protocol === 'webdav') {
-    }
-    return console.log('getFileList: protocol error', protocol);
-  }
-
-  public async extraField(protocol: string, filepath: string) {
-    if (protocol === 'sftp') {
-      return await window.electronAPI.extra_field(filepath);
-    } else if (protocol === 'smb') {
-    } else if (protocol === 'webdav') {
-    }
-    return console.log('extraField: protocol error', protocol);
-  }
-
-  public async createTorrent(protocal: string, filepath: string, options: any) {
-    if (protocal === 'sftp') {
-      return await window.electronAPI.create_torrent(filepath, options);
-    } else if (protocal === 'smb') {
-    } else if (protocal === 'webdav') {
-    }
+    console.log('trans2QbPath: protocol error', protocol);
+    return '';
   }
 }

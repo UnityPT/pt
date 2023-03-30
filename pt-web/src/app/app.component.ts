@@ -111,14 +111,14 @@ declare global {
       import: (origin: string, pathname: string, platform: string) => Promise<void>;
       store_get: (key: string, defaultValue?: any) => Promise<any>;
       store_set: (key: string, value: any) => Promise<void>;
-      create_ssh: () => Promise<boolean>;
-      get_list: (path: string, type: 'd' | 'f', protocol: string) => Promise<DirItem | string[]>;
-      get_file: (infoHash: string, filename: string) => Promise<void>;
-      upload_file: (path: string) => Promise<void>;
       relaunch: () => Promise<void>;
       on: (channel: string, func: (event: any, data: any) => void) => void;
+      create_connect: () => Promise<void>;
+      get_list: (path: string, type: 'd' | 'f') => Promise<DirItem | string[]>;
+      get_file: (infoHash: string, filename: string) => Promise<void>;
+      upload_file: (path: string) => Promise<void>;
       extra_field: (path: string) => Promise<string>;
-      create_torrent: (filepath: string, opts: { private: boolean; createdBy: string; name: string; announceList: any[] }) => Promise<any>;
+      create_torrent: (filepath: string, opts: any) => Promise<any>;
     };
   }
 }

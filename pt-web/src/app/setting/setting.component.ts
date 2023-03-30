@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
-import { HttpConfig, QBConfig, SmbConfig, UserSSHConfig } from '../types';
+import { HttpConfig, QBConfig, SmbConfig, SSHConfig } from '../types';
 import { FormBuilder, Validators } from '@angular/forms';
 import { QBittorrentService } from '../qbittorrent.service';
 import { defaultHTTPConfig, defaultQBConfig, defaultSMBConfig, defaultSSHConfig } from './defaultSetting';
@@ -13,7 +13,7 @@ import { isEqual } from 'lodash-es';
 })
 export class SettingComponent implements OnInit {
   qbConfig: QBConfig = defaultQBConfig;
-  sshConfig: UserSSHConfig = defaultSSHConfig;
+  sshConfig: SSHConfig = defaultSSHConfig;
   smbConfig: SmbConfig = defaultSMBConfig;
   httpConfig: HttpConfig = defaultHTTPConfig;
 
@@ -49,15 +49,16 @@ export class SettingComponent implements OnInit {
         await window.electronAPI.store_set('sshConfig', this.sshConfig);
         await window.electronAPI.store_set('smbConfig', this.smbConfig);
         await window.electronAPI.store_set('httpConfig', this.httpConfig);
-        const old_qb_info = await window.electronAPI.store_get('qbConfig', this.qbConfig);
-        await window.electronAPI.store_set('qbConfig', this.qbConfig);
-        if (!isEqual(old_qb_info.qb_url, this.qbConfig.qb_url)) {
-          const cf = confirm('你修改了qb信息,需要重启客户端,是否重启?');
+        const old_qb_cfg = await window.electronAPI.store_get('qbConfig', this.qbConfig);
+        if (!isEqual(old_qb_cfg, this.qbConfig)) {
+          const cf = confirm('你修改了qb信息,需要重启客户端,是否保存并重启?');
           if (cf) {
-            await window.electronAPI.relaunch();
+            return await window.electronAPI.relaunch();
+          } else {
+            this.qbConfig = old_qb_cfg;
+            return;
           }
         }
-        alert('保存成功');
       }
     } catch (error) {
       alert('保存失败');
@@ -71,9 +72,9 @@ export class SettingComponent implements OnInit {
 
   onInputChange() {
     if (this.localQb()) {
-      this.qbConfig.get_protocol = 'local';
+      this.qbConfig.protocol = 'local';
     } else {
-      this.qbConfig.get_protocol = 'sftp';
+      this.qbConfig.protocol = 'sftp';
     }
   }
 }

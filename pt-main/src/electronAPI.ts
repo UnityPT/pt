@@ -1,8 +1,14 @@
-import {shell} from 'electron';
+import { shell } from 'electron';
 import path from 'path';
 
 export class electronAPI {
   static store;
+
+  static async getList(event, remotePath: string, type: string, protocol: string) {
+    const p = '\\\\10.198.11.1\\share\\2.txt';
+    // return shell.openPath(p);
+  }
+
   static async import(event, origin: string, pathname: string, platform: string) {
     if (platform == 'Windows') {
       return shell.openPath(path.join(origin, pathname));
@@ -23,5 +29,4 @@ export class electronAPI {
   static async store_set(event, key: string, value) {
     return this.store.set(key, value);
   }
-
 }

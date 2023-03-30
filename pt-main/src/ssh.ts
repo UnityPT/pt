@@ -4,10 +4,9 @@ import { webContents } from 'electron';
 import { electronAPI } from './electronAPI';
 import Struct from 'typed-struct';
 import path from 'path';
-import { DirItem, UserSSHConfig } from './interface';
+import { DirItem, QBConfig, SSHConfig } from './interface';
 import util from 'util';
 import createTorrent from 'create-torrent';
-import sftp = utils.sftp;
 
 const Member = new Struct('Member').UInt8('ID1').UInt8('ID2').UInt8('CM').UInt8('FLG').UInt32LE('MTIME').UInt8('XFL').UInt8('OS').compile();
 const Extra = new Struct('Extra').UInt8('SI1').UInt8('SI2').UInt16LE('LEN').Buffer('data').compile();
@@ -16,26 +15,19 @@ export class SSH {
   conn = new Client();
   ready = false;
   async createConnect() {
-    if (this.ready) {
-      console.log('already connected');
-      return true;
-    }
-
     const cfg = await electronAPI.store.get('sshConfig');
-    const portExists = cfg.remotePath.split(':').length > 1;
     const connectCfg: ConnectConfig = {
       privateKey: readFileSync(cfg.privateKeyPath),
       username: cfg.username,
       host: cfg.remotePath.split(':')[0],
-      port: portExists ? parseInt(cfg.remotePath.split(':')[1]) : 22,
     };
 
     return new Promise((resolve, reject) => {
       this.conn
         .on('ready', () => {
-          console.log('Client :: ready');
+          console.log('sshClient :: ready');
           this.ready = true;
-          resolve(true);
+          resolve(null);
         })
         .on('error', (err) => {
           this.ready = false;
@@ -52,9 +44,11 @@ export class SSH {
   }
 
   async getFile(infoHash: string, fileName: string) {
-    const sshConfig = electronAPI.store.get('sshConfig') as UserSSHConfig;
+    console.log('getFile', infoHash, fileName);
+    const sshConfig = electronAPI.store.get('sshConfig') as SSHConfig;
+    const qbConfig = electronAPI.store.get('qbConfig') as QBConfig;
     const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), fileName);
-    const localPath = path.join(sshConfig.localPath, fileName);
+    const localPath = path.join(qbConfig.local_path, fileName);
     if (!this.ready) await this.createConnect();
     const sftp = await util.promisify(this.conn.sftp).bind(this.conn)();
     sftp.fastGet(
@@ -77,12 +71,13 @@ export class SSH {
   }
 
   async getList(p: string, type: 'd' | 'f') {
+    console.log('getList', p, type);
     if (!this.ready) await this.createConnect();
     const sftp = await util.promisify(this.conn.sftp).bind(this.conn)();
     const filePathList: string[] = type == 'f' ? [] : null;
-    const rootDirItem: DirItem = type == 'd' ? ({ name: path.basename(p), children: {} } as DirItem) : null;
+    const rootdir = type == 'd' ? {} : null;
     const listPromise = await util.promisify(sftp.readdir).bind(sftp);
-    return await readdir(p, rootDirItem?.children);
+    return await readdir(p, rootdir);
     async function readdir(p: string, dir?: Record<string, DirItem>) {
       const list = await listPromise(p);
       for (const x of list) {
@@ -99,11 +94,11 @@ export class SSH {
         }
       }
       if (type == 'f') return filePathList;
-      else return rootDirItem;
+      else return Object.values(rootdir);
     }
   }
 
-  async ExtraField(path: string) {
+  async extraField(path: string) {
     if (!this.ready) await this.createConnect();
     const sftp = await util.promisify(this.conn.sftp).bind(this.conn)();
     const SI1 = 65;
@@ -166,7 +161,7 @@ export class SSH {
     console.log('uploadFile', p);
     if (!this.ready) await this.createConnect();
     const sftp = await util.promisify(this.conn.sftp).bind(this.conn)();
-    const sshConfig = electronAPI.store.get('sshConfig') as UserSSHConfig;
+    const sshConfig = electronAPI.store.get('sshConfig') as SSHConfig;
     const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), path.basename(p));
     await util.promisify(sftp.fastPut).bind(sftp)(p, remotePath, {
       mode: '0755',

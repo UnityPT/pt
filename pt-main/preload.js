@@ -4,7 +4,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   import: (origin, pathname, platform) => ipcRenderer.invoke('import', origin, pathname, platform),
   store_get: (key, defaultValue) => ipcRenderer.invoke('store_get', key, defaultValue),
   store_set: (key, value) => ipcRenderer.invoke('store_set', key, value),
-  create_ssh: () => ipcRenderer.invoke('create_ssh'),
   get_list: (path, type) => ipcRenderer.invoke('get_list', path, type),
   get_file: (infoHash, fileName) => ipcRenderer.invoke('get_file', infoHash, fileName),
   upload_file: (path) => ipcRenderer.invoke('upload_file', path),

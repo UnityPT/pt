@@ -4,8 +4,9 @@ import path from 'path';
 import { autoUpdater } from 'electron-updater';
 import Store from 'electron-store';
 import { SSH } from './ssh';
-import { UserSSHConfig } from './interface';
 import { Cookie } from 'tough-cookie';
+import { Webdav } from './webdav';
+import { SMB } from './smb';
 
 const checkForUpdates = autoUpdater.checkForUpdatesAndNotify({
   title: '{appName} 已准备好更新',
@@ -25,6 +26,10 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const store = new Store();
 const ssh = new SSH();
+const webdav = new Webdav();
+const smb = new SMB();
+// @ts-ignore
+const protocol = store.get('qbConfig', {}).protocol;
 
 // @ts-ignore
 const qBittorrentOrigin = store.get('qbConfig', { qb_url: 'http://localhost:8080' }).qb_url || 'http://localhost:8080';
@@ -85,12 +90,41 @@ app.whenReady().then(async () => {
   ipcMain.handle('import', electronAPI.import.bind(electronAPI));
   ipcMain.handle('store_get', electronAPI.store_get.bind(electronAPI));
   ipcMain.handle('store_set', electronAPI.store_set.bind(electronAPI));
-  ipcMain.handle('create_ssh', async () => ssh.createConnect());
-  ipcMain.handle('get_list', async (event, path, type) => ssh.getList(path, type));
-  ipcMain.handle('get_file', async (event, infoHash, fileName) => ssh.getFile(infoHash, fileName));
-  ipcMain.handle('upload_file', async (event, path) => ssh.uploadFile(path));
-  ipcMain.handle('create_torrent', async (event, path, options) => ssh.createTorrent(path, options));
-  ipcMain.handle('extra_field', async (event, path) => ssh.ExtraField(path));
+  ipcMain.handle('get_list', async (event, path, type) => {
+    return {
+      webdav: webdav.getList.bind(webdav),
+      sftp: ssh.getList.bind(ssh),
+      smb: smb.getList.bind(smb),
+    }[protocol](path, type);
+  });
+  ipcMain.handle('get_file', async (event, infoHash, fileName) => {
+    return {
+      webdav: webdav.getFile.bind(webdav),
+      sftp: ssh.getFile.bind(ssh),
+      smb: smb.getFile.bind(smb),
+    }[protocol](infoHash, fileName);
+  });
+  ipcMain.handle('upload_file', async (event, path) => {
+    return {
+      webdav: webdav.uploadFile.bind(webdav),
+      sftp: ssh.uploadFile.bind(ssh),
+      smb: smb.uploadFile.bind(smb),
+    }[protocol](path);
+  });
+  ipcMain.handle('create_torrent', async (event, path, options) => {
+    return {
+      webdav: webdav.createTorrent.bind(webdav),
+      sftp: ssh.createTorrent.bind(ssh),
+      smb: smb.createTorrent.bind(smb),
+    }[protocol](path, options);
+  });
+  ipcMain.handle('extra_field', async (event, path) => {
+    return {
+      webdav: webdav.extraField.bind(webdav),
+      sftp: ssh.extraField.bind(ssh),
+      smb: smb.extraField.bind(smb),
+    }[protocol](path);
+  });
   ipcMain.handle('relaunch', () => {
     app.relaunch();
     app.exit();

@@ -64,7 +64,7 @@ export class ResourcesComponent implements OnInit {
     window.electronAPI.on('get_file_progress', async (event, data) => {
       this.ssh_get_file_progress[data.infoHash] = data.progress;
       if (data.progress === 1) {
-        const localPath = (await window.electronAPI.store_get('sshConfig', {})).localPath;
+        const localPath = (await window.electronAPI.store_get('qbConfig', {})).local_path;
         await window.electronAPI.import(localPath, this.torrents[data.infoHash].name, navigator.userAgentData!.platform);
       }
     });
@@ -86,12 +86,12 @@ export class ResourcesComponent implements OnInit {
     try {
       const files = await this.qBittorrent.torrentsFiles(torrent.hash);
       console.log(torrent.hash, torrent.name);
-      const qb_info = await window.electronAPI.store_get('qbConfig', defaultQBConfig);
-      if (qb_info.get_protocol === 'sftp') {
+      const qb_cfg = await window.electronAPI.store_get('qbConfig', defaultQBConfig);
+      if (qb_cfg.protocol === 'sftp') {
         await window.electronAPI.get_file(torrent.hash, torrent.name);
-      } else if (qb_info.get_protocol === 'webdav') {
+      } else if (qb_cfg.protocol === 'webdav') {
         const httpConfig = await window.electronAPI.store_get('httpConfig', defaultSMBConfig);
-        if (httpConfig.remotePath && httpConfig.localPath) {
+        if (httpConfig.remotePath && qb_cfg.local_path) {
           this.api.httpDownload(httpConfig, torrent.name).subscribe((data) => {
             if (data.type == 3) {
               console.log(data.total);
@@ -102,7 +102,7 @@ export class ResourcesComponent implements OnInit {
         } else {
           throw new Error('http路径配置错误');
         }
-      } else if (qb_info.get_protocol === 'smb') {
+      } else if (qb_cfg.protocol === 'smb') {
         const get_url = (await window.electronAPI.store_get('smbConfig', defaultSMBConfig)).get_url;
         if (get_url) {
           await window.electronAPI.import(get_url, files[0].name, navigator.userAgentData!.platform);
