@@ -29,10 +29,13 @@ export class Webdav {
     const qbConfig = electronAPI.store.get('qbConfig') as QBConfig;
     p = p.replace(qbConfig.save_path, '');
     const stream = this.webDavClient.createReadStream(p);
+    const writeStream = fs.createWriteStream(path.join(qbConfig.local_path, path.basename(p)));
+
     //进度条
-    const total = await this.webDavClient.getFileSize(p);
+    const total = (await this.webDavClient.stat(p)).size;
     let total_transferred = 0;
     stream.on('data', (chunk) => {
+      writeStream.write(chunk);
       total_transferred += chunk.length;
       console.log(total_transferred, chunk.length, total);
       webContents.getFocusedWebContents()?.send('get_file_progress', {
@@ -40,6 +43,7 @@ export class Webdav {
         progress: total_transferred / total,
       });
     });
+
     return new Promise((resolve, reject) => {
       stream
         .on('end', () => {
@@ -117,21 +121,29 @@ export class Webdav {
       for (let offset = 0; offset < length; ) {
         const extra = new Extra(extraBuffer.subarray(offset));
         if (extra.SI1 == SI1 && extra.SI2 == SI2) {
+          stream.close();
           return extra.data.subarray(offset, offset + extra.LEN).toString();
         }
         offset += Extra.baseSize + extra.LEN;
       }
     }
+    stream.close();
   }
 
   async createTorrent(p: string, options: any) {
     if (!this.ready) this.createConnect();
+    const stream = this.webDavClient.createReadStream(p);
     // @ts-ignore
-    return await util.promisify(createTorrent)(this.webDavClient.createReadStream(p), options);
+    const torrent = await util.promisify(createTorrent)(stream, options);
+    stream.close();
+    return torrent;
   }
 
   async uploadFile(p: string) {
     if (!this.ready) this.createConnect();
-    await this.webDavClient.putFileContents(path.basename(p), fs.createReadStream(p));
+    const stream = fs.createReadStream(p);
+    await this.webDavClient.putFileContents(path.basename(p), stream);
+    stream.close();
+    return;
   }
 }
