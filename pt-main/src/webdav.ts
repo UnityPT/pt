@@ -47,6 +47,7 @@ export class Webdav {
     return new Promise((resolve, reject) => {
       stream
         .on('end', () => {
+          stream.destroy();
           resolve(null);
         })
         .on('error', (err) => {
@@ -121,13 +122,13 @@ export class Webdav {
       for (let offset = 0; offset < length; ) {
         const extra = new Extra(extraBuffer.subarray(offset));
         if (extra.SI1 == SI1 && extra.SI2 == SI2) {
-          stream.close();
+          stream.destroy();
           return extra.data.subarray(offset, offset + extra.LEN).toString();
         }
         offset += Extra.baseSize + extra.LEN;
       }
     }
-    stream.close();
+    stream.destroy();
   }
 
   async createTorrent(p: string, options: any) {
@@ -135,7 +136,7 @@ export class Webdav {
     const stream = this.webDavClient.createReadStream(p);
     // @ts-ignore
     const torrent = await util.promisify(createTorrent)(stream, options);
-    stream.close();
+    stream.destroy();
     return torrent;
   }
 
@@ -143,7 +144,7 @@ export class Webdav {
     if (!this.ready) this.createConnect();
     const stream = fs.createReadStream(p);
     await this.webDavClient.putFileContents(path.basename(p), stream);
-    stream.close();
+    stream.destroy();
     return;
   }
 }
