@@ -21,10 +21,6 @@ export class Webdav {
       password: cfg.password,
     });
     this.ready = true;
-    this.webDavClient.on('close', () => {
-      console.log('Connection closed.');
-      this.ready = false;
-    });
   }
 
   async getFile(infoHash: string, fileName: string) {

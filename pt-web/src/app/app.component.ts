@@ -102,7 +102,9 @@ export class AppComponent {
     await loadFull(engine);
   }
   //
-  async test1() {}
+  async test1() {
+    await window.electronAPI.get_list('/', 'd');
+  }
 }
 
 declare global {

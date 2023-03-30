@@ -70,6 +70,8 @@ export interface SSHConfig {
 }
 export interface SmbConfig {
   remotePath: string;
+  username: string;
+  password: string;
 }
 export interface HttpConfig {
   remotePath: string;

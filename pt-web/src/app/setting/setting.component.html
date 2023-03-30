@@ -66,6 +66,14 @@
       <div class="lab"  >私钥路径</div>
       <input class="inputs" name="private_key" [(ngModel)]="sshConfig.privateKeyPath">
     </div>
+    <div class="row" *ngIf="qbConfig.protocol == 'smb'">
+      <div class="lab" >用户名</div>
+      <input class="inputs" name="smb_username" [(ngModel)]="smbConfig.username">
+    </div>
+    <div class="row" *ngIf="qbConfig.protocol == 'smb'">
+      <div class="lab" >密码</div>
+      <input class="inputs"  type='password' name="smb_password" [(ngModel)]="smbConfig.password">
+    </div>
     <div class="row" *ngIf="qbConfig.protocol=='smb'" >
       <div class="lab" >smb路径</div>
       <input class="right" name="remote_path" [(ngModel)]="smbConfig.remotePath" >

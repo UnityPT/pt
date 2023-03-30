@@ -23,6 +23,8 @@ const defaultHTTPConfig: HttpConfig = {
 
 const defaultSMBConfig: SmbConfig = {
   remotePath: '',
+  username: '',
+  password: '',
 };
 
 export { defaultQBConfig, defaultSSHConfig, defaultSMBConfig, defaultHTTPConfig };

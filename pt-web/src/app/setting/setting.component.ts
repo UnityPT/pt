@@ -50,6 +50,7 @@ export class SettingComponent implements OnInit {
         await window.electronAPI.store_set('smbConfig', this.smbConfig);
         await window.electronAPI.store_set('httpConfig', this.httpConfig);
         const old_qb_cfg = await window.electronAPI.store_get('qbConfig', this.qbConfig);
+        await window.electronAPI.store_set('qbConfig', this.qbConfig);
         if (!isEqual(old_qb_cfg, this.qbConfig)) {
           const cf = confirm('你修改了qb信息,需要重启客户端,是否保存并重启?');
           if (cf) {
