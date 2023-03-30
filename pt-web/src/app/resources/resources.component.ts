@@ -87,25 +87,12 @@ export class ResourcesComponent implements OnInit {
       const files = await this.qBittorrent.torrentsFiles(torrent.hash);
       console.log(torrent.hash, torrent.name);
       const qb_cfg = await window.electronAPI.store_get('qbConfig', defaultQBConfig);
-      if (qb_cfg.protocol === 'sftp') {
+      if (qb_cfg.protocol === 'sftp' || qb_cfg.protocol === 'webdav') {
         await window.electronAPI.get_file(torrent.hash, torrent.name);
-      } else if (qb_cfg.protocol === 'webdav') {
-        const httpConfig = await window.electronAPI.store_get('httpConfig', defaultSMBConfig);
-        if (httpConfig.remotePath && qb_cfg.local_path) {
-          this.api.httpDownload(httpConfig, torrent.name).subscribe((data) => {
-            if (data.type == 3) {
-              console.log(data.total);
-              console.log(torrent.total_size);
-              this.ssh_get_file_progress[torrent.hash] = data.loaded / torrent.total_size;
-            }
-          });
-        } else {
-          throw new Error('http路径配置错误');
-        }
       } else if (qb_cfg.protocol === 'smb') {
-        const get_url = (await window.electronAPI.store_get('smbConfig', defaultSMBConfig)).get_url;
-        if (get_url) {
-          await window.electronAPI.import(get_url, files[0].name, navigator.userAgentData!.platform);
+        const remotePath = (await window.electronAPI.store_get('smbConfig', defaultSMBConfig)).remotePath;
+        if (remotePath) {
+          await window.electronAPI.import(remotePath, files[0].name, navigator.userAgentData!.platform);
         } else {
           await window.electronAPI.import(torrent.save_path, files[0].name, navigator.userAgentData!.platform);
         }
