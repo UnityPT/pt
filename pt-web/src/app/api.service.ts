@@ -174,15 +174,15 @@ export class ApiService {
     return;
   }
 
-  public async getRemotePath(protocol: string) {
+  public async getProtoPath(protocol: string) {
     if (protocol === 'sftp') {
       return (await window.electronAPI.store_get('sshConfig')).remotePath.split(':').at(-1);
     } else if (protocol === 'smb') {
-      return (await window.electronAPI.store_get('smbConfig')).remotePath;
+      return '';
     } else if (protocol === 'webdav') {
-      return (await window.electronAPI.store_get('httpConfig')).remotePath;
+      return '/';
     }
-    console.log('getRemotePath: protocol error', protocol);
+    console.log('getProtoPath: protocol error', protocol);
     return '';
   }
 }

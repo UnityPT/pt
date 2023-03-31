@@ -28,6 +28,7 @@ export class PublishComponent implements OnInit {
   async ngOnInit() {}
 
   async publish(selectFiles: FileList | null) {
+    console.log('local publish');
     if (!selectFiles) return;
 
     this.dataSource = [];
@@ -168,10 +169,10 @@ export class PublishComponent implements OnInit {
     const resourceVersionIds = items.map((item) => item.meta.version_id);
     this.dataSource = [];
 
-    //需要从容器外路径转化为容器内路径
     const qbSavePath = (await window.electronAPI.store_get('qbConfig')).save_path;
-    const remotePath = await this.api.getRemotePath(protocol);
-    const dirItems = await window.electronAPI.get_list(remotePath, 'd');
+
+    const protoPath = await this.api.getProtoPath(protocol);
+    const dirItems = await window.electronAPI.get_list(protoPath, 'd');
     const dialogRef = this.dialog.open(BrowseRemoteComponent, {
       width: '600px',
       data: {
@@ -181,8 +182,7 @@ export class PublishComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async (result) => {
       if (!result) return console.log('no result');
       const filepaths: string[] = [];
-      const absolutePath = path.posix.join(remotePath, result);
-      ((await window.electronAPI.get_list(absolutePath, 'f')) as string[]).forEach((filepath) => {
+      ((await window.electronAPI.get_list(path.posix.join(protoPath, result), 'f')) as string[]).forEach((filepath) => {
         if (!filepath) return;
         if (path.extname(filepath) !== '.unitypackage') return;
         this.dataSource.push({ file: path.basename(filepath) });
@@ -213,7 +213,7 @@ export class PublishComponent implements OnInit {
         const resourceIndex = resourceVersionIds.indexOf(meta.version_id);
         // 以下的"本地"指用户远程qb的服务器, "远端"指pt的数据库
         // 本地有，远端有
-        const p = path.posix.join(qbSavePath, filepath.replace(remotePath, ''));
+        const p = path.posix.join(qbSavePath, filepath);
         if (resourceIndex >= 0) {
           const item = items[resourceIndex];
           if (!item) continue; // 刚刚上传的，本地有重复文件。

@@ -12,7 +12,7 @@ const Member = new Struct('Member').UInt8('ID1').UInt8('ID2').UInt8('CM').UInt8(
 const Extra = new Struct('Extra').UInt8('SI1').UInt8('SI2').UInt16LE('LEN').Buffer('data').compile();
 
 export class SSH {
-  conn = new Client();
+  client = new Client();
   ready = false;
   async createConnect() {
     const cfg = await electronAPI.store.get('sshConfig');
@@ -23,7 +23,7 @@ export class SSH {
     };
 
     return new Promise((resolve, reject) => {
-      this.conn
+      this.client
         .on('ready', () => {
           console.log('sshClient :: ready');
           this.ready = true;
@@ -51,7 +51,7 @@ export class SSH {
     const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), p);
     const localPath = path.join(qbConfig.local_path, path.posix.basename(p));
     if (!this.ready) await this.createConnect();
-    const sftp = await util.promisify(this.conn.sftp).bind(this.conn)();
+    const sftp = await util.promisify(this.client.sftp).bind(this.client)();
     sftp.fastGet(
       remotePath,
       localPath,
@@ -73,7 +73,7 @@ export class SSH {
   async getList(p: string, type: 'd' | 'f') {
     console.log('getList', p, type);
     if (!this.ready) await this.createConnect();
-    const sftp = await util.promisify(this.conn.sftp).bind(this.conn)();
+    const sftp = await util.promisify(this.client.sftp).bind(this.client)();
     const filePathList: string[] = type == 'f' ? [] : null;
     const rootdir = type == 'd' ? {} : null;
     const listPromise = await util.promisify(sftp.readdir).bind(sftp);
@@ -100,7 +100,7 @@ export class SSH {
 
   async extraField(path: string) {
     if (!this.ready) await this.createConnect();
-    const sftp = await util.promisify(this.conn.sftp).bind(this.conn)();
+    const sftp = await util.promisify(this.client.sftp).bind(this.client)();
     const SI1 = 65;
     const SI2 = 36;
     let position = 0;
@@ -152,7 +152,7 @@ export class SSH {
 
   async createTorrent(p: string, options: any) {
     if (!this.ready) await this.createConnect();
-    const sftp = await util.promisify(this.conn.sftp).bind(this.conn)();
+    const sftp = await util.promisify(this.client.sftp).bind(this.client)();
     //@ts-ignore
     return await util.promisify(createTorrent)(sftp.createReadStream(p), options);
   }
@@ -160,7 +160,7 @@ export class SSH {
   async uploadFile(p: string) {
     console.log('uploadFile', p);
     if (!this.ready) await this.createConnect();
-    const sftp = await util.promisify(this.conn.sftp).bind(this.conn)();
+    const sftp = await util.promisify(this.client.sftp).bind(this.client)();
     const sshConfig = electronAPI.store.get('sshConfig') as SSHConfig;
     const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), path.basename(p));
     await util.promisify(sftp.fastPut).bind(sftp)(p, remotePath, {

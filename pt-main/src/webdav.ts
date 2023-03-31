@@ -12,11 +12,11 @@ const Member = new Struct('Member').UInt8('ID1').UInt8('ID2').UInt8('CM').UInt8(
 const Extra = new Struct('Extra').UInt8('SI1').UInt8('SI2').UInt16LE('LEN').Buffer('data').compile();
 
 export class Webdav {
-  webDavClient;
+  client;
   ready = false;
   createConnect() {
     const cfg = electronAPI.store.get('httpConfig');
-    this.webDavClient = createClient('http://144.24.50.48:7000', {
+    this.client = createClient(cfg.remotePath, {
       authType: AuthType.Password,
       username: cfg.username,
       password: cfg.password,
@@ -28,11 +28,11 @@ export class Webdav {
     if (!this.ready) this.createConnect();
     const qbConfig = electronAPI.store.get('qbConfig') as QBConfig;
     p = p.replace(qbConfig.save_path, '');
-    const stream = this.webDavClient.createReadStream(p);
+    const stream = this.client.createReadStream(p);
     const writeStream = fs.createWriteStream(path.join(qbConfig.local_path, path.basename(p)));
 
     //进度条
-    const total = (await this.webDavClient.stat(p)).size;
+    const total = (await this.client.stat(p)).size;
     let total_transferred = 0;
     stream.on('data', (chunk) => {
       writeStream.write(chunk);
@@ -89,7 +89,7 @@ export class Webdav {
     console.log('extraField');
     const SI1 = 65;
     const SI2 = 36;
-    const stream = this.webDavClient.createReadStream(p);
+    const stream = this.client.createReadStream(p);
     async function read(stream: fs.ReadStream, size: number): Promise<Buffer> {
       const result = stream.read(size);
       if (result) return result;
@@ -133,7 +133,7 @@ export class Webdav {
 
   async createTorrent(p: string, options: any) {
     if (!this.ready) this.createConnect();
-    const stream = this.webDavClient.createReadStream(p);
+    const stream = this.client.createReadStream(p);
     // @ts-ignore
     const torrent = await util.promisify(createTorrent)(stream, options);
     stream.destroy();
@@ -143,7 +143,7 @@ export class Webdav {
   async uploadFile(p: string) {
     if (!this.ready) this.createConnect();
     const stream = fs.createReadStream(p);
-    await this.webDavClient.putFileContents(path.basename(p), stream);
+    await this.client.putFileContents(path.basename(p), stream);
     stream.destroy();
     return;
   }
