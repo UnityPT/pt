@@ -176,7 +176,7 @@ export class ApiService {
 
   public async getProtoPath(protocol: string) {
     if (protocol === 'sftp') {
-      return (await window.electronAPI.store_get('sshConfig')).remotePath.split(':').at(-1);
+      return '';
     } else if (protocol === 'smb') {
       return '';
     } else if (protocol === 'webdav') {

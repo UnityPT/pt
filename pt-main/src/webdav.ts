@@ -65,7 +65,7 @@ export class Webdav {
     const rootDir = type == 'd' ? {} : null;
     return await readdir.bind(this)(p, rootDir);
     async function readdir(p: string, dir?: Record<string, DirItem>) {
-      const list = await this.webDavClient.getDirectoryContents(p);
+      const list = await this.client.getDirectoryContents(p);
       // @ts-ignore
       for (const x of list) {
         if (x.type == 'directory') {

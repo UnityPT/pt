@@ -47,13 +47,12 @@ export class SSH {
     console.log('getFile', infoHash, p);
     const sshConfig = electronAPI.store.get('sshConfig') as SSHConfig;
     const qbConfig = electronAPI.store.get('qbConfig') as QBConfig;
-    p = p.replace(qbConfig.save_path, '');
-    const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), p);
+    p = path.posix.join(sshConfig.remotePath.split(':').at(-1), p.replace(qbConfig.save_path, ''));
     const localPath = path.join(qbConfig.local_path, path.posix.basename(p));
     if (!this.ready) await this.createConnect();
     const sftp = await util.promisify(this.client.sftp).bind(this.client)();
     sftp.fastGet(
-      remotePath,
+      p,
       localPath,
       {
         step: (total_transferred, chunk, total) => {
@@ -72,6 +71,7 @@ export class SSH {
 
   async getList(p: string, type: 'd' | 'f') {
     console.log('getList', p, type);
+    path.posix.join(electronAPI.store.get('sshConfig').remotePath.split(':').at(-1), p);
     if (!this.ready) await this.createConnect();
     const sftp = await util.promisify(this.client.sftp).bind(this.client)();
     const filePathList: string[] = type == 'f' ? [] : null;
@@ -98,13 +98,14 @@ export class SSH {
     }
   }
 
-  async extraField(path: string) {
+  async extraField(p: string) {
     if (!this.ready) await this.createConnect();
     const sftp = await util.promisify(this.client.sftp).bind(this.client)();
     const SI1 = 65;
     const SI2 = 36;
     let position = 0;
-    const handle = await util.promisify(sftp.open).bind(sftp)(path, 'r');
+    p = path.posix.join(electronAPI.store.get('sshConfig').remotePath.split(':').at(-1), p);
+    const handle = await util.promisify(sftp.open).bind(sftp)(p, 'r');
     const closePromise = util.promisify(sftp.close).bind(sftp);
     //自定义返回值为buffer，否则默认返回的是bytesRead
     sftp.read[util.promisify.custom] = (handle: Buffer, buffer: Buffer, offset: number, length: number, position: number) => {
@@ -153,6 +154,7 @@ export class SSH {
   async createTorrent(p: string, options: any) {
     if (!this.ready) await this.createConnect();
     const sftp = await util.promisify(this.client.sftp).bind(this.client)();
+    p = path.posix.join(electronAPI.store.get('sshConfig').remotePath.split(':').at(-1), p);
     //@ts-ignore
     return await util.promisify(createTorrent)(sftp.createReadStream(p), options);
   }

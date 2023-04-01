@@ -72,16 +72,23 @@ export class SMB {
 
   async createTorrent(p: string, options: any) {
     if (!this.ready) this.createConnect();
-    const stream = await this.client.createReadStream(p, { autoClose: false });
-    createTorrent(stream, options, (err, torrent) => {
-      if (err) console.log(err);
-      console.log(torrent);
+    const stream = await this.client.createReadStream(p);
+
+    const ws = fs.createWriteStream(path.basename(p));
+    stream.pipe(ws);
+    ws.on('finish', () => {
+      console.log('finish');
+      const s = fs.createReadStream(path.basename(p));
+      createTorrent(stream, options, (err, torrent) => {
+        if (err) console.log(err);
+        console.log(torrent);
+      });
     });
     // @ts-ignore
     // const torrent = await util.promisify(createTorrent)(stream, options);
     // console.log(torrent);
     // // stream.destroy();
-    return torrent;
+    // return torrent;
   }
 
   async extraField(p: string) {
@@ -122,12 +129,12 @@ export class SMB {
       for (let offset = 0; offset < length; ) {
         const extra = new Extra(extraBuffer.subarray(offset));
         if (extra.SI1 == SI1 && extra.SI2 == SI2) {
-          stream.destroy();
+          // stream.destroy();
           return extra.data.subarray(offset, offset + extra.LEN).toString();
         }
         offset += Extra.baseSize + extra.LEN;
       }
     }
-    stream.destroy();
+    // stream.destroy();
   }
 }

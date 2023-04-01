@@ -213,6 +213,7 @@ export class PublishComponent implements OnInit {
         const resourceIndex = resourceVersionIds.indexOf(meta.version_id);
         // 以下的"本地"指用户远程qb的服务器, "远端"指pt的数据库
         // 本地有，远端有
+        //这里的p是容器内路径
         const p = path.posix.join(qbSavePath, filepath);
         if (resourceIndex >= 0) {
           const item = items[resourceIndex];
