@@ -171,8 +171,7 @@ export class PublishComponent implements OnInit {
 
     const qbSavePath = (await window.electronAPI.store_get('qbConfig')).save_path;
 
-    const protoPath = await this.api.getProtoPath(protocol);
-    const dirItems = await window.electronAPI.get_list(protoPath, 'd');
+    const dirItems = await window.electronAPI.get_list('', 'd');
     const dialogRef = this.dialog.open(BrowseRemoteComponent, {
       width: '600px',
       data: {
@@ -182,7 +181,7 @@ export class PublishComponent implements OnInit {
     dialogRef.afterClosed().subscribe(async (result) => {
       if (!result) return console.log('no result');
       const filepaths: string[] = [];
-      ((await window.electronAPI.get_list(path.posix.join(protoPath, result), 'f')) as string[]).forEach((filepath) => {
+      ((await window.electronAPI.get_list(result, 'f')) as string[]).forEach((filepath) => {
         if (!filepath) return;
         if (path.extname(filepath) !== '.unitypackage') return;
         this.dataSource.push({ file: path.basename(filepath) });

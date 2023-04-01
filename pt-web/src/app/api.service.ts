@@ -173,16 +173,4 @@ export class ApiService {
     }
     return;
   }
-
-  public async getProtoPath(protocol: string) {
-    if (protocol === 'sftp') {
-      return '';
-    } else if (protocol === 'smb') {
-      return '';
-    } else if (protocol === 'webdav') {
-      return '/';
-    }
-    console.log('getProtoPath: protocol error', protocol);
-    return '';
-  }
 }
