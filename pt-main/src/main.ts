@@ -90,6 +90,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('import', electronAPI.import.bind(electronAPI));
   ipcMain.handle('store_get', electronAPI.store_get.bind(electronAPI));
   ipcMain.handle('store_set', electronAPI.store_set.bind(electronAPI));
+  ipcMain.handle('smb_connect', electronAPI.smb_connect.bind(electronAPI));
   ipcMain.handle('get_list', async (event, path, type) => {
     return {
       webdav: webdav.getList.bind(webdav),

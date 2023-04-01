@@ -121,6 +121,7 @@ declare global {
       upload_file: (path: string) => Promise<void>;
       extra_field: (path: string) => Promise<string>;
       create_torrent: (filepath: string, opts: any) => Promise<any>;
+      smb_connect: ()=> Promise<void>;
     };
   }
 }

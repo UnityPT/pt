@@ -3,10 +3,11 @@ import { AuthType, createClient } from 'webdav';
 import { electronAPI } from './electronAPI';
 import path from 'path';
 import * as fs from 'fs';
-import { DirItem } from './interface';
+import { DirItem, QBConfig } from './interface';
 import util from 'util';
 import createTorrent from 'create-torrent';
 import SMB2 from 'v9u-smb2';
+import { webContents } from 'electron';
 
 const Member = new Struct('Member').UInt8('ID1').UInt8('ID2').UInt8('CM').UInt8('FLG').UInt32LE('MTIME').UInt8('XFL').UInt8('OS').compile();
 const Extra = new Struct('Extra').UInt8('SI1').UInt8('SI2').UInt16LE('LEN').Buffer('data').compile();
@@ -26,29 +27,67 @@ export class SMB {
 
   async getList(p: string, type: 'd' | 'f') {
     if (!this.ready) this.createConnect();
-    const filePathList: string[] = type == 'f' ? [] : null;
-    const rootDir = type == 'd' ? {} : null;
-    return await readdir.bind(this)(p, rootDir);
-    async function readdir(p: string, dir?) {
-      const list = await this.client.readdir(p, { stats: true });
-      for (const x of list) {
-        if (x.isDirectory()) {
-          if (type == 'd') {
-            dir[x.name] = { name: x.name, children: {} } as DirItem;
-            await readdir.bind(this)(path.posix.join(p, x.name), dir[x.name].children);
-          } else {
-            await readdir.bind(this)(path.posix.join(p, x.name), null);
-          }
-        } else if (type == 'f') {
-          filePathList.push(path.posix.join(p, x.name));
-        }
-      }
-      if (type == 'f') return filePathList;
-      return Object.values(rootDir);
-    }
+    fs.readdir('\\\\10.198.11.1\\shared', (err, files) => {
+      console.log(files);
+    })
+    // const filePathList: string[] = type == 'f' ? [] : null;
+    // const rootDir = type == 'd' ? {} : null;
+    // return await readdir.bind(this)(p, rootDir);
+    // async function readdir(p: string, dir?) {
+    //   const list = await this.client.readdir(p, { stats: true });
+    //   for (const x of list) {
+    //     if (x.isDirectory()) {
+    //       if (type == 'd') {
+    //         dir[x.name] = { name: x.name, children: {} } as DirItem;
+    //         await readdir.bind(this)(path.posix.join(p, x.name), dir[x.name].children);
+    //       } else {
+    //         await readdir.bind(this)(path.posix.join(p, x.name), null);
+    //       }
+    //     } else if (type == 'f') {
+    //       filePathList.push(path.posix.join(p, x.name));
+    //     }
+    //   }
+    //   if (type == 'f') return filePathList;
+    //   return Object.values(rootDir);
+    // }
   }
 
-  getFile(infoHash: string, fileName: string) {}
+  async getFile(infoHash: string, p: string) {
+    //smb方式可以直接使用import方法打开文件，不需要将文件下载回本地
+    // if (!this.ready) this.createConnect();
+    // const qbConfig = electronAPI.store.get('qbConfig') as QBConfig;
+    // p = p.replace(qbConfig.save_path, '');
+    // const stream = this.client.createReadStream(p);
+    // const writeStream = fs.createWriteStream(path.join(qbConfig.local_path, path.basename(p)));
+    //
+    // //进度条
+    // const total = (await this.client.getSize(p));
+    // console.log(total);
+    // let total_transferred = 0;
+    // stream.on('data', (chunk) => {
+    //   writeStream.write(chunk);
+    //   total_transferred += chunk.length;
+    //   console.log(total_transferred, chunk.length, total);
+    //   webContents.getFocusedWebContents()?.send('get_file_progress', {
+    //     infoHash,
+    //     progress: total_transferred / total,
+    //   });
+    // });
+    //
+    // return new Promise((resolve, reject) => {
+    //   stream
+    //     .on('end', () => {
+    //       stream.destroy();
+    //       resolve(null);
+    //     })
+    //     .on('error', (err) => {
+    //       reject(err);
+    //     })
+    //     .on('close', () => {
+    //       resolve(null);
+    //     });
+    // });
+  }
 
   uploadFile(p: string) {
     if (!this.ready) this.createConnect();

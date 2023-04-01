@@ -1,8 +1,13 @@
 import { shell } from 'electron';
 import path from 'path';
+import * as fs from 'fs';
 
 export class electronAPI {
   static store;
+  static async smb_connect()
+  {
+     await shell.openPath ('\\\\10.198.11.1\\shared\\');
+  }
 
   static async import(event, origin: string, pathname: string, platform: string) {
     if (platform == 'Windows') {

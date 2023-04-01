@@ -71,7 +71,7 @@ export class SSH {
 
   async getList(p: string, type: 'd' | 'f') {
     console.log('getList', p, type);
-    path.posix.join(electronAPI.store.get('sshConfig').remotePath.split(':').at(-1), p);
+    p = path.posix.join(electronAPI.store.get('sshConfig').remotePath.split(':').at(-1), p);
     if (!this.ready) await this.createConnect();
     const sftp = await util.promisify(this.client.sftp).bind(this.client)();
     const filePathList: string[] = type == 'f' ? [] : null;

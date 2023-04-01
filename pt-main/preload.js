@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   get_file: (infoHash, fileName) => ipcRenderer.invoke('get_file', infoHash, fileName),
   upload_file: (path) => ipcRenderer.invoke('upload_file', path),
   create_torrent: (path, options) => ipcRenderer.invoke('create_torrent', path, options),
+  smb_connect:()=> ipcRenderer.invoke('smb_connect'),
   extra_field: (path) => ipcRenderer.invoke('extra_field', path),
   relaunch: () => ipcRenderer.invoke('relaunch'),
   //以下是main发web收的
