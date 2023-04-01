@@ -113,21 +113,21 @@ export class SMB {
     if (!this.ready) this.createConnect();
     const stream = await this.client.createReadStream(p);
 
-    const ws = fs.createWriteStream(path.basename(p));
-    stream.pipe(ws);
-    ws.on('finish', () => {
-      console.log('finish');
-      const s = fs.createReadStream(path.basename(p));
-      createTorrent(stream, options, (err, torrent) => {
-        if (err) console.log(err);
-        console.log(torrent);
-      });
-    });
+    // const ws = fs.createWriteStream(path.basename(p));
+    // stream.pipe(ws);
+    // ws.on('finish', () => {
+    //   console.log('finish');
+    //   const s = fs.createReadStream(path.basename(p));
+    //   createTorrent(stream, options, (err, torrent) => {
+    //     if (err) console.log(err);
+    //     console.log(torrent);
+    //   });
+    // });
     // @ts-ignore
-    // const torrent = await util.promisify(createTorrent)(stream, options);
-    // console.log(torrent);
-    // // stream.destroy();
-    // return torrent;
+    const torrent = await util.promisify(createTorrent)(stream, options);
+    console.log(torrent);
+    // stream.destroy();
+    return torrent;
   }
 
   async extraField(p: string) {
