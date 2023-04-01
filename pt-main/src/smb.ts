@@ -27,29 +27,29 @@ export class SMB {
 
   async getList(p: string, type: 'd' | 'f') {
     if (!this.ready) this.createConnect();
-    fs.readdir('\\\\10.198.11.1\\shared', (err, files) => {
-      console.log(files);
-    })
-    // const filePathList: string[] = type == 'f' ? [] : null;
-    // const rootDir = type == 'd' ? {} : null;
-    // return await readdir.bind(this)(p, rootDir);
-    // async function readdir(p: string, dir?) {
-    //   const list = await this.client.readdir(p, { stats: true });
-    //   for (const x of list) {
-    //     if (x.isDirectory()) {
-    //       if (type == 'd') {
-    //         dir[x.name] = { name: x.name, children: {} } as DirItem;
-    //         await readdir.bind(this)(path.posix.join(p, x.name), dir[x.name].children);
-    //       } else {
-    //         await readdir.bind(this)(path.posix.join(p, x.name), null);
-    //       }
-    //     } else if (type == 'f') {
-    //       filePathList.push(path.posix.join(p, x.name));
-    //     }
-    //   }
-    //   if (type == 'f') return filePathList;
-    //   return Object.values(rootDir);
-    // }
+    // fs.readdir('\\\\10.198.11.1\\shared', (err, files) => {
+    //   console.log(files);
+    // })
+    const filePathList: string[] = type == 'f' ? [] : null;
+    const rootDir = type == 'd' ? {} : null;
+    return await readdir.bind(this)(p, rootDir);
+    async function readdir(p: string, dir?) {
+      const list = await this.client.readdir(p, { stats: true });
+      for (const x of list) {
+        if (x.isDirectory()) {
+          if (type == 'd') {
+            dir[x.name] = { name: x.name, children: {} } as DirItem;
+            await readdir.bind(this)(path.posix.join(p, x.name), dir[x.name].children);
+          } else {
+            await readdir.bind(this)(path.posix.join(p, x.name), null);
+          }
+        } else if (type == 'f') {
+          filePathList.push(path.posix.join(p, x.name));
+        }
+      }
+      if (type == 'f') return filePathList;
+      return Object.values(rootDir);
+    }
   }
 
   async getFile(infoHash: string, p: string) {

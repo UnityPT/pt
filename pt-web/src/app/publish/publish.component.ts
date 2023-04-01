@@ -164,9 +164,9 @@ export class PublishComponent implements OnInit {
     if (protocol === 'local') {
       return alert('请先设置远程通讯协议');
     }
-    if (protocol == 'smb'){
-      await window.electronAPI.smb_connect();
-    }
+    // if (protocol == 'smb'){
+    //   await window.electronAPI.smb_connect();
+    // }
     const items = await this.api.index(true);
     const taskHashes = (await this.qBittorrent.torrentsInfo({ category: 'Unity' })).map((t) => t.hash);
     const resourceVersionIds = items.map((item) => item.meta.version_id);
