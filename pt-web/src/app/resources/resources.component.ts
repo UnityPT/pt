@@ -87,17 +87,17 @@ export class ResourcesComponent implements OnInit {
   async import(torrent: Torrent) {
     try {
       console.log(torrent);
-      const qb_cfg = await window.electronAPI.store_get('qbConfig', defaultQBConfig);
-      if (qb_cfg.protocol === 'sftp' || qb_cfg.protocol === 'webdav') {
+      const protocol = (await window.electronAPI.store_get('qbConfig', defaultQBConfig)).protocol;
+      if (protocol === 'sftp' || protocol === 'webdav') {
         // @ts-ignore
         await window.electronAPI.get_file(torrent.hash, torrent.content_path);
-      } else if (qb_cfg.protocol === 'smb') {
+      } else if (protocol === 'smb') {
         const remotePath = (await window.electronAPI.store_get('smbConfig', defaultSMBConfig)).remotePath;
         if (remotePath) {
           await window.electronAPI.import(remotePath, torrent.name, navigator.userAgentData!.platform);
-        } else {
-          await window.electronAPI.import(torrent.save_path, torrent.name, navigator.userAgentData!.platform);
         }
+      } else if (protocol === 'local') {
+        await window.electronAPI.import(torrent.save_path, torrent.name, navigator.userAgentData!.platform);
       }
     } catch (error) {
       alert(error);
