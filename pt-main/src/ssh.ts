@@ -71,7 +71,8 @@ export class SSH {
 
   async getList(p: string, type: 'd' | 'f') {
     console.log('getList', p, type);
-    p = path.posix.join(electronAPI.store.get('sshConfig').remotePath.split(':').at(-1), p);
+    const sshRemotePath = electronAPI.store.get('sshConfig').remotePath.split(':').at(-1);
+    p = path.posix.join(sshRemotePath, p);
     if (!this.ready) await this.createConnect();
     const sftp = await util.promisify(this.client.sftp).bind(this.client)();
     const filePathList: string[] = type == 'f' ? [] : null;
@@ -84,13 +85,12 @@ export class SSH {
         if (x.longname[0] == 'd') {
           if (type == 'd') {
             dir[x.filename] = { name: x.filename, children: {} } as DirItem;
-            //todo: 目录改成点开再readdir而不是一次性递归获取全部？
             await readdir(path.posix.join(p, x.filename), dir[x.filename].children);
           } else {
             await readdir(path.posix.join(p, x.filename), null);
           }
         } else if (type == 'f' && x.longname[0] == '-') {
-          filePathList.push(path.posix.join(p, x.filename));
+          filePathList.push(path.posix.join(p.replace(sshRemotePath, ''), x.filename));
         }
       }
       if (type == 'f') return filePathList;
@@ -99,6 +99,7 @@ export class SSH {
   }
 
   async extraField(p: string) {
+    console.log('extraField', p);
     if (!this.ready) await this.createConnect();
     const sftp = await util.promisify(this.client.sftp).bind(this.client)();
     const SI1 = 65;

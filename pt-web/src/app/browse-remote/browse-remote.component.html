@@ -30,7 +30,7 @@
     </div>
     <mat-selection-list [multiple] = false [(ngModel)]='selectedItem'>
       <mat-list-option *ngFor="let item of items" [value]="item" (dblclick)="onDblClick(item)">
-        <mat-icon mat-list-icon>folder</mat-icon>
+        <mat-icon class='itemicon' mat-list-icon>folder</mat-icon>
         <span mat-line>{{item.name}}</span>
       </mat-list-option>
     </mat-selection-list>

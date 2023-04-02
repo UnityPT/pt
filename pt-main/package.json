@@ -17,9 +17,9 @@
   },
   "dependencies": {
     "create-torrent": "git+ssh://git@github.com:nanamicat/create-torrent#patch-1",
+    "glob": "^9.3.4",
     "ssh2": "^1.11.0",
-    "typed-struct": "^2.3.0",
-    "v9u-smb2": "^1.0.6"
+    "typed-struct": "^2.3.0"
   },
   "devDependencies": {
     "@types/ssh2": "^1.11.6",
