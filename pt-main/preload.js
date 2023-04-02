@@ -1,14 +1,14 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  import: (origin, pathname, platform) => ipcRenderer.invoke('import', origin, pathname, platform),
+  import: (origin, pathname, platform) => ipcRenderer.invoke('import', origin, pathname),
   store_get: (key, defaultValue) => ipcRenderer.invoke('store_get', key, defaultValue),
   store_set: (key, value) => ipcRenderer.invoke('store_set', key, value),
   get_list: (path, type) => ipcRenderer.invoke('get_list', path, type),
   get_file: (infoHash, fileName) => ipcRenderer.invoke('get_file', infoHash, fileName),
   upload_file: (path) => ipcRenderer.invoke('upload_file', path),
   create_torrent: (path, options) => ipcRenderer.invoke('create_torrent', path, options),
-  smb_browse:()=> ipcRenderer.invoke('smb_browse'),
+  smb_browse: () => ipcRenderer.invoke('smb_browse'),
   extra_field: (path) => ipcRenderer.invoke('extra_field', path),
   relaunch: () => ipcRenderer.invoke('relaunch'),
   //以下是main发web收的

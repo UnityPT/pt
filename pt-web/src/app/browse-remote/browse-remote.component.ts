@@ -27,7 +27,10 @@ export class BrowseRemoteComponent implements OnInit {
 
   async onSelectClick() {
     this.dialogRef.close(
-      path.posix.join(...(this.breadcrumb.length > 1 ? this.breadcrumb.slice(1).map((item) => item.name) : []), this.selectedItem[0]?.name)
+      path.posix.join(
+        ...(this.breadcrumb.length > 1 ? this.breadcrumb.slice(1).map((item) => item.name) : []),
+        this.selectedItem[0]?.name as string
+      )
     );
   }
 

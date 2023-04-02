@@ -5,16 +5,17 @@ import * as fs from 'fs';
 export class electronAPI {
   static store;
 
-  static async import(event, origin: string, pathname: string, platform: string) {
-    if (platform == 'Windows') {
+  static async import(event, origin: string, pathname: string) {
+    const platform = process.platform;
+    if (platform == 'win32') {
       return shell.openPath(path.join(origin, pathname));
-    } else if (platform == 'macOS') {
+    } else if (platform == 'darwin') {
       const url = new URL(origin);
-      url.pathname = pathname;
-      return shell.openPath(url.href);
+      url.pathname = path.join(url.pathname, pathname);
+      return shell.openExternal(url.href);
     } else {
       console.log('其他平台', platform);
-      return shell.openPath(path.join(origin, pathname));
+      return shell.openExternal(path.join(origin, pathname));
     }
   }
 

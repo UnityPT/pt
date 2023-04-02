@@ -4,7 +4,7 @@ import path from 'path';
 import * as fs from 'fs';
 import util from 'util';
 import createTorrent from 'create-torrent';
-import { dialog } from 'electron';
+import { dialog, shell } from 'electron';
 import glob from 'glob';
 
 const Member = new Struct('Member').UInt8('ID1').UInt8('ID2').UInt8('CM').UInt8('FLG').UInt32LE('MTIME').UInt8('XFL').UInt8('OS').compile();
@@ -13,12 +13,22 @@ const Extra = new Struct('Extra').UInt8('SI1').UInt8('SI2').UInt16LE('LEN').Buff
 export class SMB {
   async smbBrowse() {
     const remotePath = electronAPI.store.get('smbConfig').remotePath;
-    const res = await dialog.showOpenDialog({ properties: ['openDirectory'], defaultPath: remotePath });
+    const volumePath = path.join('/Volumes', path.basename(remotePath));
+    if (process.platform == 'darwin') {
+      try {
+        await fs.accessSync(volumePath, fs.constants.R_OK);
+      } catch (e) {
+        console.log(e);
+        await shell.openExternal(remotePath);
+      }
+    }
+    const res = await dialog.showOpenDialog({ properties: ['openDirectory'], defaultPath: volumePath });
     if (res.canceled == true) return null;
     return res.filePaths[0];
   }
 
   async getList(p: string, t: 'f') {
+    console.log('getList', p, t);
     return await glob('**/*.unitypackage', { cwd: p, absolute: true });
   }
 
@@ -29,7 +39,10 @@ export class SMB {
   uploadFile(p: string) {
     const stream = fs.createReadStream(p);
     const smbRemotePath = electronAPI.store.get('smbConfig').remotePath;
-    const writeStream = fs.createWriteStream(path.join(smbRemotePath, path.basename(p)));
+    const platform = process.platform;
+    const writeStream = fs.createWriteStream(
+      path.join(platform == 'darwin' ? path.join('/Volumes', path.basename(smbRemotePath)) : smbRemotePath, path.basename(p))
+    );
     stream.pipe(writeStream);
     return new Promise((resolve, reject) => {
       stream.on('end', () => {

@@ -62,7 +62,7 @@ export class ResourcesComponent implements OnInit {
       this.ssh_get_file_progress[data.infoHash] = data.progress;
       if (data.progress === 1) {
         const localPath = (await window.electronAPI.store_get('qbConfig', {})).local_path;
-        await window.electronAPI.import(localPath, this.torrents[data.infoHash].name, navigator.userAgentData!.platform);
+        await window.electronAPI.import(localPath, this.torrents[data.infoHash].name);
       }
     });
   }
@@ -93,12 +93,11 @@ export class ResourcesComponent implements OnInit {
           await window.electronAPI.import(
             remotePath,
             // @ts-ignore
-            torrent.content_path.replace(qb_cfg.save_path, ''),
-            navigator.userAgentData!.platform
+            torrent.content_path.replace(qb_cfg.save_path, '')
           );
         }
       } else if (qb_cfg.protocol === 'local') {
-        await window.electronAPI.import(torrent.save_path, torrent.name, navigator.userAgentData!.platform);
+        await window.electronAPI.import(torrent.save_path, torrent.name);
       }
     } catch (error) {
       alert(error);

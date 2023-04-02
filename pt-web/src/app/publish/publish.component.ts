@@ -279,7 +279,7 @@ export class PublishComponent implements OnInit {
 
     if (protocol === 'smb') {
       const result = await window.electronAPI.smb_browse();
-      console.log(result);
+      this.loading = false;
       return onSelected(result);
     } else if (protocol == 'sftp' || protocol == 'webdav') {
       const dirItems = await window.electronAPI.get_list('', 'd');
