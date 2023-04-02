@@ -22,13 +22,13 @@ export class PublishComponent implements OnInit {
   displayedColumns: string[] = ['file', 'version_id', 'create_torrent', 'qBittorrent'];
   dataSource: PublishLog[] = [];
   @ViewChild(MatTable) table!: MatTable<PublishLog>;
+  loading: boolean = false;
 
   constructor(private api: ApiService, private qBittorrent: QBittorrentService, private dialog: MatDialog) {}
 
   async ngOnInit() {}
 
   async publish(selectFiles: FileList | null) {
-    console.log('local publish');
     if (!selectFiles) return;
 
     this.dataSource = [];
@@ -160,12 +160,12 @@ export class PublishComponent implements OnInit {
   }
 
   async browseRemote() {
+    if (this.loading == true) return;
+    this.loading = true;
     const protocol = (await window.electronAPI.store_get('qbConfig')).protocol;
     if (protocol === 'local') {
+      this.loading = false;
       return alert('请先设置远程通讯协议');
-    }
-    if (protocol == 'smb'){
-      await window.electronAPI.smb_connect();
     }
     const items = await this.api.index(true);
     const taskHashes = (await this.qBittorrent.torrentsInfo({ category: 'Unity' })).map((t) => t.hash);
@@ -173,21 +173,15 @@ export class PublishComponent implements OnInit {
     this.dataSource = [];
 
     const qbSavePath = (await window.electronAPI.store_get('qbConfig')).save_path;
+    const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
 
-    const dirItems = await window.electronAPI.get_list('', 'd');
-    const dialogRef = this.dialog.open(BrowseRemoteComponent, {
-      width: '600px',
-      data: {
-        dirItems,
-      },
-    });
-    dialogRef.afterClosed().subscribe(async (result) => {
+    const onSelected = async (result: string) => {
       if (!result) return console.log('no result');
       const filepaths: string[] = [];
       ((await window.electronAPI.get_list(result, 'f')) as string[]).forEach((filepath) => {
         if (!filepath) return;
         if (path.extname(filepath) !== '.unitypackage') return;
-        this.dataSource.push({ file: path.basename(filepath) });
+        this.dataSource.push({ file: path.posix.basename(filepath.replaceAll('\\', '/')) });
         filepaths.push(filepath);
       });
       this.table.renderRows();
@@ -215,8 +209,8 @@ export class PublishComponent implements OnInit {
         const resourceIndex = resourceVersionIds.indexOf(meta.version_id);
         // 以下的"本地"指用户远程qb的服务器, "远端"指pt的数据库
         // 本地有，远端有
-        //这里的p是容器内路径
-        const p = path.posix.join(qbSavePath, filepath);
+        //对于容器内的qb,这里的p是容器内路径
+        const p = path.posix.join(qbSavePath, filepath.replace(smbRemotePath.toUpperCase(), '').replaceAll('\\', '/')); //这里不是smb的路径不会被修改
         if (resourceIndex >= 0) {
           const item = items[resourceIndex];
           if (!item) continue; // 刚刚上传的，本地有重复文件。
@@ -281,7 +275,23 @@ export class PublishComponent implements OnInit {
           taskHashes.push(hash);
         }
       }
-    });
+    };
+
+    if (protocol === 'smb') {
+      const result = await window.electronAPI.smb_browse();
+      console.log(result);
+      return onSelected(result);
+    } else if (protocol == 'sftp' || protocol == 'webdav') {
+      const dirItems = await window.electronAPI.get_list('', 'd');
+      const dialogRef = this.dialog.open(BrowseRemoteComponent, {
+        width: '600px',
+        data: {
+          dirItems,
+        },
+      });
+      this.loading = false;
+      dialogRef.afterClosed().subscribe(onSelected);
+    }
   }
 }
 

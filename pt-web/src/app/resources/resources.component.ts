@@ -6,12 +6,8 @@ import { map, startWith } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { QBittorrentService } from '../qbittorrent.service';
 import { ApiService } from '../api.service';
-import { MatDialog } from '@angular/material/dialog';
 import { mapValues, orderBy } from 'lodash-es';
 import { defaultQBConfig, defaultSMBConfig } from '../setting/defaultSetting';
-import * as path from 'path';
-
-// import 'user-agent-data-types';
 
 @Component({
   selector: 'app-resources',
@@ -42,7 +38,7 @@ export class ResourcesComponent implements OnInit {
   // 取数据end
 
   // 取数据
-  constructor(private http: HttpClient, private qBittorrent: QBittorrentService, private api: ApiService, public dialog: MatDialog) {}
+  constructor(private http: HttpClient, private qBittorrent: QBittorrentService, private api: ApiService) {}
 
   // 列表结束
   trackById(index: number, item: ResourceMeta) {
@@ -94,10 +90,15 @@ export class ResourcesComponent implements OnInit {
       } else if (qb_cfg.protocol === 'smb') {
         const remotePath = (await window.electronAPI.store_get('smbConfig', defaultSMBConfig)).remotePath;
         if (remotePath) {
-          await window.electronAPI.import(remotePath, torrent.name, navigator.userAgentData!.platform);
-        } else {
-          await window.electronAPI.import(torrent.save_path, torrent.name, navigator.userAgentData!.platform);
+          await window.electronAPI.import(
+            remotePath,
+            // @ts-ignore
+            torrent.content_path.replace(qb_cfg.save_path, ''),
+            navigator.userAgentData!.platform
+          );
         }
+      } else if (qb_cfg.protocol === 'local') {
+        await window.electronAPI.import(torrent.save_path, torrent.name, navigator.userAgentData!.platform);
       }
     } catch (error) {
       alert(error);

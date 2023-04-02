@@ -102,9 +102,7 @@ export class AppComponent {
     await loadFull(engine);
   }
   //
-  async test1() {
-    await window.electronAPI.get_list('/', 'd');
-  }
+  async test1() {}
 }
 
 declare global {
@@ -121,7 +119,8 @@ declare global {
       upload_file: (path: string) => Promise<void>;
       extra_field: (path: string) => Promise<string>;
       create_torrent: (filepath: string, opts: any) => Promise<any>;
-      smb_connect: ()=> Promise<void>;
+      smb_connect: () => Promise<void>;
+      smb_browse: () => Promise<string>;
     };
   }
 }
