@@ -6,9 +6,32 @@
   overflow: auto;
 }
 
-mat-card {
-  max-width: 400px;
+.card-container {
+  justify-content: center;
+}
+
+mat-card{
+  padding: 0px;
+}
+
+mat-card-content {
+  background: #212121;
+  width: 200px;
+  height: 100px;
+  margin: 0px;
+  padding: 0px;
   text-align: center;
+}
+.btn_label {
+  border: none;
+  background: deepskyblue;
+  box-sizing: border-box;
+  display: block;
+  height: 100%;
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  cursor: pointer;
 }
 
 mat-card:hover{
@@ -23,6 +46,11 @@ tr {
 input[type="file"] {
   display: none;
 }
+
+#remotepublish{
+  display: none;
+}
+
 
 mat-spinner{
   position: fixed;

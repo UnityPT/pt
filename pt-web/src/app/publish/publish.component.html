@@ -17,12 +17,13 @@
 <div class='card-container'>
   <mat-card appearance='outlined' class='mat-elevation-z2'>
     <mat-card-content>
-      <button mat-button (click)='browseRemote()'>从远程发布</button>
+      <label class='btn_label' mat-button for='remotepublish'>从远程发布</label>
+      <button id='remotepublish' mat-button (click)='browseRemote()'>从远程发布</button>
     </mat-card-content>
   </mat-card>
   <mat-card appearance='outlined' class='mat-elevation-z2'>
     <mat-card-content>
-      <label mat-button for='localpublish'>从本地发布</label>
+      <label class='btn_label' mat-button for='localpublish'>从本地发布</label>
       <input id='localpublish' #dir type='file' webkitdirectory (change)='publish(dir.files)'>
     </mat-card-content>
   </mat-card>
