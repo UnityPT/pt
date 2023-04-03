@@ -114,7 +114,7 @@ declare global {
       relaunch: () => Promise<void>;
       on: (channel: string, func: (event: any, data: any) => void) => void;
       create_connect: () => Promise<void>;
-      get_list: (path: string, type: 'd' | 'f') => Promise<DirItem | string[]>;
+      get_list: (path: string, type: 'd' | 'f') => Promise<DirItem[] | string[]>;
       get_file: (infoHash: string, filename: string) => Promise<void>;
       upload_file: (path: string) => Promise<void>;
       extra_field: (path: string) => Promise<string>;

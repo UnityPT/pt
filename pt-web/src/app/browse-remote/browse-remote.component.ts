@@ -4,6 +4,8 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { DirItem } from '../types';
 import path from 'path';
+import { values } from 'lodash-es';
+import value from '*.md';
 
 @Component({
   selector: 'app-browse-remote',
@@ -13,7 +15,7 @@ import path from 'path';
 export class BrowseRemoteComponent implements OnInit {
   items: DirItem[] = [];
   breadcrumb: DirItem[] = [];
-  selectedItem: DirItem[] = [];
+  selectedItem: DirItem | null = null;
 
   constructor(public dialogRef: MatDialogRef<BrowseRemoteComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {}
 
@@ -29,14 +31,17 @@ export class BrowseRemoteComponent implements OnInit {
     this.dialogRef.close(
       path.posix.join(
         ...(this.breadcrumb.length > 1 ? this.breadcrumb.slice(1).map((item) => item.name) : []),
-        this.selectedItem[0]?.name as string
+        this.selectedItem?.name as string
       )
     );
   }
 
   onDblClick(item: DirItem) {
-    this.breadcrumb.push(item);
-    this.items = Object.values(item.children!);
+    const childItems = Object.values(item.children);
+    if (childItems.length > 0) {
+      this.breadcrumb.push(item);
+      this.items = childItems;
+    }
   }
 
   onHomeClick() {

@@ -1,8 +1,32 @@
 
-.itemicon {
-  vertical-align: middle;
+mat-dialog-content {
+  position: relative;
+  height: 200px;
+  overflow: auto;
 }
 
 .breadcrumb:hover {
   color: dodgerblue;
+}
+
+.breadcrumb-content {
+  width: 460px;
+  border: 1px solid #ccc;
+}
+
+.btn_action {
+  display: flex;
+  justify-content: flex-end;
+}
+
+button {
+  margin-right: 10px;
+}
+
+.dialog-content {
+  height: 200px;
+}
+
+.itemicon {
+  vertical-align: middle;
 }

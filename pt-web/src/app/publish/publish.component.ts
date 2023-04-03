@@ -282,9 +282,10 @@ export class PublishComponent implements OnInit {
       this.loading = false;
       return onSelected(result);
     } else if (protocol == 'sftp' || protocol == 'webdav') {
-      const dirItems = await window.electronAPI.get_list('', 'd');
+      const dirItems = [{ name: '1' }, { name: '2' }, { name: '3' }, { name: '4' }, { name: '5' }];
       const dialogRef = this.dialog.open(BrowseRemoteComponent, {
         width: '600px',
+        height: '320px',
         data: {
           dirItems,
         },

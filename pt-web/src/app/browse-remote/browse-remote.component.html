@@ -9,34 +9,34 @@
 <!--    <mat-divider></mat-divider>-->
 <!--  </mat-list>-->
 <!--</div>-->
-<mat-dialog-content>
-  <div class="dialog-content">
-    <div class="toolbar">
-      <mat-toolbar>
-        <mat-toolbar-row>
-          <button mat-icon-button color="primary" (click)="onHomeClick()">
-            <mat-icon>home</mat-icon>
-          </button>
-          <div >
-            <span>/</span>
-            <span *ngFor='let item of breadcrumb'>
-              <span class="breadcrumb" (click)='onBreadClick(item)'> {{item.name}}</span>
-              <span class='breadcrumb-separator' > /</span>
+
+<mat-toolbar>
+  <mat-toolbar-row >
+    <button mat-icon-button color='primary' (click)='onHomeClick()'>
+      <mat-icon>home</mat-icon>
+    </button>
+    <div class='breadcrumb-content'>
+      <span>/</span>
+      <span *ngFor='let item of breadcrumb'>
+              <span class='breadcrumb' (click)='onBreadClick(item)'> {{item.name}}</span>
+              <span class='breadcrumb-separator'> /</span>
             </span>
-          </div>
-          <div class="spacer"></div>
-        </mat-toolbar-row>
-      </mat-toolbar>
     </div>
-    <mat-selection-list [multiple] = false [(ngModel)]='selectedItem'>
-      <mat-list-option *ngFor="let item of items" [value]="item" (dblclick)="onDblClick(item)">
+    <div class='spacer'></div>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<mat-dialog-content>
+  <div class='dialog-content'>
+    <mat-selection-list [multiple]=false [(ngModel)]='selectedItem'>
+      <mat-list-option *ngFor='let item of items' [value]='item' (dblclick)='onDblClick(item)'>
         <mat-icon class='itemicon' mat-list-icon>folder</mat-icon>
         <span mat-line>{{item.name}}</span>
       </mat-list-option>
     </mat-selection-list>
   </div>
-  <div mat-dialog-actions >
-    <button mat-button (click)="onCancelClick()">取消</button>
-    <button mat-button [disabled]="selectedItem === null" (click)="onSelectClick()">选择</button>
-  </div>
 </mat-dialog-content>
+<div mat-dialog-actions class='btn_action'>
+  <button mat-raised-button color='primary' [disabled]='selectedItem === null' (click)='onSelectClick()'>选择</button>
+  <button mat-raised-button color='primary' (click)='onCancelClick()'>取消</button>
+</div>
