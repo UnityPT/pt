@@ -12,6 +12,7 @@ import { BrowseRemoteComponent } from '../browse-remote/browse-remote.component'
 import { Buffer } from 'buffer';
 //@ts-ignore
 import parseTorrent from 'parse-torrent';
+import { publish } from 'rxjs';
 
 @Component({
   selector: 'app-publish',
@@ -23,6 +24,7 @@ export class PublishComponent implements OnInit {
   dataSource: PublishLog[] = [];
   @ViewChild(MatTable) table!: MatTable<PublishLog>;
   loading: boolean = false;
+  canPublish: boolean = true;
 
   constructor(private api: ApiService, private qBittorrent: QBittorrentService, private dialog: MatDialog) {}
 
@@ -30,7 +32,7 @@ export class PublishComponent implements OnInit {
 
   async publish(selectFiles: FileList | null) {
     if (!selectFiles) return;
-
+    this.canPublish = false;
     this.dataSource = [];
     const files: File[] = [];
     for (let i = 0; i < selectFiles.length; i++) {
@@ -176,7 +178,9 @@ export class PublishComponent implements OnInit {
     const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
 
     const onSelected = async (result: string) => {
+      this.loading = false;
       if (!result) return console.log('no result');
+      this.canPublish = false;
       const filepaths: string[] = [];
       ((await window.electronAPI.get_list(result, 'f')) as string[]).forEach((filepath) => {
         if (!filepath) return;
@@ -279,10 +283,9 @@ export class PublishComponent implements OnInit {
 
     if (protocol === 'smb') {
       const result = await window.electronAPI.smb_browse();
-      this.loading = false;
       return onSelected(result);
     } else if (protocol == 'sftp' || protocol == 'webdav') {
-      const dirItems = [{ name: '1' }, { name: '2' }, { name: '3' }, { name: '4' }, { name: '5' }];
+      const dirItems = await window.electronAPI.get_list('', 'd');
       const dialogRef = this.dialog.open(BrowseRemoteComponent, {
         width: '600px',
         height: '320px',
@@ -290,7 +293,6 @@ export class PublishComponent implements OnInit {
           dirItems,
         },
       });
-      this.loading = false;
       dialogRef.afterClosed().subscribe(onSelected);
     }
   }
