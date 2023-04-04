@@ -29,7 +29,7 @@ export class SMB {
 
   async getList(p: string, t: 'f') {
     console.log('getList', p, t);
-    return await glob('**/*.unitypackage', { cwd: p, absolute: true });
+    return await glob('**/*.unitypackage', { cwd: p, absolute: true, nodir: true });
   }
 
   async getFile(infoHash: string, p: string) {
