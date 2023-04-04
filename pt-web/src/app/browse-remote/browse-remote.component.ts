@@ -15,7 +15,7 @@ import value from '*.md';
 export class BrowseRemoteComponent implements OnInit {
   items: DirItem[] = [];
   breadcrumb: DirItem[] = [];
-  selectedItem: DirItem | null = null;
+  selectedItems: DirItem[] = [];
 
   constructor(public dialogRef: MatDialogRef<BrowseRemoteComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {}
 
@@ -31,7 +31,7 @@ export class BrowseRemoteComponent implements OnInit {
     this.dialogRef.close(
       path.posix.join(
         ...(this.breadcrumb.length > 1 ? this.breadcrumb.slice(1).map((item) => item.name) : ['']),
-        this.selectedItem?.name ?? ''
+        this.selectedItems[0]?.name ?? ''
       )
     );
   }

@@ -1,4 +1,4 @@
-import { Client, ConnectConfig, utils } from 'ssh2';
+import { Client, ConnectConfig, ReadStream, utils } from 'ssh2';
 import { readFileSync } from 'fs';
 import { webContents } from 'electron';
 import { electronAPI } from './electronAPI';
@@ -12,7 +12,7 @@ const Member = new Struct('Member').UInt8('ID1').UInt8('ID2').UInt8('CM').UInt8(
 const Extra = new Struct('Extra').UInt8('SI1').UInt8('SI2').UInt16LE('LEN').Buffer('data').compile();
 
 export class SSH {
-  client = new Client();
+  client;
   ready = false;
   async createConnect() {
     const cfg = await electronAPI.store.get('sshConfig');
@@ -23,11 +23,18 @@ export class SSH {
     };
 
     return new Promise((resolve, reject) => {
-      this.client
+      const conn = new Client();
+      conn
         .on('ready', () => {
           console.log('sshClient :: ready');
-          this.ready = true;
-          resolve(null);
+          conn.sftp((err, sftp) => {
+            this.client = sftp;
+            sftp.on('end', () => {
+              this.ready = false;
+            });
+            this.ready = true;
+            resolve(null);
+          });
         })
         .on('error', (err) => {
           this.ready = false;
@@ -50,8 +57,7 @@ export class SSH {
     p = path.posix.join(sshConfig.remotePath.split(':').at(-1), p.replace(qbConfig.save_path, ''));
     const localPath = path.join(qbConfig.local_path, path.posix.basename(p));
     if (!this.ready) await this.createConnect();
-    const sftp = await util.promisify(this.client.sftp).bind(this.client)();
-    sftp.fastGet(
+    this.client.fastGet(
       p,
       localPath,
       {
@@ -74,10 +80,9 @@ export class SSH {
     const sshRemotePath = electronAPI.store.get('sshConfig').remotePath.split(':').at(-1);
     p = path.posix.join(sshRemotePath, p);
     if (!this.ready) await this.createConnect();
-    const sftp = await util.promisify(this.client.sftp).bind(this.client)();
     const filePathList: string[] = type == 'f' ? [] : null;
     const rootdir = type == 'd' ? {} : null;
-    const listPromise = await util.promisify(sftp.readdir).bind(sftp);
+    const listPromise = await util.promisify(this.client.readdir).bind(this.client);
     return await readdir(p, rootdir);
     async function readdir(p: string, dir?: Record<string, DirItem>) {
       const list = await listPromise(p);
@@ -101,31 +106,26 @@ export class SSH {
   async extraField(p: string) {
     console.log('extraField', p);
     if (!this.ready) await this.createConnect();
-    const sftp = await util.promisify(this.client.sftp).bind(this.client)();
     const SI1 = 65;
     const SI2 = 36;
-    let position = 0;
     p = path.posix.join(electronAPI.store.get('sshConfig').remotePath.split(':').at(-1), p);
-    const handle = await util.promisify(sftp.open).bind(sftp)(p, 'r');
-    const closePromise = util.promisify(sftp.close).bind(sftp);
-    //自定义返回值为buffer，否则默认返回的是bytesRead
-    sftp.read[util.promisify.custom] = (handle: Buffer, buffer: Buffer, offset: number, length: number, position: number) => {
-      return new Promise((resolve, reject) => {
-        sftp.read(handle, buffer, offset, length, position, (err: Error, bytesRead: number, buffer: Buffer) => {
-          if (err) reject(err);
-          resolve(buffer);
+
+    const stream = this.client.createReadStream(p);
+    async function read(stream: ReadStream, size: number) {
+      const result = stream.read(size);
+      if (result) return result;
+      return new Promise((resolve) => {
+        stream.on('readable', function readable() {
+          const result = stream.read(size);
+          if (result) {
+            resolve(result);
+            stream.off('readable', readable);
+          }
         });
       });
-    };
-
-    const sftpReadPromise = util.promisify(sftp.read).bind(sftp);
-    async function read(length: number) {
-      const buffer = await sftpReadPromise(handle, Buffer.alloc(length), 0, length, position);
-      position += length;
-      return buffer;
     }
 
-    const headerBuffer = await read(Member.baseSize);
+    const headerBuffer = await read(stream, Member.baseSize);
     const member = new Member(headerBuffer);
     if (member.ID1 !== 31 || member.ID2 !== 139) {
       throw new Error('invalid file signature:' + member.ID1 + ',' + member.ID2);
@@ -137,36 +137,35 @@ export class SSH {
     const FlagsMask = { FTEXT: 1, FHCRC: 2, FEXTRA: 4, FNAME: 8, FCOMMENT: 16 };
 
     if ((member.FLG & FlagsMask.FEXTRA) !== 0) {
-      const lengthBuffer = await read(2);
+      const lengthBuffer = await read(stream, 2);
       const length = lengthBuffer.readUInt16LE();
-      const extraBuffer = await read(length);
+      const extraBuffer = await read(stream, length);
       for (let offset = 0; offset < length; ) {
         const extra = new Extra(extraBuffer.subarray(offset));
         if (extra.SI1 == SI1 && extra.SI2 == SI2) {
-          closePromise(handle);
+          console.log('destroy');
+          stream.destroy();
           return extra.data.subarray(offset, offset + extra.LEN).toString();
         }
         offset += Extra.baseSize + extra.LEN;
       }
     }
-    closePromise(handle);
+    stream.destroy();
   }
 
   async createTorrent(p: string, options: any) {
     if (!this.ready) await this.createConnect();
-    const sftp = await util.promisify(this.client.sftp).bind(this.client)();
     p = path.posix.join(electronAPI.store.get('sshConfig').remotePath.split(':').at(-1), p);
     //@ts-ignore
-    return await util.promisify(createTorrent)(sftp.createReadStream(p), options);
+    return await util.promisify(createTorrent)(this.client.createReadStream(p), options);
   }
 
   async uploadFile(p: string) {
     console.log('uploadFile', p);
     if (!this.ready) await this.createConnect();
-    const sftp = await util.promisify(this.client.sftp).bind(this.client)();
     const sshConfig = electronAPI.store.get('sshConfig') as SSHConfig;
     const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), path.basename(p));
-    await util.promisify(sftp.fastPut).bind(sftp)(p, remotePath, {
+    await util.promisify(this.client.fastPut).bind(this.client)(p, remotePath, {
       mode: '0755',
     });
   }

@@ -161,7 +161,6 @@ export class PublishComponent implements OnInit {
   }
 
   async browseRemote() {
-    if (this.loading == true) return;
     this.loading = true;
     const protocol = (await window.electronAPI.store_get('qbConfig')).protocol;
     if (protocol === 'local') {
@@ -177,16 +176,17 @@ export class PublishComponent implements OnInit {
     const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
 
     const onSelected = async (result: string) => {
-      this.loading = false;
       if (!result) return console.log('no result');
       this.canPublish = false;
       const filepaths: string[] = [];
+      console.log(result);
       ((await window.electronAPI.get_list(result, 'f')) as string[]).forEach((filepath) => {
         if (!filepath) return;
         if (path.extname(filepath) !== '.unitypackage') return;
         this.dataSource.push({ file: path.posix.basename(filepath.replaceAll('\\', '/')) });
         filepaths.push(filepath);
       });
+      this.loading = false;
       this.table.renderRows();
       for (let i = 0; i < this.dataSource.length; i++) {
         const filepath = filepaths[i];

@@ -28,7 +28,7 @@
 
 <mat-dialog-content>
   <div class='dialog-content'>
-    <mat-selection-list [multiple]=false [(ngModel)]='selectedItem'>
+    <mat-selection-list [multiple]=false [(ngModel)]='selectedItems'>
       <mat-list-option *ngFor='let item of items' [value]='item' (dblclick)='onDblClick(item)'>
         <mat-icon class='itemicon' mat-list-icon>folder</mat-icon>
         <span mat-line>{{item.name}}</span>
@@ -37,6 +37,6 @@
   </div>
 </mat-dialog-content>
 <div mat-dialog-actions class='btn_action'>
-  <button mat-raised-button color='primary' [disabled]='selectedItem === null' (click)='onSelectClick()'>选择</button>
+  <button mat-raised-button color='primary'  (click)='onSelectClick()'>选择</button>
   <button mat-raised-button color='primary' (click)='onCancelClick()'>取消</button>
 </div>
