@@ -50,7 +50,9 @@ export class PublishComponent implements OnInit {
       document.querySelector(`tr:nth-child(${i + 1})`)?.scrollIntoView({ block: 'nearest' });
       const file = files[i];
       const progress = this.dataSource[i];
-      const description = await ExtraField(file, 65, 36);
+      const description = await ExtraField(file, 65, 36).catch((err) => {
+        console.error(err);
+      });
       if (!description) {
         progress.version_id = false;
         this.table.renderRows();
