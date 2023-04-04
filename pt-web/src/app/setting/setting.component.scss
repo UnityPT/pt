@@ -37,14 +37,6 @@ h2 {
   height: 100%;
 }
 
-.mat-stepper-vertical {
-  margin-top: 8px;
-}
-
-.mat-mdc-form-field {
-  margin-top: 16px;
-}
-
 .row {
   //color: #4252af;
   margin-bottom: 1em;
@@ -91,7 +83,6 @@ h2 {
   padding: 1em;
 }
 
-/*TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version.*/
 mat-card {
   //width: 60vw;
   max-width: 400px;
@@ -99,8 +90,9 @@ mat-card {
   text-align: center;
 }
 
-mat-form-field {
-  display: block;
+mat-hint{
+  color: #aeaeae;
+  font-size: 13px;
 }
 
 .btn {

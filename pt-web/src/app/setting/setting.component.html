@@ -11,19 +11,23 @@
     <div class='row'>
       <div class='lab'>qb地址</div>
       <input class='inputs' name='qb_url' [(ngModel)]='qbConfig.qb_url' (ngModelChange)='onInputChange()'>
+      <mat-hint>填写qbittorrent WebUI中的地址，如：http://localhost:8080</mat-hint>
     </div>
     <div class='row'>
       <div class='lab'>用户名</div>
       <input class='inputs' name='username' [(ngModel)]='qbConfig.username'>
+      <mat-hint>填写qbittorrent WebUI中的用户名，如果您没有手动修改过应该是admin</mat-hint>
     </div>
     <div class='row'>
       <div class='lab'>密码</div>
       <input class='inputs' name='password' type='password' [(ngModel)]='qbConfig.password'>
+      <mat-hint>填写qbittorrent WebUI中的密码，如果您没有手动修改过应该是adminadmin</mat-hint>
     </div>
 
     <div class='row'>
       <div class='lab'>容器内目录</div>
       <input class='inputs' name='save_path' [(ngModel)]='qbConfig.save_path'>
+      <mat-hint>填写qbittorrent WebUI中的默认保存路径</mat-hint>
     </div>
     <div class='row' *ngIf="qbConfig.protocol != 'local'">
       <div class='lab'>

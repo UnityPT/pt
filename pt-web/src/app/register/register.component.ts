@@ -28,8 +28,9 @@ export class RegisterComponent implements OnInit {
         await this.api.login(this.user.username, this.user.password);
         this.router.navigate(['resource']);
       }
-    } catch {
-      alert('注册失败');
+    } catch (err) {
+      // @ts-ignore
+      alert('注册失败: ' + JSON.parse(err.error).message);
     }
   }
 }
