@@ -219,8 +219,11 @@ export class PublishComponent implements OnInit {
         // 本地有，远端有
         //对于容器内的qb,这里的p是容器内路径
         const p = path.posix.join(
-          protocol == 'smb' ? '' : qbSavePath,
-          filepath.replace(smbRemotePath.toUpperCase(), '').replaceAll('\\', '/')
+          qbSavePath,
+          filepath
+            .replace(smbRemotePath.toUpperCase(), '') //win中fs获取的共享文件夹路径会被全部转成大写,所以这里要转成大写
+            .replaceAll(path.join('/Volumes', path.basename(smbRemotePath)), '') //mac中
+            .replaceAll('\\', '/')
         ); //这里不是smb的路径不会被修改
         if (resourceIndex >= 0) {
           const item = items[resourceIndex];
