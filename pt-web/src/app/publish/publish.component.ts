@@ -178,7 +178,10 @@ export class PublishComponent implements OnInit {
     const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
 
     const onSelected = async (result: string) => {
-      if (!result) return console.log('no result');
+      if (!result) {
+        this.loading = false;
+        return console.log('no result');
+      }
       this.canPublish = false;
       const filepaths: string[] = [];
       console.log(result);
@@ -215,7 +218,10 @@ export class PublishComponent implements OnInit {
         // 以下的"本地"指用户远程qb的服务器, "远端"指pt的数据库
         // 本地有，远端有
         //对于容器内的qb,这里的p是容器内路径
-        const p = path.posix.join(qbSavePath, filepath.replace(smbRemotePath.toUpperCase(), '').replaceAll('\\', '/')); //这里不是smb的路径不会被修改
+        const p = path.posix.join(
+          protocol == 'smb' ? '' : qbSavePath,
+          filepath.replace(smbRemotePath.toUpperCase(), '').replaceAll('\\', '/')
+        ); //这里不是smb的路径不会被修改
         if (resourceIndex >= 0) {
           const item = items[resourceIndex];
           if (!item) continue; // 刚刚上传的，本地有重复文件。
@@ -232,6 +238,7 @@ export class PublishComponent implements OnInit {
               this.table.renderRows();
               const torrent = await this.api.download(resource.torrent_id);
               if (torrent) {
+                console.log(path.dirname(p));
                 await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
                 progress.create_torrent = 'downloaded';
                 progress.qBittorrent = 'added';
@@ -271,7 +278,7 @@ export class PublishComponent implements OnInit {
           if (!torrent) continue;
           progress.create_torrent = 'uploaded';
           this.table.renderRows();
-
+          console.log('2', path.dirname(p));
           const hash = await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
           progress.qBittorrent = 'added';
           this.table.renderRows();
