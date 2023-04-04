@@ -12,7 +12,6 @@ import { BrowseRemoteComponent } from '../browse-remote/browse-remote.component'
 import { Buffer } from 'buffer';
 //@ts-ignore
 import parseTorrent from 'parse-torrent';
-import { publish } from 'rxjs';
 
 @Component({
   selector: 'app-publish',

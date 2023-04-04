@@ -11,17 +11,16 @@
 //这两个按钮
 mat-card{
   position: relative;
-  display: inline-block;
+  display:  inline-flex;;
   margin: 30px;
   height: 150px;
+  width: 250px;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   background-color: #fff;
 }
-svg{
-  margin:0 12px 0 0 ;
-}
+
 //色块
 .mat-card-content {
   position: absolute;
@@ -67,10 +66,6 @@ input[type="file"] {
   display: none;
 }
 
-#remotepublish{
-  display: none;
-}
-
 //loading
 mat-spinner{
   position: fixed;
@@ -100,20 +95,34 @@ mat-spinner{
 }
 //白色部分
 .mat-card-header {
-  margin: 0 20px;
-  height: 70%;
+  margin: 0 0;
+  height: 60%;
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  font-size: 24px;
+  //align-items: center;
+  //justify-content: flex-start;
+  font-size: 26px;
   font-weight: bold;
   color: #444;
 }
 
-//.mat-card-icon {
-//  width: 60px;
-//  height: 60px;
-//  fill: #444;
-//  margin-right: 20px;
-//}
+.comment-container{
+  margin:28px 0px 0 0 ;
+}
+
+.comment {
+  width: 165px;
+  padding-top: 7px;
+  font-style: italic;
+  font-weight: bold;
+  font-size: 11px;
+  color: gray;
+}
+
+.mat-card-icon {
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  fill: #444;
+  margin: 20px 10px 0 10px;
+}
 
