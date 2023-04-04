@@ -44,15 +44,13 @@
       "package.json"
     ],
     "win": {
-      "verifyUpdateCodeSignature": false,
-      "icon": "logo.ico"
+      "verifyUpdateCodeSignature": false
     },
     "linux": {
       "target": "AppImage"
     },
     "mac": {
       "category": "public.app-category.developer-tools",
-      "icon": "icon.icns",
       "target": [
         {
           "target": "dmg",
