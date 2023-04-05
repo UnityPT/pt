@@ -41,6 +41,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ApiModule } from './api/api.module';
 import { BrowseRemoteComponent } from './browse-remote/browse-remote.component';
+import { MatRadioModule } from '@angular/material/radio';
 
 @NgModule({
   declarations: [
@@ -95,6 +96,7 @@ import { BrowseRemoteComponent } from './browse-remote/browse-remote.component';
     MatTableModule,
     MatTabsModule,
     ApiModule.forRoot({ rootUrl: 'http://10.198.11.148:3000/api' }),
+    MatRadioModule,
   ],
   bootstrap: [AppComponent],
 })

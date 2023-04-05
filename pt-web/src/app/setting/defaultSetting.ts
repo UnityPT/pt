@@ -12,7 +12,9 @@ const defaultQBConfig: QBConfig = {
 const defaultSSHConfig: SSHConfig = {
   username: '',
   remotePath: '',
-  privateKeyPath: '',
+  auth: 'password',
+  password: '',
+  privateKeyPath: undefined,
 };
 
 const defaultHTTPConfig: HttpConfig = {

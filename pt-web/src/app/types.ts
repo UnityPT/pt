@@ -66,7 +66,9 @@ export interface UserStat {
 export interface SSHConfig {
   remotePath: string;
   username: string;
-  privateKeyPath: string;
+  auth: 'password' | 'key';
+  privateKeyPath?: string;
+  password?: string;
 }
 export interface SmbConfig {
   remotePath: string;

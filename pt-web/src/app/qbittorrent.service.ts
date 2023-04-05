@@ -36,7 +36,7 @@ export class QBittorrentService {
         oldPath,
         newPath: filename,
       });
-      await this.request('torrents/recheck', { hashes: hash });
+
       await this.request('torrents/resume', { hashes: hash });
     }
 

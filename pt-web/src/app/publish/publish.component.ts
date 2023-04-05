@@ -25,9 +25,12 @@ export class PublishComponent implements OnInit {
   loading: boolean = false;
   canPublish: boolean = true;
 
+  protocol: string = '';
   constructor(private api: ApiService, private qBittorrent: QBittorrentService, private dialog: MatDialog) {}
 
-  async ngOnInit() {}
+  async ngOnInit() {
+    this.protocol = (await window.electronAPI.store_get('qbConfig')).protocol;
+  }
 
   async publish(selectFiles: FileList | null) {
     if (!selectFiles) return;
@@ -41,10 +44,15 @@ export class PublishComponent implements OnInit {
       this.dataSource.push({ file: file.name });
     }
     this.table.renderRows();
-
-    const protocol = (await window.electronAPI.store_get('qbConfig')).protocol;
     const items = await this.api.index(true);
-    const taskHashes = (await this.qBittorrent.torrentsInfo({ category: 'Unity' })).map((t) => t.hash);
+    let taskHashes: string[] = [];
+    try {
+      taskHashes = (await this.qBittorrent.torrentsInfo({ category: 'Unity' })).map((t) => t.hash);
+    } catch (e) {
+      console.error(e);
+      alert('无法连接 qBittorrent，请确认 1. qBittorrent 正在运行，2. 正确启用了 WebUI， 3.已在设置界面正确填写用户密码');
+      return;
+    }
     const resourceVersionIds = items.map((item) => item.meta.version_id);
     for (let i = 0; i < files.length; i++) {
       document.querySelector(`tr:nth-child(${i + 1})`)?.scrollIntoView({ block: 'nearest' });
@@ -70,7 +78,7 @@ export class PublishComponent implements OnInit {
       this.table.renderRows();
 
       // @ts-ignore
-      const p = file.path // provided by electron, not works in chrome.
+      let p = file.path // provided by electron, not works in chrome.
         .replaceAll('\\', '/'); // 由于 path-browserify 只支持 posix 风格路径，不支持 win32风格
       console.log(p);
 
@@ -78,7 +86,11 @@ export class PublishComponent implements OnInit {
       // 本地有，远端有
       if (resourceIndex >= 0) {
         const item = items[resourceIndex];
-        if (!item) continue; // 刚刚上传的，本地有重复文件。
+        if (!item) {
+          progress.qBittorrent = 'skipped';
+          this.table.renderRows();
+          continue;
+        } // 刚刚上传的，本地有重复文件。
 
         const { resource, meta } = item;
         // 本地有，远端有，qb 有 => 什么都不做
@@ -95,7 +107,18 @@ export class PublishComponent implements OnInit {
               taskHashes.push(resource.info_hash);
               const refreshState = async () => {
                 try {
-                  await this.qBittorrent.torrentsAdd(torrent, protocol == 'local' ? path.dirname(p) : undefined, path.basename(p));
+                  if (this.protocol == 'smb') {
+                    const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
+                    p = path.posix.join(
+                      (await window.electronAPI.store_get('qbConfig')).save_path,
+                      p.replace(smbRemotePath, '').replace(path.posix.join('/Volumes', path.basename(smbRemotePath)), '')
+                    );
+                  }
+                  await this.qBittorrent.torrentsAdd(
+                    torrent,
+                    this.protocol == 'local' || this.protocol == 'smb' ? path.dirname(p) : undefined,
+                    path.basename(p)
+                  );
                   progress.create_torrent = 'downloaded';
                   progress.qBittorrent = 'added';
                 } catch (e) {
@@ -105,7 +128,7 @@ export class PublishComponent implements OnInit {
                 this.table.renderRows();
               };
               //@ts-ignore
-              if (protocol == 'local') {
+              if (this.protocol == 'local') {
                 Promise.resolve().then(refreshState);
               } else {
                 //@ts-ignore
@@ -142,7 +165,11 @@ export class PublishComponent implements OnInit {
         this.table.renderRows();
 
         const torrent = await this.api.upload(torrent0, description, `${name}.torrent`);
-        if (!torrent) continue;
+        if (!torrent) {
+          progress.qBittorrent = 'skipped';
+          this.table.renderRows();
+          continue;
+        }
         progress.create_torrent = 'uploaded';
         this.table.renderRows();
 
@@ -152,7 +179,18 @@ export class PublishComponent implements OnInit {
         taskHashes.push(hash);
         const refreshState = async () => {
           try {
-            await this.qBittorrent.torrentsAdd(torrent, protocol == 'local' ? path.dirname(p) : undefined, path.basename(p));
+            if (this.protocol == 'smb') {
+              const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
+              p = path.posix.join(
+                (await window.electronAPI.store_get('qbConfig')).save_path,
+                p.replace(smbRemotePath, '').replace(path.posix.join('/Volumes', path.basename(smbRemotePath)), '')
+              );
+            }
+            await this.qBittorrent.torrentsAdd(
+              torrent,
+              this.protocol == 'local' || this.protocol == 'smb' ? path.dirname(p) : undefined,
+              path.basename(p)
+            );
             progress.qBittorrent = 'added';
           } catch (e) {
             console.error(e);
@@ -162,7 +200,7 @@ export class PublishComponent implements OnInit {
         };
 
         //@ts-ignore
-        if (protocol == 'local') {
+        if (this.protocol == 'local') {
           Promise.resolve().then(refreshState);
         } else {
           //@ts-ignore
@@ -174,13 +212,20 @@ export class PublishComponent implements OnInit {
 
   async browseRemote() {
     this.loading = true;
-    const protocol = (await window.electronAPI.store_get('qbConfig')).protocol;
-    if (protocol === 'local') {
+    if (this.protocol === 'local') {
       this.loading = false;
       return alert('请先设置远程通讯协议');
     }
     const items = await this.api.index(true);
-    const taskHashes = (await this.qBittorrent.torrentsInfo({ category: 'Unity' })).map((t) => t.hash);
+    let taskHashes: string[] = [];
+    try {
+      taskHashes = (await this.qBittorrent.torrentsInfo({ category: 'Unity' })).map((t) => t.hash);
+    } catch (e) {
+      console.error(e);
+      alert('无法连接 qBittorrent，请确认 1. qBittorrent 正在运行，2. 正确启用了 WebUI， 3.已在设置界面正确填写用户密码');
+      this.loading = false;
+      return;
+    }
     const resourceVersionIds = items.map((item) => item.meta.version_id);
     this.dataSource = [];
 
@@ -234,12 +279,17 @@ export class PublishComponent implements OnInit {
           qbSavePath,
           filepath
             .replace(smbRemotePath.toUpperCase(), '') //win中fs获取的共享文件夹路径会被全部转成大写,所以这里要转成大写
-            .replaceAll(path.join('/Volumes', path.basename(smbRemotePath)), '') //mac中
+            .replace(path.join('/Volumes', path.basename(smbRemotePath)), '') //mac中
             .replaceAll('\\', '/')
         ); //这里不是smb的路径不会被修改
+        console.log('torrent add path: ', p);
         if (resourceIndex >= 0) {
           const item = items[resourceIndex];
-          if (!item) continue; // 刚刚上传的，本地有重复文件。
+          if (!item) {
+            progress.qBittorrent = 'skipped';
+            this.table.renderRows();
+            continue;
+          } // 刚刚上传的，本地有重复文件。
 
           const { resource, meta } = item;
           // 本地有，远端有，qb 有 => 什么都不做
@@ -310,10 +360,10 @@ export class PublishComponent implements OnInit {
       }
     };
 
-    if (protocol === 'smb') {
+    if (this.protocol === 'smb') {
       const result = await window.electronAPI.smb_browse();
       return onSelected(result);
-    } else if (protocol == 'sftp' || protocol == 'webdav') {
+    } else if (this.protocol == 'sftp' || this.protocol == 'webdav') {
       const dirItems = await window.electronAPI.get_list('', 'd');
       const dialogRef = this.dialog.open(BrowseRemoteComponent, {
         width: '600px',

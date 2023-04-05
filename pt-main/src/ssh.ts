@@ -16,10 +16,13 @@ export class SSH {
   ready = false;
   async createConnect() {
     const cfg = await electronAPI.store.get('sshConfig');
+    const remoteSplits = cfg.remotePath.split(':');
     const connectCfg: ConnectConfig = {
-      privateKey: readFileSync(cfg.privateKeyPath),
+      privateKey: cfg.auth == 'key' ? readFileSync(cfg.privateKeyPath) : undefined,
+      password: cfg.password,
       username: cfg.username,
-      host: cfg.remotePath.split(':')[0],
+      host: remoteSplits[0],
+      port: isFinite(Number(remoteSplits[1])) ? Number(remoteSplits[1]) : 22,
     };
 
     return new Promise((resolve, reject) => {

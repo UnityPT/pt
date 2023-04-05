@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
 import { HttpConfig, QBConfig, SmbConfig, SSHConfig } from '../types';
-import { FormBuilder, Validators } from '@angular/forms';
+import { CheckboxControlValueAccessor, FormBuilder, Validators } from '@angular/forms';
 import { QBittorrentService } from '../qbittorrent.service';
 import { defaultHTTPConfig, defaultQBConfig, defaultSMBConfig, defaultSSHConfig } from './defaultSetting';
 import { isEqual } from 'lodash-es';
@@ -55,13 +55,8 @@ export class SettingComponent implements OnInit {
         const old_qb_cfg = await window.electronAPI.store_get('qbConfig', this.qbConfig);
         await window.electronAPI.store_set('qbConfig', this.qbConfig);
         if (!isEqual(old_qb_cfg, this.qbConfig)) {
-          const cf = confirm('你修改了qb信息,需要重启客户端,是否保存并重启?');
-          if (cf) {
-            return await window.electronAPI.relaunch();
-          } else {
-            this.qbConfig = old_qb_cfg;
-            return;
-          }
+          alert('你修改了qb信息,需要重启客户端');
+          return await window.electronAPI.relaunch();
         }
       }
     } catch (error) {
@@ -81,4 +76,6 @@ export class SettingComponent implements OnInit {
       this.qbConfig.protocol = 'sftp';
     }
   }
+
+  protected readonly CheckboxControlValueAccessor = CheckboxControlValueAccessor;
 }

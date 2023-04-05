@@ -47,10 +47,10 @@ h2 {
   color: #222529;
   font-size: 1.2em;
   display: inline-block;
-  margin-right: 1em;
   margin-top: 1em;
-  width: 6em;
+  width: 10em;
   text-align: left;
+  font-weight: bold;
 }
 
 .inputs {
@@ -65,15 +65,15 @@ h2 {
   width: 90%;
 }
 
-.left {
-  border-radius: 5px 0 0 5px;
-  width: 6em;
-  text-align: left;
-  height: 3.2em;
-  border: 1px solid darkgray;
-  border-right: 0;
-  padding: 0 1em;
-}
+//.left {
+//  border-radius: 5px 0 0 5px;
+//  width: 6em;
+//  text-align: left;
+//  height: 3.2em;
+//  border: 1px solid darkgray;
+//  border-right: 0;
+//  padding: 0 1em;
+//}
 
 .right {
   border-radius: 0 5px 5px 0;
@@ -91,10 +91,18 @@ mat-card {
 }
 
 mat-hint{
+  display: block;
   color: #aeaeae;
   font-size: 13px;
 }
 
 .btn {
   text-align: right;
+}
+
+#protocol_label{
+  width: 5em;
+}
+#auth_label{
+  width: 6em;
 }
