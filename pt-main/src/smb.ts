@@ -12,17 +12,17 @@ const Extra = new Struct('Extra').UInt8('SI1').UInt8('SI2').UInt16LE('LEN').Buff
 
 export class SMB {
   async smbBrowse() {
-    const remotePath = electronAPI.store.get('smbConfig').remotePath;
-    const volumePath = path.join('/Volumes', path.basename(remotePath));
+    let remotePath = electronAPI.store.get('smbConfig').remotePath;
     if (process.platform == 'darwin') {
+      remotePath = path.join('/Volumes', path.basename(remotePath));
       try {
-        await fs.accessSync(volumePath, fs.constants.R_OK);
+        await fs.accessSync(remotePath, fs.constants.R_OK);
       } catch (e) {
         console.log(e);
-        await shell.openExternal(remotePath);
+        await shell.openExternal(electronAPI.store.get('smbConfig').remotePath);
       }
     }
-    const res = await dialog.showOpenDialog({ properties: ['openDirectory'], defaultPath: volumePath });
+    const res = await dialog.showOpenDialog({ properties: ['openDirectory'], defaultPath: remotePath });
     if (res.canceled == true) return null;
     return res.filePaths[0];
   }

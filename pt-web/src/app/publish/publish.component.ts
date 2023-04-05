@@ -94,9 +94,14 @@ export class PublishComponent implements OnInit {
             if (torrent) {
               taskHashes.push(resource.info_hash);
               const refreshState = async () => {
-                await this.qBittorrent.torrentsAdd(torrent, protocol == 'local' ? path.dirname(p) : undefined, path.basename(p));
-                progress.create_torrent = 'downloaded';
-                progress.qBittorrent = 'added';
+                try {
+                  await this.qBittorrent.torrentsAdd(torrent, protocol == 'local' ? path.dirname(p) : undefined, path.basename(p));
+                  progress.create_torrent = 'downloaded';
+                  progress.qBittorrent = 'added';
+                } catch (e) {
+                  console.error(e);
+                  progress.qBittorrent = 'skipped';
+                }
                 this.table.renderRows();
               };
               //@ts-ignore
@@ -146,8 +151,13 @@ export class PublishComponent implements OnInit {
         resourceVersionIds.push(meta.version_id);
         taskHashes.push(hash);
         const refreshState = async () => {
-          await this.qBittorrent.torrentsAdd(torrent, protocol == 'local' ? path.dirname(p) : undefined, path.basename(p));
-          progress.qBittorrent = 'added';
+          try {
+            await this.qBittorrent.torrentsAdd(torrent, protocol == 'local' ? path.dirname(p) : undefined, path.basename(p));
+            progress.qBittorrent = 'added';
+          } catch (e) {
+            console.error(e);
+            progress.qBittorrent = 'skipped';
+          }
           this.table.renderRows();
         };
 
@@ -196,7 +206,9 @@ export class PublishComponent implements OnInit {
       for (let i = 0; i < this.dataSource.length; i++) {
         const filepath = filepaths[i];
         const progress = this.dataSource[i];
-        const description = await window.electronAPI.extra_field(filepath);
+        const description = await window.electronAPI.extra_field(filepath).catch((err) => {
+          console.error(err);
+        });
         console.log(description);
         if (!description) {
           progress.version_id = false;
@@ -241,10 +253,13 @@ export class PublishComponent implements OnInit {
               this.table.renderRows();
               const torrent = await this.api.download(resource.torrent_id);
               if (torrent) {
-                console.log(path.dirname(p));
-                await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
-                progress.create_torrent = 'downloaded';
-                progress.qBittorrent = 'added';
+                try {
+                  await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
+                  progress.create_torrent = 'downloaded';
+                  progress.qBittorrent = 'added';
+                } catch (e) {
+                  progress.qBittorrent = 'skipped';
+                }
                 this.table.renderRows();
                 taskHashes.push(resource.info_hash);
               }
@@ -281,13 +296,16 @@ export class PublishComponent implements OnInit {
           if (!torrent) continue;
           progress.create_torrent = 'uploaded';
           this.table.renderRows();
-          console.log('2', path.dirname(p));
-          const hash = await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
-          progress.qBittorrent = 'added';
+          try {
+            const hash = await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
+            progress.qBittorrent = 'added';
+            resourceVersionIds.push(meta.version_id);
+            taskHashes.push(hash);
+          } catch (e) {
+            console.error(e);
+            progress.qBittorrent = 'skipped';
+          }
           this.table.renderRows();
-
-          resourceVersionIds.push(meta.version_id);
-          taskHashes.push(hash);
         }
       }
     };
