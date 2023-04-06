@@ -44,9 +44,11 @@ export class SMB {
   }
 
   uploadFile(p: string) {
+    console.log(p);
     const stream = fs.createReadStream(p);
     const smbRemotePath = electronAPI.store.get('smbConfig').remotePath;
     const platform = process.platform;
+    console.log(path.join(platform == 'darwin' ? path.join('/Volumes', path.basename(smbRemotePath)) : smbRemotePath, path.basename(p)));
     const writeStream = fs.createWriteStream(
       path.join(platform == 'darwin' ? path.join('/Volumes', path.basename(smbRemotePath)) : smbRemotePath, path.basename(p))
     );

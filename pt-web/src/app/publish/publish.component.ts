@@ -106,17 +106,20 @@ export class PublishComponent implements OnInit {
             if (torrent) {
               taskHashes.push(resource.info_hash);
               const refreshState = async () => {
+                let isSmb = false;
                 try {
-                  if (this.protocol == 'smb') {
+                  if (this.protocol == 'smb' && (p.startsWith('/Volumes') || p.startsWith('\\\\'))) {
+                    isSmb = true;
                     const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
                     p = path.posix.join(
                       (await window.electronAPI.store_get('qbConfig')).save_path,
                       p.replace(smbRemotePath, '').replace(path.posix.join('/Volumes', path.basename(smbRemotePath)), '')
                     );
+                    console.log(p);
                   }
                   await this.qBittorrent.torrentsAdd(
                     torrent,
-                    this.protocol == 'local' || this.protocol == 'smb' ? path.dirname(p) : undefined,
+                    this.protocol == 'local' || isSmb ? path.dirname(p) : undefined,
                     path.basename(p)
                   );
                   progress.create_torrent = 'downloaded';
@@ -178,19 +181,17 @@ export class PublishComponent implements OnInit {
         resourceVersionIds.push(meta.version_id);
         taskHashes.push(hash);
         const refreshState = async () => {
+          let isSmb = false;
           try {
-            if (this.protocol == 'smb') {
+            if (this.protocol == 'smb' && (p.startsWith('/Volumes') || p.startsWith('\\\\'))) {
+              isSmb = true;
               const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
               p = path.posix.join(
                 (await window.electronAPI.store_get('qbConfig')).save_path,
                 p.replace(smbRemotePath, '').replace(path.posix.join('/Volumes', path.basename(smbRemotePath)), '')
               );
             }
-            await this.qBittorrent.torrentsAdd(
-              torrent,
-              this.protocol == 'local' || this.protocol == 'smb' ? path.dirname(p) : undefined,
-              path.basename(p)
-            );
+            await this.qBittorrent.torrentsAdd(torrent, this.protocol == 'local' || isSmb ? path.dirname(p) : undefined, path.basename(p));
             progress.qBittorrent = 'added';
           } catch (e) {
             console.error(e);
