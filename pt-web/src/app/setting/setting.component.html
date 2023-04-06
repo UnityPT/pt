@@ -9,7 +9,7 @@
     </div>
     <div class='row'>
       <div class='lab'>qb方式</div>
-      <mat-radio-group [(ngModel)]='qbConfig.qb_location' name='qb_location' required>
+      <mat-radio-group [(ngModel)]='qbConfig.qb_location' (ngModelChange) ='locationChange()' name='qb_location' required>
         <mat-radio-button color='primary' value='local' >本地</mat-radio-button>
         <mat-radio-button color='primary' value='remote' >远程</mat-radio-button>
       </mat-radio-group>

@@ -68,19 +68,20 @@ export class SettingComponent implements OnInit {
 
   async submit() {
     try {
-      if (this.qbConfig) {
-        await window.electronAPI.store_set('sshConfig', this.sshConfig);
-        await window.electronAPI.store_set('smbConfig', this.smbConfig);
-        await window.electronAPI.store_set('httpConfig', this.httpConfig);
-        const old_qb_cfg = await window.electronAPI.store_get('qbConfig', this.qbConfig);
-        await window.electronAPI.store_set('qbConfig', this.qbConfig);
-        console.log(this.qbConfig, old_qb_cfg);
-        if (!isEqual(old_qb_cfg, this.qbConfig)) {
-          alert('你修改了qb信息,需要重启客户端');
-          return await window.electronAPI.relaunch();
-        }
-        alert('保存成功');
+      if (this.qbConfig.qb_location == 'local') {
+        this.qbConfig.protocol = 'local';
       }
+      await window.electronAPI.store_set('sshConfig', this.sshConfig);
+      await window.electronAPI.store_set('smbConfig', this.smbConfig);
+      await window.electronAPI.store_set('httpConfig', this.httpConfig);
+      const old_qb_cfg = await window.electronAPI.store_get('qbConfig', this.qbConfig);
+      await window.electronAPI.store_set('qbConfig', this.qbConfig);
+      console.log(this.qbConfig, old_qb_cfg);
+      if (!isEqual(old_qb_cfg, this.qbConfig)) {
+        alert('你修改了qb信息,需要重启客户端');
+        return await window.electronAPI.relaunch();
+      }
+      alert('保存成功');
     } catch (error) {
       alert('保存失败');
       throw error;
@@ -109,4 +110,13 @@ export class SettingComponent implements OnInit {
   }
 
   // protected readonly CheckboxControlValueAccessor = CheckboxControlValueAccessor;
+  protected readonly onchange = onchange;
+
+  async locationChange() {
+    if (this.qbConfig.qb_location == 'local') {
+      this.qbConfig.protocol = 'local';
+    } else {
+      this.qbConfig.protocol = (await window.electronAPI.store_get('qbConfig', this.qbConfig)).protocol;
+    }
+  }
 }
