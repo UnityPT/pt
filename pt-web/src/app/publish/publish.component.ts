@@ -132,7 +132,7 @@ export class PublishComponent implements OnInit {
               };
               //@ts-ignore
               if (this.protocol == 'local') {
-                Promise.resolve().then(refreshState);
+                refreshState();
               } else {
                 //@ts-ignore
                 window.electronAPI.upload_file(file.path).then(refreshState);
@@ -202,7 +202,7 @@ export class PublishComponent implements OnInit {
 
         //@ts-ignore
         if (this.protocol == 'local') {
-          Promise.resolve().then(refreshState);
+          refreshState();
         } else {
           //@ts-ignore
           window.electronAPI.upload_file(file.path).then(refreshState);
