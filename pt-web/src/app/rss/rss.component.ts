@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./rss.component.scss'],
 })
 export class RssComponent implements OnInit {
-  title: string = '请将订阅地址复制到qbittorent中的工具->选项->RSS订阅中设置使用';
+  title: string = '请将下面的订阅地址复制到qbittorent中的工具->选项->rss订阅，或其他rss订阅器中使用';
   rss_url: string = '';
 
   constructor(private api: ApiService) {}
