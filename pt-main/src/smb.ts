@@ -14,14 +14,14 @@ export class SMB {
   async connectTest(cfg) {
     let remotePath = cfg.remotePath;
     if (process.platform == 'darwin') {
-      remotePath = path.join('/Volumes', path.basename(remotePath));
+      remotePath = path.join('/Volumes', new URL(remotePath).pathname);
     }
     await fs.accessSync(remotePath, fs.constants.R_OK);
   }
   async smbBrowse() {
     let remotePath = electronAPI.store.get('smbConfig').remotePath;
     if (process.platform == 'darwin') {
-      remotePath = path.join('/Volumes', path.basename(remotePath));
+      remotePath = path.join('/Volumes', new URL(remotePath).pathname);
       try {
         await fs.accessSync(remotePath, fs.constants.R_OK);
       } catch (e) {
@@ -48,9 +48,8 @@ export class SMB {
     const stream = fs.createReadStream(p);
     const smbRemotePath = electronAPI.store.get('smbConfig').remotePath;
     const platform = process.platform;
-    console.log(path.join(platform == 'darwin' ? path.join('/Volumes', path.basename(smbRemotePath)) : smbRemotePath, path.basename(p)));
     const writeStream = fs.createWriteStream(
-      path.join(platform == 'darwin' ? path.join('/Volumes', path.basename(smbRemotePath)) : smbRemotePath, path.basename(p))
+      path.join(platform == 'darwin' ? path.join('/Volumes', new URL(smbRemotePath).pathname) : smbRemotePath, path.basename(p))
     );
     stream.pipe(writeStream);
     return new Promise((resolve, reject) => {

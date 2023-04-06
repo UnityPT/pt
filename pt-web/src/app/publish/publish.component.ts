@@ -103,40 +103,43 @@ export class PublishComponent implements OnInit {
             progress.create_torrent = 'downloading';
             this.table.renderRows();
             const torrent = await this.api.download(resource.torrent_id);
-            if (torrent) {
-              taskHashes.push(resource.info_hash);
-              const refreshState = async () => {
-                let isSmb = false;
-                try {
-                  if (this.protocol == 'smb' && (p.startsWith('/Volumes') || p.startsWith('\\\\'))) {
-                    isSmb = true;
-                    const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
-                    p = path.posix.join(
-                      (await window.electronAPI.store_get('qbConfig')).save_path,
-                      p.replace(smbRemotePath, '').replace(path.posix.join('/Volumes', path.basename(smbRemotePath)), '')
-                    );
-                    console.log(p);
-                  }
-                  await this.qBittorrent.torrentsAdd(
-                    torrent,
-                    this.protocol == 'local' || isSmb ? path.dirname(p) : undefined,
-                    path.basename(p)
+            if (!torrent) {
+              progress.qBittorrent = 'skipped';
+              this.table.renderRows();
+              continue;
+            }
+            taskHashes.push(resource.info_hash);
+            const refreshState = async () => {
+              let isSmb = false;
+              try {
+                if (this.protocol == 'smb' && (p.startsWith('/Volumes') || p.startsWith('\\\\'))) {
+                  isSmb = true;
+                  const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
+                  p = path.posix.join(
+                    (await window.electronAPI.store_get('qbConfig')).save_path,
+                    p.replace(smbRemotePath, '').replace(path.posix.join('/Volumes', new URL(smbRemotePath).pathname), '')
                   );
-                  progress.create_torrent = 'downloaded';
-                  progress.qBittorrent = 'added';
-                } catch (e) {
-                  console.error(e);
-                  progress.qBittorrent = 'skipped';
+                  console.log(p);
                 }
-                this.table.renderRows();
-              };
-              //@ts-ignore
-              if (this.protocol == 'local') {
-                refreshState();
-              } else {
-                //@ts-ignore
-                window.electronAPI.upload_file(file.path).then(refreshState);
+                await this.qBittorrent.torrentsAdd(
+                  torrent,
+                  this.protocol == 'local' || isSmb ? path.dirname(p) : undefined,
+                  path.basename(p)
+                );
+                progress.create_torrent = 'downloaded';
+                progress.qBittorrent = 'added';
+              } catch (e) {
+                console.error(e);
+                progress.qBittorrent = 'skipped';
               }
+              this.table.renderRows();
+            };
+            //@ts-ignore
+            if (this.protocol == 'local') {
+              refreshState();
+            } else {
+              //@ts-ignore
+              window.electronAPI.upload_file(file.path).then(refreshState);
             }
           } else {
             // 本地有，远端有，qb 无，不一致 => 忽略
@@ -304,17 +307,20 @@ export class PublishComponent implements OnInit {
               progress.create_torrent = 'downloading';
               this.table.renderRows();
               const torrent = await this.api.download(resource.torrent_id);
-              if (torrent) {
-                try {
-                  await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
-                  progress.create_torrent = 'downloaded';
-                  progress.qBittorrent = 'added';
-                } catch (e) {
-                  progress.qBittorrent = 'skipped';
-                }
+              if (!torrent) {
+                progress.qBittorrent = 'skipped';
                 this.table.renderRows();
-                taskHashes.push(resource.info_hash);
+                continue;
               }
+              try {
+                await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
+                progress.create_torrent = 'downloaded';
+                progress.qBittorrent = 'added';
+              } catch (e) {
+                progress.qBittorrent = 'skipped';
+              }
+              this.table.renderRows();
+              taskHashes.push(resource.info_hash);
             } else {
               // 本地有，远端有，qb 无，不一致 => 忽略
               console.log(`${filepath} has same version_id with server but not same file`);
@@ -345,7 +351,11 @@ export class PublishComponent implements OnInit {
           this.table.renderRows();
 
           const torrent = await this.api.upload(torrent0, description, `${name}.torrent`);
-          if (!torrent) continue;
+          if (!torrent) {
+            progress.qBittorrent = 'skipped';
+            this.table.renderRows();
+            continue;
+          }
           progress.create_torrent = 'uploaded';
           this.table.renderRows();
           try {
