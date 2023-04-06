@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit {
   async submit() {
     try {
       await this.api.login(this.username, this.password);
-      this.router.navigate(['resource']);
+      this.router.navigate(['setting']);
     } catch {
       alert('登录失败');
     }
