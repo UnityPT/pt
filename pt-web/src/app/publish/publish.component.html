@@ -1,34 +1,8 @@
-<!--<mat-list>-->
-<!--  <div mat-subheader>Folders</div>-->
-<!--  <mat-list-item *ngFor="let folder of folders">-->
-<!--    <mat-icon matListItemIcon>folder</mat-icon>-->
-<!--    <div matListItemTitle>{{folder.name}}</div>-->
-<!--    <div matListItemLine>{{folder.updated | date}}</div>-->
-<!--  </mat-list-item>-->
-<!--  <mat-divider></mat-divider>-->
-<!--  <div mat-subheader>Notes</div>-->
-<!--  <mat-list-item *ngFor="let note of notes">-->
-<!--    <mat-icon matListItemIcon>note</mat-icon>-->
-<!--    <div matListItemTitle>{{note.name}}</div>-->
-<!--    <div matListItemLine>{{note.updated | date}}</div>-->
-<!--  </mat-list-item>-->
-<!--</mat-list>-->
-<!--<mat-card-content>-->
-<!--  <label class='btn_label' mat-button for='remotepublish'>从远程发布</label>-->
-<!--  <button id='remotepublish' mat-button (click)='browseRemote()'>从远程发布</button>-->
-<!--</mat-card-content>-->
-<!--</mat-card>-->
-<!--<mat-card appearance='outlined' class='mat-elevation-z2'>-->
-<!--  <mat-card-content>-->
-<!--    <label class='btn_label' mat-button for='localpublish'>从本地发布</label>-->
-<!--    <input id='localpublish' #dir type='file' webkitdirectory (change)='publish(dir.files)'>-->
-<!--  </mat-card-content>-->
-
 <div class='overlay' *ngIf='loading== true'>
   <mat-spinner></mat-spinner>
 </div>
-<div class='card-container' *ngIf='canPublish'>
-  <mat-card appearance='outlined' (click)='browseRemote()'>
+<div class='card-container' >
+  <mat-card appearance='outlined' *ngIf="protocol !='local'" (click)='browseRemote()'>
     <div class='mat-card-header'>
       <svg t='1680515705104' class='mat-card-icon' viewBox='0 0 1024 1024' version='1.1' p-id='5574'
            id='mx_n_1680515705105'>
@@ -60,7 +34,7 @@
     </div>
     <div class='mat-card-content green'>
       选择文件夹
-      <input id='localpublish' #dir type='file' webkitdirectory (change)='publish(dir.files)'>
+      <input id='localpublish' #dir type='file' webkitdirectory (change)='publish(dir.files)' >
     </div>
   </mat-card>
 </div>

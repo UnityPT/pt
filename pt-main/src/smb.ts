@@ -11,6 +11,13 @@ const Member = new Struct('Member').UInt8('ID1').UInt8('ID2').UInt8('CM').UInt8(
 const Extra = new Struct('Extra').UInt8('SI1').UInt8('SI2').UInt16LE('LEN').Buffer('data').compile();
 
 export class SMB {
+  async connectTest(cfg) {
+    let remotePath = cfg.remotePath;
+    if (process.platform == 'darwin') {
+      remotePath = path.join('/Volumes', path.basename(remotePath));
+    }
+    await fs.accessSync(remotePath, fs.constants.R_OK);
+  }
   async smbBrowse() {
     let remotePath = electronAPI.store.get('smbConfig').remotePath;
     if (process.platform == 'darwin') {

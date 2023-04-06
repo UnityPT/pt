@@ -14,8 +14,20 @@ const Extra = new Struct('Extra').UInt8('SI1').UInt8('SI2').UInt16LE('LEN').Buff
 export class Webdav {
   client;
   ready = false;
-  createConnect() {
-    const cfg = electronAPI.store.get('httpConfig');
+  connectTest(cfg: any) {
+    this.createConnect(cfg);
+    this.ready = false;
+    return new Promise(async (resolve, reject) => {
+      try {
+        await this.client.getDirectoryContents('');
+        resolve(null);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+  createConnect(cfg?: any) {
+    if (!cfg) cfg = electronAPI.store.get('httpConfig');
     this.client = createClient(cfg.remotePath, {
       authType: AuthType.Password,
       username: cfg.username,

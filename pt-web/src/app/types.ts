@@ -51,6 +51,7 @@ export interface RegisterInfo {
 }
 
 export interface QBConfig {
+  qb_location: 'local' | 'remote';
   qb_url: string;
   username: string;
   password: string;

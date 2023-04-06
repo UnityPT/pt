@@ -1,6 +1,7 @@
 import { HttpConfig, QBConfig, SmbConfig, SSHConfig } from '../types';
 
 const defaultQBConfig: QBConfig = {
+  qb_location: 'local',
   qb_url: 'http://localhost:8080',
   username: 'admin',
   password: 'adminadmin',

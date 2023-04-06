@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, ipcRenderer, shell } from 'electron';
 import { electronAPI } from './electronAPI';
 import path from 'path';
 import { autoUpdater } from 'electron-updater';
@@ -90,7 +90,15 @@ app.whenReady().then(async () => {
   ipcMain.handle('import', electronAPI.import.bind(electronAPI));
   ipcMain.handle('store_get', electronAPI.store_get.bind(electronAPI));
   ipcMain.handle('store_set', electronAPI.store_set.bind(electronAPI));
-  ipcMain.handle("smb_browse",async () => smb.smbBrowse());
+  ipcMain.handle('smb_browse', async () => smb.smbBrowse());
+  ipcMain.handle('connect_test', async (event, protocol, smbConfig) => {
+    if (protocol == 'local') return;
+    return {
+      webdav: webdav.connectTest.bind(webdav),
+      sftp: ssh.connectTest.bind(ssh),
+      smb: smb.connectTest.bind(smb),
+    }[protocol](smbConfig);
+  });
   ipcMain.handle('get_list', async (event, path, type) => {
     return {
       webdav: webdav.getList.bind(webdav),

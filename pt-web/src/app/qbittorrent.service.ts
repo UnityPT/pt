@@ -49,6 +49,13 @@ export class QBittorrentService {
     return this.request('auth/login', { username, password });
   }
 
+  async authLoginTest(qburl: string, username: string, password: string) {
+    const body = new FormData();
+    body.append('username', username);
+    body.append('password', password);
+    return firstValueFrom(this.http.post(`${qburl}/api/v2/auth/login`, body, { responseType: 'text' }));
+  }
+
   torrentsInfo(params: {
     filter?: string;
     category?: string;

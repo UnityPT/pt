@@ -121,6 +121,7 @@ declare global {
       create_torrent: (filepath: string, opts: any) => Promise<any>;
       smb_connect: () => Promise<void>;
       smb_browse: () => Promise<string>;
+      connect_test: (protocol: 'local' | 'sftp' | 'smb' | 'webdav', configMapElement: any) => Promise<void>;
     };
   }
 }

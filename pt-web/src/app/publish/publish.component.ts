@@ -211,6 +211,7 @@ export class PublishComponent implements OnInit {
   }
 
   async browseRemote() {
+    if (!this.canPublish) return;
     this.loading = true;
     if (this.protocol === 'local') {
       this.loading = false;

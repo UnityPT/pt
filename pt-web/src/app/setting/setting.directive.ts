@@ -2,21 +2,19 @@ import { Directive, Input } from '@angular/core';
 import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
 
 @Directive({
-  selector: '[smb_remote_path]',
+  selector: '[qb_url]',
   providers: [{ provide: NG_VALIDATORS, useExisting: SettingDirective, multi: true }],
 })
 export class SettingDirective implements Validator {
-  @Input('smb_remote_path') smb_remote_path = '';
+  @Input('qb_url') qb_url = '';
 
   validate(control: AbstractControl): ValidationErrors | null {
-    return getUrlValidator()(control);
+    return this.qb_url ? qbUrlValidator()(control) : null;
   }
 }
 
-export function getUrlValidator(): ValidatorFn {
+export function qbUrlValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    // if (navigator.userAgentData.platform == 'Windows' && control.value.startsWith('\\\\')) return null;
-    // if (navigator.userAgentData.platform == 'macOS' && control.value.startsWith('smb://')) return null;
     // return { get_url: true };
     return null;
   };

@@ -14,8 +14,20 @@ const Extra = new Struct('Extra').UInt8('SI1').UInt8('SI2').UInt16LE('LEN').Buff
 export class SSH {
   client;
   ready = false;
-  async createConnect() {
-    const cfg = await electronAPI.store.get('sshConfig');
+  async connectTest(cfg: any) {
+    await this.createConnect(cfg);
+    this.ready = false;
+    return new Promise(async (resolve, reject) => {
+      try {
+        await this.client.readdir('');
+        resolve(null);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+  async createConnect(cfg?: any) {
+    if (!cfg) cfg = await electronAPI.store.get('sshConfig');
     const remoteSplits = cfg.remotePath.split(':');
     const connectCfg: ConnectConfig = {
       privateKey: cfg.auth == 'key' ? readFileSync(cfg.privateKeyPath) : undefined,
