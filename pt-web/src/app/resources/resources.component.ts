@@ -131,7 +131,7 @@ export class ResourcesComponent implements OnInit {
     );
 
     this.refreshed_at = new Date();
-    this.api.user_stat_published = items.filter(({ resource }) => resource.username === this.api.username).length;
+    this.api.user_stat.published = items.filter(({ resource }) => resource.username === this.api.username).length;
     await this.api.refreshUserStat();
     this.myControl.reset();
   }

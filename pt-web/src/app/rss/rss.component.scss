@@ -1,0 +1,17 @@
+:host {
+  //background-color: #fafafa;
+  position: relative;
+  display: block;
+  height: 100%;
+}
+
+mat-card {
+  //width: 60vw;
+  max-width: 400px;
+  margin: 2em auto;
+  text-align: center;
+}
+
+mat-form-field {
+  display: block;
+}

@@ -62,6 +62,7 @@ export interface QBConfig {
 export interface UserStat {
   uploaded: number;
   downloaded: number;
+  passkey: string;
 }
 export interface SSHConfig {
   remotePath: string;

@@ -42,6 +42,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { ApiModule } from './api/api.module';
 import { BrowseRemoteComponent } from './browse-remote/browse-remote.component';
 import { MatRadioModule } from '@angular/material/radio';
+import { RssComponent } from './rss/rss.component';
 
 @NgModule({
   declarations: [
@@ -57,6 +58,7 @@ import { MatRadioModule } from '@angular/material/radio';
     InvitationComponent,
     SettingComponent,
     BrowseRemoteComponent,
+    RssComponent,
   ],
   imports: [
     BrowserModule,

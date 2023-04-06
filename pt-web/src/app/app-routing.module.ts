@@ -8,11 +8,13 @@ import { HelpComponent } from './help/help.component';
 import { PublishComponent } from './publish/publish.component';
 import { InvitationComponent } from './invitation/invitation.component';
 import { SettingComponent } from './setting/setting.component';
+import { RssComponent } from './rss/rss.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'invitation', component: InvitationComponent },
+  { path: 'rss', component: RssComponent },
   { path: 'resource', component: ResourcesComponent, canActivate: [AuthGuard] },
   { path: 'help', component: HelpComponent },
   { path: 'publish', component: PublishComponent },

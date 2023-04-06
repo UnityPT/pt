@@ -14,9 +14,12 @@ export class ApiService {
   //baseUrl = 'http://localhost:80';
   username = localStorage.getItem('username');
   curPage = '';
-  user_stat_published = 0;
-  user_stat_uploaded = 0;
-  user_stat_downloaded = 0;
+  user_stat = {
+    published: 0,
+    uploaded: 0,
+    downloaded: 0,
+    passkey: '',
+  };
 
   constructor(
     private http: HttpClient,
@@ -156,8 +159,9 @@ export class ApiService {
         withCredentials: true,
       })
     );
-    this.user_stat_uploaded = +user_stat.uploaded;
-    this.user_stat_downloaded = +user_stat.downloaded;
+    this.user_stat.uploaded = +user_stat.uploaded;
+    this.user_stat.downloaded = +user_stat.downloaded;
+    this.user_stat.passkey = user_stat.passkey;
   }
 
   checkShowParticles() {
