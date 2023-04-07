@@ -5,6 +5,7 @@ import { Torrent, TorrentFile } from '@ctrl/qbittorrent/dist/src/types';
 // @ts-ignore
 import parseTorrent from 'parse-torrent';
 import pRetry from 'p-retry';
+import { countBy } from 'lodash-es';
 
 @Injectable({
   providedIn: 'root',
@@ -36,10 +37,22 @@ export class QBittorrentService {
         oldPath,
         newPath: filename,
       });
-
-      await this.request('torrents/resume', { hashes: hash });
+      const state1 = (await this.request<Torrent[]>('torrents/info', { hashes: hash }, 'json')).map((x) => x.state)[0];
+      const timer1 = setInterval(async () => {
+        const state2 = (await this.request<Torrent[]>('torrents/info', { hashes: hash }, 'json')).map((x) => x.state)[0];
+        if (state2 !== state1) {
+          clearInterval(timer1);
+          const timer2 = setInterval(async () => {
+            await this.request('torrents/resume', { hashes: hash });
+            const state3 = (await this.request<Torrent[]>('torrents/info', { hashes: hash }, 'json')).map((x) => x.state)[0];
+            console.log('resume', state3);
+            if (state3 != state2) {
+              clearInterval(timer2);
+            }
+          }, 300);
+        }
+      }, 300);
     }
-
     return hash;
   }
 
@@ -97,7 +110,7 @@ export class QBittorrentService {
         if (typeof value === 'string') {
           body.append(key, value);
         } else {
-          body.append(key, value, 'test.torrent'); //todo: ?
+          body.append(key, value, 'test.torrent');
         }
       }
     }

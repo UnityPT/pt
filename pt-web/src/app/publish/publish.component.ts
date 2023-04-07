@@ -53,7 +53,8 @@ export class PublishComponent implements OnInit {
       alert('无法连接 qBittorrent，请确认 1. qBittorrent 正在运行，2. 正确启用了 WebUI， 3.已在设置界面正确填写用户密码');
       return;
     }
-    const resourceVersionIds = items.map((item) => item.meta.version_id);
+    const resourceVersionIds = [];
+    // items.map((item) => item.meta.version_id);
     for (let i = 0; i < files.length; i++) {
       document.querySelector(`tr:nth-child(${i + 1})`)?.scrollIntoView({ block: 'nearest' });
       const file = files[i];
@@ -84,6 +85,9 @@ export class PublishComponent implements OnInit {
 
       const resourceIndex = resourceVersionIds.indexOf(meta.version_id);
       // 本地有，远端有
+
+      let publish_flag = false;
+
       if (resourceIndex >= 0) {
         const item = items[resourceIndex];
         if (!item) {
@@ -95,7 +99,15 @@ export class PublishComponent implements OnInit {
         const { resource, meta } = item;
         // 本地有，远端有，qb 有 => 什么都不做
         if (taskHashes.includes(resource.info_hash)) {
-          progress.qBittorrent = 'skipped';
+          const amount_left = (await this.qBittorrent.torrentsInfo({ hashes: resource.info_hash }))[0].amount_left;
+          if (amount_left == 0) {
+            progress.qBittorrent = 'skipped';
+            this.table.renderRows();
+            continue;
+          } else {
+            publish_flag = true;
+            await this.qBittorrent.torrentsDelete(resource.info_hash);
+          }
         } else {
           if (description === resource.description) {
             // 本地有，远端有，qb 无，一致 => 添加下载任务
@@ -137,19 +149,25 @@ export class PublishComponent implements OnInit {
             //@ts-ignore
             if (this.protocol == 'local') {
               refreshState();
+              continue;
             } else {
               //@ts-ignore
               window.electronAPI.upload_file(file.path).then(refreshState);
+              continue;
             }
           } else {
             // 本地有，远端有，qb 无，不一致 => 忽略
             console.log(`${p} has same version_id with server but not same file`);
             progress.create_torrent = 'conflict';
             this.table.renderRows();
+            continue;
           }
         }
-      } else {
-        // 本地有，远端无 => 发布资源并添加下载任务
+      }
+
+      if (resourceIndex < 0 || publish_flag) {
+        console.log('publish_flag: ', publish_flag);
+        // 本地有，远端无 or 本地有，远端有，qb有但qb不全  => 发布资源并添加下载任务
         console.log(`uploading ${meta.title}`);
         progress.create_torrent = 'creating';
         this.table.renderRows();
@@ -170,7 +188,11 @@ export class PublishComponent implements OnInit {
         progress.create_torrent = 'uploading';
         this.table.renderRows();
 
-        const torrent = await this.api.upload(torrent0, description, `${name}.torrent`);
+        publish_flag = true;
+        const torrent = publish_flag
+          ? new Blob([torrent0], { type: 'application/x-bittorrent' })
+          : await this.api.upload(torrent0, description, `${name}.torrent`);
+
         if (!torrent) {
           progress.qBittorrent = 'skipped';
           this.table.renderRows();
@@ -194,7 +216,12 @@ export class PublishComponent implements OnInit {
                 p.replace(smbRemotePath, '').replace(path.posix.join('/Volumes', path.basename(smbRemotePath)), '')
               );
             }
-            await this.qBittorrent.torrentsAdd(torrent, this.protocol == 'local' || isSmb ? path.dirname(p) : undefined, path.basename(p));
+            const nh = await this.qBittorrent.torrentsAdd(
+              torrent,
+              this.protocol == 'local' || isSmb ? path.dirname(p) : undefined,
+              path.basename(p)
+            );
+            console.log('xxx', await this.qBittorrent.torrentsInfo({ hashes: hash }));
             progress.qBittorrent = 'added';
           } catch (e) {
             console.error(e);
@@ -206,9 +233,11 @@ export class PublishComponent implements OnInit {
         //@ts-ignore
         if (this.protocol == 'local') {
           refreshState();
+          continue;
         } else {
           //@ts-ignore
           window.electronAPI.upload_file(file.path).then(refreshState);
+          continue;
         }
       }
     }
@@ -288,6 +317,7 @@ export class PublishComponent implements OnInit {
             .replaceAll('\\', '/')
         ); //这里不是smb的路径不会被修改
         console.log('torrent add path: ', p);
+        let publish_flag = false;
         if (resourceIndex >= 0) {
           const item = items[resourceIndex];
           if (!item) {
@@ -299,7 +329,15 @@ export class PublishComponent implements OnInit {
           const { resource, meta } = item;
           // 本地有，远端有，qb 有 => 什么都不做
           if (taskHashes.includes(resource.info_hash)) {
-            progress.qBittorrent = 'skipped';
+            const amount_left = (await this.qBittorrent.torrentsInfo({ hashes: resource.info_hash }))[0].amount_left;
+            if (amount_left == 0) {
+              progress.qBittorrent = 'skipped';
+              this.table.renderRows();
+              continue;
+            } else {
+              publish_flag = true;
+              await this.qBittorrent.torrentsDelete(resource.info_hash);
+            }
           } else {
             if (description === resource.description) {
               // 本地有，远端有，qb 无，一致 => 添加下载任务
@@ -321,14 +359,18 @@ export class PublishComponent implements OnInit {
               }
               this.table.renderRows();
               taskHashes.push(resource.info_hash);
+              continue;
             } else {
               // 本地有，远端有，qb 无，不一致 => 忽略
               console.log(`${filepath} has same version_id with server but not same file`);
               progress.create_torrent = 'conflict';
               this.table.renderRows();
+              continue;
             }
           }
-        } else {
+        }
+
+        if (resourceIndex < 0 || publish_flag) {
           // 本地有，远端无 => 发布资源并添加下载任务
           console.log(`uploading ${meta.title}`);
           progress.create_torrent = 'creating';
@@ -350,7 +392,9 @@ export class PublishComponent implements OnInit {
           progress.create_torrent = 'uploading';
           this.table.renderRows();
 
-          const torrent = await this.api.upload(torrent0, description, `${name}.torrent`);
+          const torrent = publish_flag
+            ? new Blob([torrent0], { type: 'application/x-bittorrent' })
+            : await this.api.upload(torrent0, description, `${name}.torrent`);
           if (!torrent) {
             progress.qBittorrent = 'skipped';
             this.table.renderRows();
