@@ -16,6 +16,7 @@ import { defaultQBConfig, defaultSMBConfig } from '../setting/defaultSetting';
 })
 export class ResourcesComponent implements OnInit {
   items: ResourceMeta[] = [];
+  version_sum: number = 0;
   itemsGroup: Record<string, ResourceMeta[]> = {};
   torrents: Record<string, Torrent> = {};
   refreshed_at: Date = new Date();
@@ -24,8 +25,6 @@ export class ResourcesComponent implements OnInit {
   statusFinished = new Set(['uploading', 'pausedUP', 'queuedUP', 'stalledUP', 'checkingUP', 'forcedUP']);
   statusDownloading = new Set(['downloading', 'pausedDL', 'stalledDL', 'checkingDL', 'forcedDL']);
 
-  // 列表结束
-  //   下载功能函数
   myControl = new FormControl('');
   filteredOptions = this.myControl.valueChanges.pipe(
     startWith(''),
@@ -35,12 +34,8 @@ export class ResourcesComponent implements OnInit {
 
   ssh_get_file_progress: Record<string, number> = {};
 
-  // 取数据end
-
-  // 取数据
   constructor(private http: HttpClient, private qBittorrent: QBittorrentService, private api: ApiService) {}
 
-  // 列表结束
   trackById(index: number, item: ResourceMeta) {
     return item.resource.torrent_id;
   }
@@ -118,7 +113,7 @@ export class ResourcesComponent implements OnInit {
 
   async refresh() {
     const items = await this.api.index();
-
+    this.version_sum = items.length;
     this.itemsGroup = mapValues(
       // @ts-ignore
       items.group(({ meta }) => meta.id),
