@@ -45,7 +45,7 @@ export class QBittorrentService {
         } else {
           clearInterval(timer1);
         }
-      }, 500);
+      }, 1000);
     }
     return hash;
   }

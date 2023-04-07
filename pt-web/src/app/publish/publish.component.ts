@@ -88,6 +88,26 @@ export class PublishComponent implements OnInit {
       const resourceIndex = resourceVersionIds.indexOf(meta.version_id);
       // 本地有，远端有
 
+      const torrentAdd = async (torrent: Blob) => {
+        let isSmb = false;
+        try {
+          if (this.protocol == 'smb' && (p.startsWith('/Volumes') || p.startsWith('\\\\'))) {
+            isSmb = true;
+            const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
+            p = path.posix.join(
+              (await window.electronAPI.store_get('qbConfig')).save_path,
+              p.replace(smbRemotePath, '').replace(path.posix.join('/Volumes', new URL(smbRemotePath).pathname), '')
+            );
+          }
+          await this.qBittorrent.torrentsAdd(torrent, this.protocol == 'local' || isSmb ? path.dirname(p) : undefined, path.basename(p));
+          progress.qBittorrent = 'added';
+        } catch (e) {
+          console.error(e);
+          progress.qBittorrent = 'skipped';
+        }
+        this.table.renderRows();
+      };
+
       let publish_flag = false;
 
       if (resourceIndex >= 0) {
@@ -122,39 +142,17 @@ export class PublishComponent implements OnInit {
               this.table.renderRows();
               continue;
             }
+            progress.create_torrent = 'downloaded';
             taskHashes.push(resource.info_hash);
-            const refreshState = async () => {
-              let isSmb = false;
-              try {
-                if (this.protocol == 'smb' && (p.startsWith('/Volumes') || p.startsWith('\\\\'))) {
-                  isSmb = true;
-                  const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
-                  p = path.posix.join(
-                    (await window.electronAPI.store_get('qbConfig')).save_path,
-                    p.replace(smbRemotePath, '').replace(path.posix.join('/Volumes', new URL(smbRemotePath).pathname), '')
-                  );
-                  console.log(p);
-                }
-                await this.qBittorrent.torrentsAdd(
-                  torrent,
-                  this.protocol == 'local' || isSmb ? path.dirname(p) : undefined,
-                  path.basename(p)
-                );
-                progress.create_torrent = 'downloaded';
-                progress.qBittorrent = 'added';
-              } catch (e) {
-                console.error(e);
-                progress.qBittorrent = 'skipped';
-              }
-              this.table.renderRows();
-            };
             //@ts-ignore
             if (this.protocol == 'local') {
-              refreshState();
+              torrentAdd(torrent);
               continue;
             } else {
               //@ts-ignore
-              window.electronAPI.upload_file(file.path).then(refreshState);
+              window.electronAPI.upload_file(file.path).then(() => {
+                torrentAdd(torrent);
+              });
               continue;
             }
           } else {
@@ -168,7 +166,6 @@ export class PublishComponent implements OnInit {
       }
 
       if (resourceIndex < 0 || publish_flag) {
-        console.log('publish_flag: ', publish_flag);
         // 本地有，远端无 or 本地有，远端有，qb有但qb不全  => 发布资源并添加下载任务
         console.log(`uploading ${meta.title}`);
         progress.create_torrent = 'creating';
@@ -207,38 +204,15 @@ export class PublishComponent implements OnInit {
         const hash = info.infoHash!;
         resourceVersionIds.push(meta.version_id);
         taskHashes.push(hash);
-        const refreshState = async () => {
-          let isSmb = false;
-          try {
-            if (this.protocol == 'smb' && (p.startsWith('/Volumes') || p.startsWith('\\\\'))) {
-              isSmb = true;
-              const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
-              p = path.posix.join(
-                (await window.electronAPI.store_get('qbConfig')).save_path,
-                p.replace(smbRemotePath, '').replace(path.posix.join('/Volumes', path.basename(smbRemotePath)), '')
-              );
-            }
-            const nh = await this.qBittorrent.torrentsAdd(
-              torrent,
-              this.protocol == 'local' || isSmb ? path.dirname(p) : undefined,
-              path.basename(p)
-            );
-            progress.qBittorrent = 'added';
-          } catch (e) {
-            console.error(e);
-            progress.qBittorrent = 'skipped';
-          }
-          this.table.renderRows();
-        };
 
         //@ts-ignore
         if (this.protocol == 'local') {
-          refreshState();
-          continue;
+          torrentAdd(torrent);
         } else {
           //@ts-ignore
-          window.electronAPI.upload_file(file.path).then(refreshState);
-          continue;
+          window.electronAPI.upload_file(file.path).then(() => {
+            torrentAdd(torrent);
+          });
         }
       }
     }
