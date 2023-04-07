@@ -36,16 +36,10 @@ export class PublishComponent implements OnInit {
     if (!selectFiles) return;
     this.canPublish = false;
     this.dataSource = [];
-    const files: File[] = [];
-    for (let i = 0; i < selectFiles.length; i++) {
-      const file = selectFiles[i];
-      if (path.extname(file.name) !== '.unitypackage') continue;
-      files.push(file);
-      this.dataSource.push({ file: file.name });
-    }
-    this.table.renderRows();
+
     const items = await this.api.index(true);
     let taskHashes: string[] = [];
+    const resourceVersionIds = []; //items.map((item) => item.meta.version_id);//todo：
     try {
       taskHashes = (await this.qBittorrent.torrentsInfo({ category: 'Unity' })).map((t) => t.hash);
     } catch (e) {
@@ -53,12 +47,20 @@ export class PublishComponent implements OnInit {
       alert('无法连接 qBittorrent，请确认 1. qBittorrent 正在运行，2. 正确启用了 WebUI， 3.已在设置界面正确填写用户密码');
       return;
     }
-    const resourceVersionIds = [];
-    // items.map((item) => item.meta.version_id);
-    for (let i = 0; i < files.length; i++) {
-      document.querySelector(`tr:nth-child(${i + 1})`)?.scrollIntoView({ block: 'nearest' });
-      const file = files[i];
-      const progress = this.dataSource[i];
+
+    function* generator() {
+      for (let i = 0; i < selectFiles!.length; i++) {
+        const file = selectFiles![i];
+        if (path.extname(file.name) !== '.unitypackage') continue;
+        yield file;
+      }
+    }
+
+    for await (const file of generator()) {
+      const progress = { file: file.name } as PublishLog;
+      this.dataSource.push(progress);
+      this.table.renderRows();
+      document.querySelector(`tr:nth-child(${this.dataSource.length + 1})`)?.scrollIntoView({ block: 'nearest' });
       const description = await ExtraField(file, 65, 36).catch((err) => {
         console.error(err);
       });

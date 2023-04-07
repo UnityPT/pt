@@ -37,21 +37,15 @@ export class QBittorrentService {
         oldPath,
         newPath: filename,
       });
-      const state1 = (await this.request<Torrent[]>('torrents/info', { hashes: hash }, 'json')).map((x) => x.state)[0];
       const timer1 = setInterval(async () => {
-        const state2 = (await this.request<Torrent[]>('torrents/info', { hashes: hash }, 'json')).map((x) => x.state)[0];
-        if (state2 !== state1) {
+        const amount_left = (await this.request<Torrent[]>('torrents/info', { hashes: hash }, 'json')).map((x) => x.amount_left)[0];
+        console.log('resume', amount_left);
+        if (amount_left != 0) {
+          await this.request('torrents/resume', { hashes: hash });
+        } else {
           clearInterval(timer1);
-          const timer2 = setInterval(async () => {
-            await this.request('torrents/resume', { hashes: hash });
-            const state3 = (await this.request<Torrent[]>('torrents/info', { hashes: hash }, 'json')).map((x) => x.state)[0];
-            console.log('resume', state3);
-            if (state3 != state2) {
-              clearInterval(timer2);
-            }
-          }, 300);
         }
-      }, 300);
+      }, 500);
     }
     return hash;
   }
@@ -106,7 +100,6 @@ export class QBittorrentService {
     const body = new FormData();
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined) {
-        console.log(key, value, '\n');
         if (typeof value === 'string') {
           body.append(key, value);
         } else {
