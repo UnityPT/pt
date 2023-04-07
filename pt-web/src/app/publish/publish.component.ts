@@ -221,7 +221,6 @@ export class PublishComponent implements OnInit {
               this.protocol == 'local' || isSmb ? path.dirname(p) : undefined,
               path.basename(p)
             );
-            console.log('xxx', await this.qBittorrent.torrentsInfo({ hashes: hash }));
             progress.qBittorrent = 'added';
           } catch (e) {
             console.error(e);
