@@ -26,4 +26,9 @@ export class electronAPI {
   static async store_set(event, key: string, value) {
     return this.store.set(key, value);
   }
+
+  static async deleteFile(path: string) {
+    console.log('deleteFile', path);
+    fs.unlinkSync(path);
+  }
 }

@@ -65,6 +65,8 @@ export class SSH {
     });
   }
 
+  async deleteFile(p: string) {}
+
   async getFile(infoHash: string, p: string) {
     console.log('getFile', infoHash, p);
     const sshConfig = electronAPI.store.get('sshConfig') as SSHConfig;
@@ -175,11 +177,11 @@ export class SSH {
     return await util.promisify(createTorrent)(this.client.createReadStream(p), options);
   }
 
-  async uploadFile(p: string) {
+  async uploadFile(p: string, filename: string) {
     console.log('uploadFile', p);
     if (!this.ready) await this.createConnect();
     const sshConfig = electronAPI.store.get('sshConfig') as SSHConfig;
-    const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), path.basename(p));
+    const remotePath = path.posix.join(sshConfig.remotePath.split(':').at(-1), filename);
     await util.promisify(this.client.fastPut).bind(this.client)(p, remotePath, {
       mode: '0755',
     });

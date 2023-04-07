@@ -36,6 +36,8 @@ export class Webdav {
     this.ready = true;
   }
 
+  async deleteFile(p: string) {}
+
   async getFile(infoHash: string, p: string) {
     if (!this.ready) this.createConnect();
     const qbConfig = electronAPI.store.get('qbConfig') as QBConfig;
@@ -152,10 +154,10 @@ export class Webdav {
     return torrent;
   }
 
-  async uploadFile(p: string) {
+  async uploadFile(p: string, filename: string) {
     if (!this.ready) this.createConnect();
     const stream = fs.createReadStream(p);
-    await this.client.putFileContents(path.basename(p), stream);
+    await this.client.putFileContents(filename, stream);
     stream.destroy();
     return;
   }

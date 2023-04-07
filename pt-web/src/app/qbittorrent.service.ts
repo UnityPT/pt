@@ -37,13 +37,24 @@ export class QBittorrentService {
         oldPath,
         newPath: filename,
       });
+
+      const finishedState = ['uploading', 'stalledUP'];
+      let i = 0; //尝试次数
       const timer1 = setInterval(async () => {
-        const amount_left = (await this.request<Torrent[]>('torrents/info', { hashes: hash }, 'json')).map((x) => x.amount_left)[0];
-        console.log('resume', amount_left);
-        if (amount_left != 0) {
-          await this.request('torrents/resume', { hashes: hash });
-        } else {
+        if (i++ > 10) clearInterval(timer1);
+
+        const state1 = (await this.request<Torrent[]>('torrents/info', { hashes: hash }, 'json'))[0].state;
+        if (state1 != 'checkingResumeData') {
           clearInterval(timer1);
+          await this.request('torrents/resume', { hashes: hash });
+          const timer2 = setInterval(async () => {
+            if (i++ > 10) clearInterval(timer2);
+            const state2 = (await this.request<Torrent[]>('torrents/info', { hashes: hash }, 'json'))[0].state;
+            if (finishedState.includes(state2)) {
+              clearInterval(timer2);
+            }
+            await this.request('torrents/resume', { hashes: hash });
+          }, 1000);
         }
       }, 1000);
     }
@@ -88,8 +99,54 @@ export class QBittorrentService {
     return this.request('torrents/resume', { hashes: hash });
   }
 
+  async torrentsSetLocation(hash: string, location: string) {
+    console.log(hash, location);
+    return this.request('torrents/setLocation', { hashes: hash, location });
+  }
+
   torrentsFiles(hash: string) {
     return this.request<TorrentFile[]>('torrents/files', { hash }, 'json');
+  }
+
+  async torrentsRestart(hash: string, oldName: string, newName: string) {
+    console.log(hash, oldName, newName);
+    await this.request('torrents/renameFile', {
+      hash: hash,
+      oldPath: oldName,
+      newPath: newName,
+    });
+    await this.request('torrents/recheck', { hashes: hash });
+    const finishedState = ['uploading', 'stalledUP'];
+    let i = 0; //尝试次数
+    const timer1 = setInterval(async () => {
+      if (i++ > 10) clearInterval(timer1);
+      const state1 = (await this.request<Torrent[]>('torrents/info', { hashes: hash }, 'json'))[0].state;
+      if (state1 != 'checkingResumeData') {
+        clearInterval(timer1);
+        await this.request('torrents/resume', { hashes: hash });
+        const timer2 = setInterval(async () => {
+          if (i++ > 10) clearInterval(timer2);
+          const state2 = (await this.request<Torrent[]>('torrents/info', { hashes: hash }, 'json'))[0].state;
+          if (finishedState.includes(state2)) {
+            clearInterval(timer2);
+          }
+          await this.request('torrents/resume', { hashes: hash });
+        }, 1000);
+      }
+    }, 1000);
+  }
+  async waitPaused(hash: string) {
+    await new Promise((resolve) => {
+      let i = 0; //尝试次数
+      const t1 = setInterval(async () => {
+        const state = (await this.torrentsInfo({ hashes: hash }))[0].state;
+        console.log('wait pause', state);
+        if (state == 'pausedDL' || i++ > 5) {
+          clearInterval(t1);
+          resolve(null);
+        }
+      }, 500);
+    });
   }
 
   // low level apis

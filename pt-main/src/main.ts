@@ -113,12 +113,21 @@ app.whenReady().then(async () => {
       smb: smb.getFile.bind(smb),
     }[protocol](infoHash, fileName);
   });
-  ipcMain.handle('upload_file', async (event, path) => {
+  ipcMain.handle('delete_file', async (event, path) => {
+    if (protocol == 'local') return electronAPI.deleteFile(path);
+    return {
+      webdav: webdav.deleteFile.bind(webdav),
+      sftp: ssh.deleteFile.bind(ssh),
+      smb: smb.deleteFile.bind(smb),
+    }[protocol](path);
+  });
+
+  ipcMain.handle('upload_file', async (event, path, filename) => {
     return {
       webdav: webdav.uploadFile.bind(webdav),
       sftp: ssh.uploadFile.bind(ssh),
       smb: smb.uploadFile.bind(smb),
-    }[protocol](path);
+    }[protocol](path, filename);
   });
   ipcMain.handle('create_torrent', async (event, path, options) => {
     return {

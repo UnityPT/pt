@@ -39,17 +39,19 @@ export class SMB {
     return await glob('**/*.unitypackage', { cwd: p, absolute: true, nodir: true });
   }
 
+  async deleteFile(p: string) {}
+
   async getFile(infoHash: string, p: string) {
     //smb方式可以直接使用import方法打开文件，不需要将文件下载回本地
   }
 
-  uploadFile(p: string) {
+  uploadFile(p: string, filename: string) {
     console.log(p);
     const stream = fs.createReadStream(p);
     const smbRemotePath = electronAPI.store.get('smbConfig').remotePath;
     const platform = process.platform;
     const writeStream = fs.createWriteStream(
-      path.join(platform == 'darwin' ? path.join('/Volumes', new URL(smbRemotePath).pathname) : smbRemotePath, path.basename(p))
+      path.join(platform == 'darwin' ? path.join('/Volumes', new URL(smbRemotePath).pathname) : smbRemotePath, filename)
     );
     stream.pipe(writeStream);
     return new Promise((resolve, reject) => {

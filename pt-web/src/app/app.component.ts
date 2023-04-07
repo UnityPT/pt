@@ -116,12 +116,13 @@ declare global {
       create_connect: () => Promise<void>;
       get_list: (path: string, type: 'd' | 'f') => Promise<DirItem[] | string[]>;
       get_file: (infoHash: string, filename: string) => Promise<void>;
-      upload_file: (path: string) => Promise<void>;
+      upload_file: (path: string, filename: string) => Promise<void>;
       extra_field: (path: string) => Promise<string>;
       create_torrent: (filepath: string, opts: any) => Promise<any>;
       smb_connect: () => Promise<void>;
       smb_browse: () => Promise<string>;
       connect_test: (protocol: 'local' | 'sftp' | 'smb' | 'webdav', configMapElement: any) => Promise<void>;
+      delete_file: (content_path: string) => Promise<void>;
     };
   }
 }

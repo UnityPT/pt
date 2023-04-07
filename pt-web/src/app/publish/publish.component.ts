@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ExtraField } from '../gzip';
-import { Meta } from '../types';
+import { Meta, Resource } from '../types';
 import createTorrent from 'create-torrent';
 import { ApiService } from '../api.service';
 import { QBittorrentService } from '../qbittorrent.service';
@@ -26,6 +26,19 @@ export class PublishComponent implements OnInit {
   canPublish: boolean = true;
 
   protocol: string = '';
+  unFinishedState: string[] = [
+    'error',
+    'missingFiles',
+    'allocating',
+    'downloading',
+    'metaDL',
+    'pausedDL',
+    'queuedDL',
+    'stalledDL',
+    'checkingDL',
+    'forcedDL',
+  ];
+
   constructor(private api: ApiService, private qBittorrent: QBittorrentService, private dialog: MatDialog) {}
 
   async ngOnInit() {
@@ -33,13 +46,13 @@ export class PublishComponent implements OnInit {
   }
 
   async publish(selectFiles: FileList | null) {
+    console.log('localpublish');
     if (!selectFiles) return;
     this.canPublish = false;
     this.dataSource = [];
-
     const items = await this.api.index(true);
     let taskHashes: string[] = [];
-    const resourceVersionIds = []; //items.map((item) => item.meta.version_id);//todo：
+    const resourceVersionIds = items.map((item) => item.meta.version_id);
     try {
       taskHashes = (await this.qBittorrent.torrentsInfo({ category: 'Unity' })).map((t) => t.hash);
     } catch (e) {
@@ -86,7 +99,6 @@ export class PublishComponent implements OnInit {
       console.log(p);
 
       const resourceIndex = resourceVersionIds.indexOf(meta.version_id);
-      // 本地有，远端有
 
       const torrentAdd = async (torrent: Blob) => {
         let isSmb = false;
@@ -108,8 +120,7 @@ export class PublishComponent implements OnInit {
         this.table.renderRows();
       };
 
-      let publish_flag = false;
-
+      // 本地有，远端有
       if (resourceIndex >= 0) {
         const item = items[resourceIndex];
         if (!item) {
@@ -117,18 +128,46 @@ export class PublishComponent implements OnInit {
           this.table.renderRows();
           continue;
         } // 刚刚上传的，本地有重复文件。
-
         const { resource, meta } = item;
-        // 本地有，远端有，qb 有 => 什么都不做
         if (taskHashes.includes(resource.info_hash)) {
-          const amount_left = (await this.qBittorrent.torrentsInfo({ hashes: resource.info_hash }))[0].amount_left;
-          if (amount_left == 0) {
+          // 本地有，远端有，qb 有
+          const t = (await this.qBittorrent.torrentsInfo({ hashes: resource.info_hash }))[0];
+          if (this.unFinishedState.includes(t.state)) {
+            // 本地有，远端有，qb 有, 没下载完 => 重启任务
+            await this.qBittorrent.torrentsPause(resource.info_hash);
+            await this.qBittorrent.waitPaused(resource.info_hash);
+            // @ts-ignore
+            await window.electronAPI.delete_file(t.content_path);
+            await this.qBittorrent.torrentsSetLocation(resource.info_hash, path.dirname(p));
+            const torrent = (await this.createTorrent(file, meta, progress, false))!;
+
+            const info = await parseTorrent(Buffer.from(await torrent.arrayBuffer()));
+            const hash = info.infoHash!;
+            resourceVersionIds.push(meta.version_id);
+            taskHashes.push(hash);
+
+            if (this.protocol == 'local') {
+              try {
+                await this.qBittorrent.torrentsRestart(resource.info_hash, info.name, path.basename(p));
+                progress.qBittorrent = 'added';
+              } catch (e) {
+                console.error(e);
+                progress.qBittorrent = 'skipped';
+              }
+              this.table.renderRows();
+              continue;
+            } else {
+              //@ts-ignore
+              window.electronAPI.upload_file(file.path, info.name).then(() => {
+                torrentAdd(torrent);
+              });
+              continue;
+            }
+          } else {
+            // 本地有,远端有,qb 有,已下载完成或未知情况 => 跳过
             progress.qBittorrent = 'skipped';
             this.table.renderRows();
             continue;
-          } else {
-            publish_flag = true;
-            await this.qBittorrent.torrentsDelete(resource.info_hash);
           }
         } else {
           if (description === resource.description) {
@@ -150,7 +189,7 @@ export class PublishComponent implements OnInit {
               continue;
             } else {
               //@ts-ignore
-              window.electronAPI.upload_file(file.path).then(() => {
+              window.electronAPI.upload_file(file.path, resource.name).then(() => {
                 torrentAdd(torrent);
               });
               continue;
@@ -163,10 +202,8 @@ export class PublishComponent implements OnInit {
             continue;
           }
         }
-      }
-
-      if (resourceIndex < 0 || publish_flag) {
-        // 本地有，远端无 or 本地有，远端有，qb有但qb不全  => 发布资源并添加下载任务
+      } else if (resourceIndex < 0) {
+        // 本地有，远端无   => 发布资源并添加下载任务
         console.log(`uploading ${meta.title}`);
         progress.create_torrent = 'creating';
         this.table.renderRows();
@@ -187,11 +224,7 @@ export class PublishComponent implements OnInit {
         progress.create_torrent = 'uploading';
         this.table.renderRows();
 
-        publish_flag = true;
-        const torrent = publish_flag
-          ? new Blob([torrent0], { type: 'application/x-bittorrent' })
-          : await this.api.upload(torrent0, description, `${name}.torrent`);
-
+        const torrent = await this.api.upload(torrent0, description, `${name}.torrent`);
         if (!torrent) {
           progress.qBittorrent = 'skipped';
           this.table.renderRows();
@@ -210,7 +243,7 @@ export class PublishComponent implements OnInit {
           torrentAdd(torrent);
         } else {
           //@ts-ignore
-          window.electronAPI.upload_file(file.path).then(() => {
+          window.electronAPI.upload_file(file.path, info.name).then(() => {
             torrentAdd(torrent);
           });
         }
@@ -405,6 +438,38 @@ export class PublishComponent implements OnInit {
       });
       dialogRef.afterClosed().subscribe(onSelected);
     }
+  }
+
+  private async createTorrent(file: File, meta: any, progress: PublishLog, upload_flag: boolean) {
+    progress.create_torrent = 'creating';
+    this.table.renderRows();
+
+    const name = meta.title
+      .replace(/[<>:"\/\\|?*+#&().,—!™'\[\]]/g, '')
+      .replace(/ {2,}/g, ' ')
+      .trim();
+
+    // @ts-ignore
+    const torrent0: Buffer = await util.promisify(createTorrent)(file, {
+      name: `[${meta.version_id}] ${name} ${meta.version}.unitypackage`,
+      createdBy: 'UnityPT 1.0',
+      announceList: [],
+      private: true,
+    });
+
+    progress.create_torrent = 'uploading';
+    this.table.renderRows();
+
+    const torrent = upload_flag
+      ? await this.api.upload(torrent0, JSON.stringify(meta), `${name}.torrent`)
+      : new Blob([torrent0], { type: 'application/x-bittorrent' });
+    if (!torrent) {
+      progress.qBittorrent = 'skipped';
+      this.table.renderRows();
+    }
+    progress.create_torrent = 'uploaded';
+    this.table.renderRows();
+    return torrent;
   }
 }
 
