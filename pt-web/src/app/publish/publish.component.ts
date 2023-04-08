@@ -7,7 +7,7 @@ import { QBittorrentService } from '../qbittorrent.service';
 import path from 'path';
 import { MatTable } from '@angular/material/table';
 import util from 'util';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { BrowseRemoteComponent } from '../browse-remote/browse-remote.component';
 import { Buffer } from 'buffer';
 //@ts-ignore
@@ -23,8 +23,7 @@ export class PublishComponent implements OnInit {
   dataSource: PublishLog[] = [];
   @ViewChild(MatTable) table!: MatTable<PublishLog>;
   loading: boolean = false;
-  canPublish: boolean = true;
-
+  publishing: boolean = false;
   protocol: string = '';
   unFinishedState: string[] = [
     'error',
@@ -39,6 +38,7 @@ export class PublishComponent implements OnInit {
     'forcedDL',
   ];
 
+  test: string[] = [];
   constructor(private api: ApiService, private qBittorrent: QBittorrentService, private dialog: MatDialog) {}
 
   async ngOnInit() {
@@ -48,7 +48,8 @@ export class PublishComponent implements OnInit {
   async publish(selectFiles: FileList | null) {
     console.log('localpublish');
     if (!selectFiles) return;
-    this.canPublish = false;
+    if (this.publishing) return;
+    this.publishing = true;
     this.dataSource = [];
     const items = await this.api.index(true);
     let taskHashes: string[] = [];
@@ -61,15 +62,9 @@ export class PublishComponent implements OnInit {
       return;
     }
 
-    function* generator() {
-      for (let i = 0; i < selectFiles!.length; i++) {
-        const file = selectFiles![i];
-        if (path.extname(file.name) !== '.unitypackage') continue;
-        yield file;
-      }
-    }
-
-    for await (const file of generator()) {
+    for (let i = 0; i < selectFiles.length; i++) {
+      const file = selectFiles.item(i)!;
+      if (path.extname(file.name) !== '.unitypackage') continue;
       const progress = { file: file.name } as PublishLog;
       this.dataSource.push(progress);
       this.table.renderRows();
@@ -155,19 +150,19 @@ export class PublishComponent implements OnInit {
                 progress.qBittorrent = 'skipped';
               }
               this.table.renderRows();
-              continue;
+              //continue;
             } else {
               //@ts-ignore
               window.electronAPI.upload_file(file.path, info.name).then(() => {
                 torrentAdd(torrent);
               });
-              continue;
+              //continue;
             }
           } else {
             // 本地有,远端有,qb 有,已下载完成或未知情况 => 跳过
             progress.qBittorrent = 'skipped';
             this.table.renderRows();
-            continue;
+            //continue;
           }
         } else {
           if (description === resource.description) {
@@ -186,20 +181,20 @@ export class PublishComponent implements OnInit {
             //@ts-ignore
             if (this.protocol == 'local') {
               torrentAdd(torrent);
-              continue;
+              //continue;
             } else {
               //@ts-ignore
               window.electronAPI.upload_file(file.path, resource.name).then(() => {
                 torrentAdd(torrent);
               });
-              continue;
+              //continue;
             }
           } else {
             // 本地有，远端有，qb 无，不一致 => 忽略
             console.log(`${p} has same version_id with server but not same file`);
             progress.create_torrent = 'conflict';
             this.table.renderRows();
-            continue;
+            //continue;
           }
         }
       } else if (resourceIndex < 0) {
@@ -252,181 +247,19 @@ export class PublishComponent implements OnInit {
   }
 
   async browseRemote() {
-    if (!this.canPublish) return;
+    if (this.publishing) return;
+    if (this.protocol === 'local') return alert('请设置远程通讯协议');
+
     this.loading = true;
-    if (this.protocol === 'local') {
-      this.loading = false;
-      return alert('请先设置远程通讯协议');
-    }
-    const items = await this.api.index(true);
-    let taskHashes: string[] = [];
-    try {
-      taskHashes = (await this.qBittorrent.torrentsInfo({ category: 'Unity' })).map((t) => t.hash);
-    } catch (e) {
-      console.error(e);
-      alert('无法连接 qBittorrent，请确认 1. qBittorrent 正在运行，2. 正确启用了 WebUI， 3.已在设置界面正确填写用户密码');
-      this.loading = false;
-      return;
-    }
-    const resourceVersionIds = items.map((item) => item.meta.version_id);
-    this.dataSource = [];
+    this.publishing = true;
+    await this.openBrowser().catch(console.error);
+    this.loading = false;
+  }
 
-    const qbSavePath = (await window.electronAPI.store_get('qbConfig')).save_path;
-    const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
-
-    const onSelected = async (result: string) => {
-      if (!result) {
-        this.loading = false;
-        return console.log('no result');
-      }
-      this.canPublish = false;
-      const filepaths: string[] = [];
-      console.log(result);
-      ((await window.electronAPI.get_list(result, 'f')) as string[]).forEach((filepath) => {
-        if (!filepath) return;
-        if (path.extname(filepath) !== '.unitypackage') return;
-        this.dataSource.push({ file: path.posix.basename(filepath.replaceAll('\\', '/')) });
-        filepaths.push(filepath);
-      });
-      this.loading = false;
-      this.table.renderRows();
-      for (let i = 0; i < this.dataSource.length; i++) {
-        const filepath = filepaths[i];
-        const progress = this.dataSource[i];
-        const description = await window.electronAPI.extra_field(filepath).catch((err) => {
-          console.error(err);
-        });
-        console.log(description);
-        if (!description) {
-          progress.version_id = false;
-          this.table.renderRows();
-          console.log(`${filepath} is not a unity asset store package`);
-          continue;
-        }
-        const meta = <Meta>JSON.parse(description);
-        if (!meta.version_id) {
-          progress.version_id = false;
-          this.table.renderRows();
-          console.log(`${filepath} is strange`);
-          continue;
-        }
-        progress.version_id = meta.version_id;
-        this.table.renderRows();
-
-        const resourceIndex = resourceVersionIds.indexOf(meta.version_id);
-        // 以下的"本地"指用户远程qb的服务器, "远端"指pt的数据库
-        // 本地有，远端有
-        //对于容器内的qb,这里的p是容器内路径
-        const p = path.posix.join(
-          qbSavePath,
-          filepath
-            .replace(smbRemotePath.toUpperCase(), '') //win中fs获取的共享文件夹路径会被全部转成大写,所以这里要转成大写
-            .replace(path.join('/Volumes', path.basename(smbRemotePath)), '') //mac中
-            .replaceAll('\\', '/')
-        ); //这里不是smb的路径不会被修改
-        console.log('torrent add path: ', p);
-        let publish_flag = false;
-        if (resourceIndex >= 0) {
-          const item = items[resourceIndex];
-          if (!item) {
-            progress.qBittorrent = 'skipped';
-            this.table.renderRows();
-            continue;
-          } // 刚刚上传的，本地有重复文件。
-
-          const { resource, meta } = item;
-          // 本地有，远端有，qb 有 => 什么都不做
-          if (taskHashes.includes(resource.info_hash)) {
-            const amount_left = (await this.qBittorrent.torrentsInfo({ hashes: resource.info_hash }))[0].amount_left;
-            if (amount_left == 0) {
-              progress.qBittorrent = 'skipped';
-              this.table.renderRows();
-              continue;
-            } else {
-              publish_flag = true;
-              await this.qBittorrent.torrentsDelete(resource.info_hash);
-            }
-          } else {
-            if (description === resource.description) {
-              // 本地有，远端有，qb 无，一致 => 添加下载任务
-              console.log(`downloading ${meta.title}`);
-              progress.create_torrent = 'downloading';
-              this.table.renderRows();
-              const torrent = await this.api.download(resource.torrent_id);
-              if (!torrent) {
-                progress.qBittorrent = 'skipped';
-                this.table.renderRows();
-                continue;
-              }
-              try {
-                await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
-                progress.create_torrent = 'downloaded';
-                progress.qBittorrent = 'added';
-              } catch (e) {
-                progress.qBittorrent = 'skipped';
-              }
-              this.table.renderRows();
-              taskHashes.push(resource.info_hash);
-              continue;
-            } else {
-              // 本地有，远端有，qb 无，不一致 => 忽略
-              console.log(`${filepath} has same version_id with server but not same file`);
-              progress.create_torrent = 'conflict';
-              this.table.renderRows();
-              continue;
-            }
-          }
-        }
-
-        if (resourceIndex < 0 || publish_flag) {
-          // 本地有，远端无 => 发布资源并添加下载任务
-          console.log(`uploading ${meta.title}`);
-          progress.create_torrent = 'creating';
-          this.table.renderRows();
-
-          const name = meta.title
-            .replace(/[<>:"\/\\|?*+#&().,—!™'\[\]]/g, '')
-            .replace(/ {2,}/g, ' ')
-            .trim();
-
-          const torrent0: Buffer = await window.electronAPI.create_torrent(filepath, {
-            name: `[${meta.version_id}] ${name} ${meta.version}.unitypackage`,
-            createdBy: 'UnityPT 1.0',
-            announceList: [],
-            private: true,
-          });
-          console.log(torrent0);
-
-          progress.create_torrent = 'uploading';
-          this.table.renderRows();
-
-          const torrent = publish_flag
-            ? new Blob([torrent0], { type: 'application/x-bittorrent' })
-            : await this.api.upload(torrent0, description, `${name}.torrent`);
-          if (!torrent) {
-            progress.qBittorrent = 'skipped';
-            this.table.renderRows();
-            continue;
-          }
-          progress.create_torrent = 'uploaded';
-          this.table.renderRows();
-          try {
-            const hash = await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
-            progress.qBittorrent = 'added';
-            resourceVersionIds.push(meta.version_id);
-            taskHashes.push(hash);
-          } catch (e) {
-            console.error(e);
-            progress.qBittorrent = 'skipped';
-          }
-          this.table.renderRows();
-        }
-      }
-    };
-
+  async openBrowser() {
     if (this.protocol === 'smb') {
       const result = await window.electronAPI.smb_browse();
-      return onSelected(result);
+      return this.onSelected(result);
     } else if (this.protocol == 'sftp' || this.protocol == 'webdav') {
       const dirItems = await window.electronAPI.get_list('', 'd');
       const dialogRef = this.dialog.open(BrowseRemoteComponent, {
@@ -436,7 +269,153 @@ export class PublishComponent implements OnInit {
           dirItems,
         },
       });
-      dialogRef.afterClosed().subscribe(onSelected);
+      dialogRef.afterClosed().subscribe(this.onSelected);
+    }
+  }
+
+  async onSelected(result: string) {
+    if (!result) {
+      this.publishing = false;
+      return console.log('no result');
+    }
+
+    this.dataSource = [];
+    const items = await this.api.index(true);
+    const taskHashes = (await this.qBittorrent.torrentsInfo({ category: 'Unity' })).map((t) => t.hash);
+    const resourceVersionIds = items.map((item) => item.meta.version_id);
+    const qbSavePath = (await window.electronAPI.store_get('qbConfig')).save_path;
+    const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
+    const filepaths = (await window.electronAPI.get_list(result, 'f')) as string[];
+    for (const filepath of filepaths) {
+      await this.processOne(filepath, items, taskHashes, resourceVersionIds, qbSavePath, smbRemotePath);
+    }
+    this.publishing = false;
+  }
+
+  async processOne(
+    filepath: string,
+    items: { resource: Resource; meta: Meta }[],
+    taskHashes: string[],
+    resourceVersionIds: string[],
+    qbSavePath: string,
+    smbRemotePath: string
+  ) {
+    if (path.extname(filepath) !== '.unitypackage') return;
+    const progress = { file: path.posix.basename(filepath.replaceAll('\\', '')) } as PublishLog;
+    this.dataSource.push(progress);
+    this.table.renderRows();
+
+    const description = await window.electronAPI.extra_field(filepath).catch(console.error);
+    if (!description) {
+      progress.version_id = false;
+      this.table.renderRows();
+      console.log(`${filepath} is not a unity asset store package`);
+      return;
+    }
+    const meta = <Meta>JSON.parse(description);
+    if (!meta.version_id) {
+      progress.version_id = false;
+      this.table.renderRows();
+      console.log(`${filepath} is strange`);
+      return;
+    }
+    progress.version_id = meta.version_id;
+    this.table.renderRows();
+
+    // 以下的"本地"指用户远程qb的服务器, "远端"指pt的数据库
+    // 本地有，远端有
+    //对于容器内的qb,这里的p是容器内路径
+    const p = path.posix.join(
+      qbSavePath,
+      filepath
+        .replace(smbRemotePath.toUpperCase(), '') //win中fs获取的共享文件夹路径会被全部转成大写,所以这里要转成大写
+        .replace(path.join('/Volumes', path.basename(smbRemotePath)), '') //mac中
+        .replaceAll('\\', '/')
+    ); //这里不是smb的路径不会被修改
+    console.log('torrent add path: ', p);
+
+    const resourceIndex = resourceVersionIds.indexOf(meta.version_id);
+    if (resourceIndex >= 0) {
+      const item = items[resourceIndex];
+      if (!item) {
+        progress.qBittorrent = 'skipped';
+        this.table.renderRows();
+        return;
+      } // 刚刚上传的，本地有重复文件。
+
+      const { resource, meta } = item;
+      if (taskHashes.includes(resource.info_hash)) {
+        //todo;
+      } else {
+        if (description === resource.description) {
+          // 本地有，远端有，qb 无，一致 => 添加下载任务
+          console.log(`downloading ${meta.title}`);
+          progress.create_torrent = 'downloading';
+          this.table.renderRows();
+          const torrent = await this.api.download(resource.torrent_id);
+          if (!torrent) {
+            progress.qBittorrent = 'skipped';
+            this.table.renderRows();
+            return;
+          }
+          try {
+            await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
+            progress.create_torrent = 'downloaded';
+            progress.qBittorrent = 'added';
+          } catch (e) {
+            progress.qBittorrent = 'skipped';
+          }
+          this.table.renderRows();
+          taskHashes.push(resource.info_hash);
+          return;
+        } else {
+          // 本地有，远端有，qb 无，不一致 => 忽略
+          console.log(`${filepath} has same version_id with server but not same file`);
+          progress.create_torrent = 'conflict';
+          this.table.renderRows();
+          return;
+        }
+      }
+    } else if (resourceIndex < 0) {
+      // 本地有，远端无 => 发布资源并添加下载任务
+      console.log(`uploading ${meta.title}`);
+      progress.create_torrent = 'creating';
+      this.table.renderRows();
+
+      const name = meta.title
+        .replace(/[<>:"\/\\|?*+#&().,—!™'\[\]]/g, '')
+        .replace(/ {2,}/g, ' ')
+        .trim();
+
+      const torrent0: Buffer = await window.electronAPI.create_torrent(filepath, {
+        name: `[${meta.version_id}] ${name} ${meta.version}.unitypackage`,
+        createdBy: 'UnityPT 1.0',
+        announceList: [],
+        private: true,
+      });
+      console.log(torrent0);
+
+      progress.create_torrent = 'uploading';
+      this.table.renderRows();
+
+      const torrent = await this.api.upload(torrent0, description, `${name}.torrent`);
+      if (!torrent) {
+        progress.qBittorrent = 'skipped';
+        this.table.renderRows();
+        return;
+      }
+      progress.create_torrent = 'uploaded';
+      this.table.renderRows();
+      try {
+        const hash = await this.qBittorrent.torrentsAdd(torrent, path.dirname(p), path.basename(p));
+        progress.qBittorrent = 'added';
+        resourceVersionIds.push(meta.version_id);
+        taskHashes.push(hash);
+      } catch (e) {
+        console.error(e);
+        progress.qBittorrent = 'skipped';
+      }
+      this.table.renderRows();
     }
   }
 

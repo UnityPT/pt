@@ -16,7 +16,7 @@ export class SMB {
     if (process.platform == 'darwin') {
       remotePath = path.join('/Volumes', new URL(remotePath).pathname);
     }
-    await fs.accessSync(remotePath, fs.constants.R_OK);
+    fs.accessSync(remotePath, fs.constants.R_OK);
   }
   async smbBrowse() {
     let remotePath = electronAPI.store.get('smbConfig').remotePath;
@@ -34,14 +34,20 @@ export class SMB {
     return res.filePaths[0];
   }
 
-  async getList(p: string, t: 'f') {
+  async getList(event, p: string, t: 'f') {
     console.log('getList', p, t);
-    return await glob('**/*.unitypackage', { cwd: p, absolute: true, nodir: true });
+    const g = glob.globStream('**/*.unitypackage', { cwd: p, absolute: true, nodir: true });
+
+    const list: string[] = [];
+    for await (const file of g) {
+      list.push(file);
+    }
+    return list;
   }
 
   async deleteFile(p: string) {}
 
-  async getFile(infoHash: string, p: string) {
+  async getFile(event, infoHash: string, p: string) {
     //smb方式可以直接使用import方法打开文件，不需要将文件下载回本地
   }
 

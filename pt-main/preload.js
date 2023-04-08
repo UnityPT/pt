@@ -17,12 +17,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
   //接受main发来的消息
   // onUpdateCounter: (func) => ipcRenderer.on('update-counter', func),
   on: (channel, func) => ipcRenderer.on(channel, func),
-  // on: (event, func) => {
-  //   const validEvents = ['get_file_progress'];
-  //   if (validEvents.includes(event)) {
-  //     ipcRenderer.on(event, (event, data) => func(data));
-  //   } else {
-  //     console.log('invalid channel');
-  //   }
-  // },
 });

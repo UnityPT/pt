@@ -38,7 +38,7 @@ export class Webdav {
 
   async deleteFile(p: string) {}
 
-  async getFile(infoHash: string, p: string) {
+  async getFile(event, infoHash: string, p: string) {
     if (!this.ready) this.createConnect();
     const qbConfig = electronAPI.store.get('qbConfig') as QBConfig;
     p = p.replace(qbConfig.save_path, '');
@@ -52,7 +52,7 @@ export class Webdav {
       writeStream.write(chunk);
       total_transferred += chunk.length;
       console.log(total_transferred, chunk.length, total);
-      webContents.getFocusedWebContents()?.send('get_file_progress', {
+      event.sender.send('get_file_progress', {
         infoHash,
         progress: total_transferred / total,
       });
@@ -73,28 +73,48 @@ export class Webdav {
     });
   }
 
-  async getList(p: string, type: 'd' | 'f') {
+  async getList(event, p: string, type: 'd' | 'f') {
     if (!this.ready) this.createConnect();
-    const filePathList: string[] = type == 'f' ? [] : null;
-    const rootDir = type == 'd' ? {} : null;
+    if (type == 'd') {
+      return this.getDir(p);
+    } else {
+      const g = await this.getFileList(p);
+      const list = [];
+      for await (const file of g) {
+        list.push(file);
+      }
+      return list;
+    }
+  }
+  async getDir(p: string) {
+    const rootDir = {};
     return await readdir.bind(this)(p, rootDir);
     async function readdir(p: string, dir?: Record<string, DirItem>) {
       const list = await this.client.getDirectoryContents(p);
-      // @ts-ignore
+      const promises = [];
       for (const x of list) {
         if (x.type == 'directory') {
-          if (type == 'd') {
-            dir[x.basename] = { name: x.basename, children: {} } as DirItem;
-            await readdir.bind(this)(path.posix.join(p, x.basename), dir[x.basename].children);
-          } else {
-            await readdir.bind(this)(path.posix.join(p, x.basename), null);
-          }
-        } else if (x.type == 'file' && type == 'f') {
-          filePathList.push(path.posix.join(p, x.basename));
+          dir[x.basename] = { name: x.basename, children: {} } as DirItem;
+          promises.push(await readdir.bind(this)(path.posix.join(p, x.basename), dir[x.basename].children));
         }
       }
-      if (type == 'f') return filePathList;
-      else return Object.values(rootDir);
+      await Promise.all(promises);
+      return Object.values(rootDir);
+    }
+  }
+
+  async getFileList(p: string) {
+    return await readdir.bind(this)(p);
+
+    async function* readdir(p: string) {
+      const list = await this.client.getDirectoryContents(p);
+      for (const x of list) {
+        if (x.type == 'directory') {
+          yield* readdir.bind(this)(path.posix.join(p, x.basename));
+        } else if (x.type == 'file') {
+          yield path.posix.join(p, x.basename);
+        }
+      }
     }
   }
 

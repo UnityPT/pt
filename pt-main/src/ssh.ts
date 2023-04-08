@@ -67,7 +67,7 @@ export class SSH {
 
   async deleteFile(p: string) {}
 
-  async getFile(infoHash: string, p: string) {
+  async getFile(event, infoHash: string, p: string) {
     console.log('getFile', infoHash, p);
     const sshConfig = electronAPI.store.get('sshConfig') as SSHConfig;
     const qbConfig = electronAPI.store.get('qbConfig') as QBConfig;
@@ -80,7 +80,7 @@ export class SSH {
       {
         step: (total_transferred, chunk, total) => {
           console.log(total_transferred, chunk, total);
-          webContents.getFocusedWebContents()?.send('get_file_progress', {
+          event.sender.send('get_file_progress', {
             infoHash,
             progress: total_transferred / total,
           });
@@ -92,31 +92,54 @@ export class SSH {
     );
   }
 
-  async getList(p: string, type: 'd' | 'f') {
+  async getList(event, p: string, type: 'd' | 'f') {
     console.log('getList', p, type);
+    if (!this.ready) await this.createConnect();
     const sshRemotePath = electronAPI.store.get('sshConfig').remotePath.split(':').at(-1);
     p = path.posix.join(sshRemotePath, p);
-    if (!this.ready) await this.createConnect();
-    const filePathList: string[] = type == 'f' ? [] : null;
-    const rootdir = type == 'd' ? {} : null;
-    const listPromise = await util.promisify(this.client.readdir).bind(this.client);
+    if (type == 'd') {
+      return this.getDir(p);
+    } else {
+      const g = await this.getFileList(p);
+      const list = [];
+      for await (const file of g) {
+        list.push(file);
+      }
+      return list;
+    }
+  }
+  async getDir(p: string) {
+    const rootdir = {};
+    const readdirPromise = await util.promisify(this.client.readdir).bind(this.client);
     return await readdir(p, rootdir);
     async function readdir(p: string, dir?: Record<string, DirItem>) {
-      const list = await listPromise(p);
+      const list = await readdirPromise(p);
+      const promises = [];
       for (const x of list) {
         if (x.longname[0] == 'd') {
-          if (type == 'd') {
-            dir[x.filename] = { name: x.filename, children: {} } as DirItem;
-            await readdir(path.posix.join(p, x.filename), dir[x.filename].children);
-          } else {
-            await readdir(path.posix.join(p, x.filename), null);
-          }
-        } else if (type == 'f' && x.longname[0] == '-') {
-          filePathList.push(path.posix.join(p.replace(sshRemotePath, ''), x.filename));
+          dir[x.filename] = { name: x.filename, children: {} } as DirItem;
+          promises.push(readdir(path.posix.join(p, x.filename), dir[x.filename].children));
         }
       }
-      if (type == 'f') return filePathList;
-      else return Object.values(rootdir);
+      await Promise.all(promises);
+      return Object.values(rootdir);
+    }
+  }
+
+  async getFileList(p: string) {
+    const sshRemotePath = electronAPI.store.get('sshConfig').remotePath.split(':').at(-1);
+    const readdirPromise = await util.promisify(this.client.readdir).bind(this.client);
+    return readdir(p);
+
+    async function* readdir(p: string) {
+      const list = await readdirPromise(p);
+      for (const x of list) {
+        if (x.longname.startsWith('d')) {
+          yield* readdir(path.posix.join(p, x.filename));
+        } else if (x.longname.startsWith('-')) {
+          yield path.posix.join(p.replace(sshRemotePath, ''), x.filename);
+        }
+      }
     }
   }
 

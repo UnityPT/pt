@@ -104,21 +104,21 @@ app.whenReady().then(async () => {
       webdav: webdav.getList.bind(webdav),
       sftp: ssh.getList.bind(ssh),
       smb: smb.getList.bind(smb),
-    }[protocol](path, type);
+    }[protocol](event, path, type);
   });
   ipcMain.handle('get_file', async (event, infoHash, fileName) => {
     return {
       webdav: webdav.getFile.bind(webdav),
       sftp: ssh.getFile.bind(ssh),
       smb: smb.getFile.bind(smb),
-    }[protocol](infoHash, fileName);
+    }[protocol](event, infoHash, fileName);
   });
   ipcMain.handle('delete_file', async (event, path) => {
-    if (protocol == 'local') return electronAPI.deleteFile(path);
     return {
       webdav: webdav.deleteFile.bind(webdav),
       sftp: ssh.deleteFile.bind(ssh),
       smb: smb.deleteFile.bind(smb),
+      local: electronAPI.deleteFile.bind(electronAPI),
     }[protocol](path);
   });
 
