@@ -12,7 +12,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   create_torrent: (path, options) => ipcRenderer.invoke('create_torrent', path, options),
   smb_browse: () => ipcRenderer.invoke('smb_browse'),
   extra_field: (path) => ipcRenderer.invoke('extra_field', path),
-  new_url: (url) => ipcRenderer.invoke('new_url', url),
+  url_pathname: (url) => ipcRenderer.invoke('new_url', url),
   relaunch: () => ipcRenderer.invoke('relaunch'),
   //以下是main发web收的
   //接受main发来的消息

@@ -198,7 +198,7 @@ export class PublishComponent implements OnInit {
   async checkLocalSmb(torrent: Blob, p: string) {
     if (this.protocol == 'smb') {
       const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
-      const macLocalSmbPath = smbRemotePath.startsWith('smb://') ? path.posix.join('/Volumes', (await window.electronAPI.new_url(smbRemotePath)).pathname) : null; //这是mac的挂载路径，win的跟远程路径相同
+      const macLocalSmbPath = smbRemotePath.startsWith('smb://') ? path.posix.join('/Volumes', await window.electronAPI.url_pathname(smbRemotePath)) : null; //这是mac的挂载路径，win的跟远程路径相同
       // 远程qb本地发布，但是选择了跟qb中填写的同一个smb文件夹,等于走远程qb远程发布(即源文件原地不动,所以需要rename)
       if (p.startsWith(smbRemotePath.replaceAll('\\', '/')) || (macLocalSmbPath && p.startsWith(macLocalSmbPath))) {
         const newPath = path.posix.join(

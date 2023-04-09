@@ -36,8 +36,8 @@ export class electronAPI {
     fs.unlinkSync(p);
   }
 
-  static async new_url(event, url: string) {
-    return new URL(url);
+  static async url_pathname(event, url: string) {
+    return new URL(url).pathname;
   }
 
   static async extraField(stream: any) {

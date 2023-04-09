@@ -125,7 +125,7 @@ declare global {
       smb_browse: () => Promise<string>;
       connect_test: (protocol: 'local' | 'sftp' | 'smb' | 'webdav', configMapElement: any) => Promise<void>;
       delete_file: (content_path: string) => Promise<void>;
-      new_url: (url: string) => Promise<any>;
+      url_pathname: (url: string) => Promise<any>;
     };
   }
 }
