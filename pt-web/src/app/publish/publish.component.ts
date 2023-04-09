@@ -87,7 +87,7 @@ export class PublishComponent implements OnInit {
           return this.reStartTask(file, meta, resource.info_hash, t.content_path!, p, progress);
         } else {
           // 本地有,远端有,qb 有,已下载完成或未知情况 => 跳过
-          return this.setProgressState(progress, 'qBittorrent', 'skipped', 'fished or unknown state');
+          return this.setProgressState(progress, 'qBittorrent', 'skipped', `fished or unknown state:${t.state}`);
         }
       } else {
         if (description === resource.description) {
@@ -392,10 +392,10 @@ export class PublishComponent implements OnInit {
   }
 
   private startNewProgress(filename: string) {
-    document.querySelector(`tr:nth-child(${this.dataSource.length + 1})`)?.scrollIntoView({ block: 'nearest' });
     const progress = { file: filename } as PublishLog;
     this.dataSource.push(progress);
     this.table.renderRows();
+    document.querySelector(`tr:nth-child(${this.dataSource.length})`)?.scrollIntoView({ block: 'nearest' });
     return progress;
   }
 
