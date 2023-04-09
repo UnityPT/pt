@@ -102,7 +102,9 @@ export class AppComponent {
     await loadFull(engine);
   }
   //
-  async test1() {}
+  async test1() {
+    console.log(new URL('smb://10.198.11.1/shared/e').pathname);
+  }
 }
 
 declare global {
@@ -123,6 +125,7 @@ declare global {
       smb_browse: () => Promise<string>;
       connect_test: (protocol: 'local' | 'sftp' | 'smb' | 'webdav', configMapElement: any) => Promise<void>;
       delete_file: (content_path: string) => Promise<void>;
+      new_url: (url: string) => Promise<any>;
     };
   }
 }

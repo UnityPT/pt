@@ -1,15 +1,10 @@
 import { Client, ConnectConfig, ReadStream, utils } from 'ssh2';
 import { readFileSync } from 'fs';
-import { webContents } from 'electron';
 import { electronAPI } from './electronAPI';
-import Struct from 'typed-struct';
 import path from 'path';
 import { DirItem, QBConfig, SSHConfig } from './interface';
 import util from 'util';
 import createTorrent from 'create-torrent';
-
-const Member = new Struct('Member').UInt8('ID1').UInt8('ID2').UInt8('CM').UInt8('FLG').UInt32LE('MTIME').UInt8('XFL').UInt8('OS').compile();
-const Extra = new Struct('Extra').UInt8('SI1').UInt8('SI2').UInt16LE('LEN').Buffer('data').compile();
 
 export class SSH {
   client;
@@ -152,51 +147,8 @@ export class SSH {
   async extraField(p: string) {
     console.log('extraField', p);
     if (!this.ready) await this.createConnect();
-    const SI1 = 65;
-    const SI2 = 36;
     p = path.posix.join(electronAPI.store.get('sshConfig').remotePath.split(':').at(-1), p);
-
-    const stream = this.client.createReadStream(p);
-    async function read(stream: ReadStream, size: number) {
-      const result = stream.read(size);
-      if (result) return result;
-      return new Promise((resolve) => {
-        stream.on('readable', function readable() {
-          const result = stream.read(size);
-          if (result) {
-            resolve(result);
-            stream.off('readable', readable);
-          }
-        });
-      });
-    }
-
-    const headerBuffer = await read(stream, Member.baseSize);
-    const member = new Member(headerBuffer);
-    if (member.ID1 !== 31 || member.ID2 !== 139) {
-      throw new Error('invalid file signature:' + member.ID1 + ',' + member.ID2);
-    }
-    if (member.CM !== 8) {
-      throw new Error('unknown compression method: ' + member.CM);
-    }
-
-    const FlagsMask = { FTEXT: 1, FHCRC: 2, FEXTRA: 4, FNAME: 8, FCOMMENT: 16 };
-
-    if ((member.FLG & FlagsMask.FEXTRA) !== 0) {
-      const lengthBuffer = await read(stream, 2);
-      const length = lengthBuffer.readUInt16LE();
-      const extraBuffer = await read(stream, length);
-      for (let offset = 0; offset < length; ) {
-        const extra = new Extra(extraBuffer.subarray(offset));
-        if (extra.SI1 == SI1 && extra.SI2 == SI2) {
-          console.log('destroy');
-          stream.destroy();
-          return extra.data.subarray(offset, offset + extra.LEN).toString();
-        }
-        offset += Extra.baseSize + extra.LEN;
-      }
-    }
-    stream.destroy();
+    return electronAPI.extraField(this.client.createReadStream(p));
   }
 
   async createTorrent(p: string, options: any) {

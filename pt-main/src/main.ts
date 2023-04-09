@@ -91,6 +91,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('store_get', electronAPI.store_get.bind(electronAPI));
   ipcMain.handle('store_set', electronAPI.store_set.bind(electronAPI));
   ipcMain.handle('smb_browse', async () => smb.smbBrowse());
+  ipcMain.handle('new_url', electronAPI.new_url.bind(electronAPI));
   ipcMain.handle('connect_test', async (event, protocol, smbConfig) => {
     if (protocol == 'local') return;
     return {

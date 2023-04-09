@@ -25,10 +25,7 @@ export class QBittorrentService {
     );
 
     const info = await parseTorrent(Buffer.from(await torrent.arrayBuffer()));
-    console.log(info);
     const hash = info.infoHash!;
-
-    console.log(filename);
 
     if (filename) {
       await this.torrentsRestart(hash, info.files![0].path, filename);
