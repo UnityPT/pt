@@ -191,6 +191,7 @@ export class PublishComponent implements OnInit {
     } catch (e) {
       this.setProgressState(progress, 'qBittorrent', 'skipped', 'failed to restart task:' + e);
     }
+    this.setProgressState(progress, 'create_torrent', 'restart');
     return this.setProgressState(progress, 'qBittorrent', 'added', `restarted ${meta.title} to ${newPath}`);
   }
 
@@ -385,6 +386,6 @@ export class PublishComponent implements OnInit {
 export interface PublishLog {
   file: string;
   version_id?: string | boolean;
-  create_torrent?: 'downloading' | 'downloaded' | 'creating' | 'uploading' | 'uploaded' | 'conflict';
+  create_torrent?: 'downloading' | 'downloaded' | 'creating' | 'uploading' | 'uploaded' | 'restart' | 'conflict';
   qBittorrent?: 'adding' | 'added' | 'skipped';
 }
