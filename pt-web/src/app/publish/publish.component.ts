@@ -84,9 +84,8 @@ export class PublishComponent implements OnInit {
         const t = (await this.qBittorrent.torrentsInfo({ hashes: resource.info_hash }))[0];
         if (this.unFinishedState.includes(t.state)) {
           // pt有，qb 有, 没下载完 => 重启任务
-          const torrent = (await this.createTorrent(file, meta, progress, false, false))!;
           // @ts-ignore   //t.content_path报错，实际有这个属性
-          return this.reStartTask(torrent, meta, resource.info_hash, t.content_path!, p, progress, false);
+          return this.reStartTask(resource.torrent_id, meta, resource.info_hash, t.content_path!, p, progress, false);
         } else {
           // pt有,qb 有,已下载完成或未知情况 => 跳过
           return this.setProgressState(progress, 'qBittorrent', 'skipped', `finished or unknown state:${t.state}`);
@@ -154,14 +153,14 @@ export class PublishComponent implements OnInit {
     this.setProgressState(progress, 'qBittorrent', 'added', `added ${path.posix.basename(filepath)} to qBittorrent`);
   }
 
-  async reStartTask(torrent: Blob, meta: Meta, taskHash: string, oldPath: string, newPath: string, progress: PublishLog, is_remote_publish_flag: boolean) {
+  async reStartTask(torrent_id: number, meta: Meta, taskHash: string, oldPath: string, newPath: string, progress: PublishLog, is_remote_publish_flag: boolean) {
     try {
       this.setProgressState(progress, 'qBittorrent', 'adding', `restarting:${meta.title}`);
       await this.qBittorrent.torrentsPause(taskHash);
       await this.qBittorrent.waitPaused(taskHash);
       // @ts-ignore
-      await window.electronAPI.delete_file(oldPath);
-
+      await window.electronAPI.delete_file(oldPath).catch(console.error);
+      const torrent = await this.api.download(torrent_id)!;
       const info = await parseTorrent(Buffer.from(await torrent.arrayBuffer()));
 
       if (this.protocol == 'local') {
@@ -303,7 +302,7 @@ export class PublishComponent implements OnInit {
           // pt有，qb有，未完成 => 重启任务
           const torrent = await this.createTorrent(filepath, meta, progress, false, true);
           // @ts-ignore
-          return this.reStartTask(torrent, meta, resource.info_hash, t.content_path, p, progress, true);
+          return this.reStartTask(resource.torrent_id, meta, resource.info_hash, t.content_path, p, progress, true);
         } else {
           // pt有，qb有，完成或未知 => 跳过
           return this.setProgressState(progress, 'qBittorrent', 'skipped', `finished or unknown state: ${t.state}`);
