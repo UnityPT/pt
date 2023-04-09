@@ -1,5 +1,5 @@
 import Struct from 'typed-struct';
-import { AuthType, createClient } from 'webdav';
+import { AuthType, createClient, WebDAVClient } from 'webdav';
 import { electronAPI } from './electronAPI';
 import path from 'path';
 import * as fs from 'fs';
@@ -7,12 +7,13 @@ import { DirItem, QBConfig } from './interface';
 import util from 'util';
 import createTorrent from 'create-torrent';
 import { webContents } from 'electron';
+import { ReadStream } from 'ssh2';
 
 const Member = new Struct('Member').UInt8('ID1').UInt8('ID2').UInt8('CM').UInt8('FLG').UInt32LE('MTIME').UInt8('XFL').UInt8('OS').compile();
 const Extra = new Struct('Extra').UInt8('SI1').UInt8('SI2').UInt16LE('LEN').Buffer('data').compile();
 
 export class Webdav {
-  client;
+  client: WebDAVClient;
   ready = false;
   connectTest(cfg: any) {
     this.createConnect(cfg);
@@ -36,7 +37,12 @@ export class Webdav {
     this.ready = true;
   }
 
-  async deleteFile(p: string) {}
+  async deleteFile(p: string) {
+    if (!this.ready) this.createConnect();
+    const qbConfig = electronAPI.store.get('qbConfig') as QBConfig;
+    p = p.replace(qbConfig.save_path, '');
+    return await this.client.deleteFile(p);
+  }
 
   async getFile(event, infoHash: string, p: string) {
     if (!this.ready) this.createConnect();
@@ -46,7 +52,8 @@ export class Webdav {
     const writeStream = fs.createWriteStream(path.join(qbConfig.local_path, path.basename(p)));
 
     //进度条
-    const total = (await this.client.stat(p)).size;
+    // @ts-ignore
+    const total = (await this.client.stat(p)).size!;
     let total_transferred = 0;
     stream.on('data', (chunk) => {
       writeStream.write(chunk);
@@ -123,8 +130,8 @@ export class Webdav {
     console.log('extraField');
     const SI1 = 65;
     const SI2 = 36;
-    const stream = this.client.createReadStream(p);
-    async function read(stream: fs.ReadStream, size: number): Promise<Buffer> {
+    const stream = this.client.createReadStream(p) as ReadStream;
+    async function read(stream: ReadStream, size: number): Promise<Buffer> {
       const result = stream.read(size);
       if (result) return result;
       return new Promise((resolve) => {

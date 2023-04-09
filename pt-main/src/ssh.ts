@@ -65,7 +65,13 @@ export class SSH {
     });
   }
 
-  async deleteFile(p: string) {}
+  async deleteFile(p: string) {
+    console.log('deleteFile', p);
+    const sshConfig = electronAPI.store.get('sshConfig') as SSHConfig;
+    const qbConfig = electronAPI.store.get('qbConfig') as QBConfig;
+    p = path.posix.join(sshConfig.remotePath.split(':').at(-1), p.replace(qbConfig.save_path, ''));
+    return await util.promisify(this.client.unlink)(p);
+  }
 
   async getFile(event, infoHash: string, p: string) {
     console.log('getFile', infoHash, p);

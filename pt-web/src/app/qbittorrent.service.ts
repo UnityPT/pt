@@ -31,32 +31,7 @@ export class QBittorrentService {
     console.log(filename);
 
     if (filename) {
-      const oldPath = info.files![0].path;
-      await this.request('torrents/renameFile', {
-        hash: hash,
-        oldPath,
-        newPath: filename,
-      });
-
-      const finishedState = ['uploading', 'stalledUP'];
-      let i = 0; //尝试次数
-      const timer1 = setInterval(async () => {
-        if (i++ > 10) clearInterval(timer1);
-
-        const state1 = (await this.request<Torrent[]>('torrents/info', { hashes: hash }, 'json'))[0].state;
-        if (state1 != 'checkingResumeData') {
-          clearInterval(timer1);
-          await this.request('torrents/resume', { hashes: hash });
-          const timer2 = setInterval(async () => {
-            if (i++ > 10) clearInterval(timer2);
-            const state2 = (await this.request<Torrent[]>('torrents/info', { hashes: hash }, 'json'))[0].state;
-            if (finishedState.includes(state2)) {
-              clearInterval(timer2);
-            }
-            await this.request('torrents/resume', { hashes: hash });
-          }, 1000);
-        }
-      }, 1000);
+      await this.torrentsRestart(hash, info.files![0].path, filename);
     }
     return hash;
   }
@@ -74,16 +49,7 @@ export class QBittorrentService {
     return firstValueFrom(this.http.post(`${qburl}/api/v2/auth/login`, body, { responseType: 'text' }));
   }
 
-  torrentsInfo(params: {
-    filter?: string;
-    category?: string;
-    tag?: string;
-    sort?: string;
-    reverse?: string;
-    limit?: string;
-    offset?: string;
-    hashes?: string;
-  }) {
+  torrentsInfo(params: { filter?: string; category?: string; tag?: string; sort?: string; reverse?: string; limit?: string; offset?: string; hashes?: string }) {
     return this.request<Torrent[]>('torrents/info', params, 'json');
   }
 
@@ -109,7 +75,7 @@ export class QBittorrentService {
   }
 
   async torrentsRestart(hash: string, oldName: string, newName: string) {
-    console.log(hash, oldName, newName);
+    console.log('restart', hash, oldName, newName);
     await this.request('torrents/renameFile', {
       hash: hash,
       oldPath: oldName,
@@ -166,15 +132,11 @@ export class QBittorrentService {
     }
     // @ts-ignore
     return firstValueFrom(
-      this.http.post<T>(
-        `${(await window.electronAPI.store_get('qbConfig')).qb_url}/api/v2/${method}`,
-        Object.keys(params).length == 0 ? null : body,
-        {
-          // @ts-ignore
-          responseType,
-          withCredentials: true,
-        }
-      )
+      this.http.post<T>(`${(await window.electronAPI.store_get('qbConfig')).qb_url}/api/v2/${method}`, Object.keys(params).length == 0 ? null : body, {
+        // @ts-ignore
+        responseType,
+        withCredentials: true,
+      })
     );
   }
 }

@@ -6,6 +6,7 @@ import util from 'util';
 import createTorrent from 'create-torrent';
 import { dialog, shell } from 'electron';
 import glob from 'glob';
+import { QBConfig } from './interface';
 
 const Member = new Struct('Member').UInt8('ID1').UInt8('ID2').UInt8('CM').UInt8('FLG').UInt32LE('MTIME').UInt8('XFL').UInt8('OS').compile();
 const Extra = new Struct('Extra').UInt8('SI1').UInt8('SI2').UInt16LE('LEN').Buffer('data').compile();
@@ -45,7 +46,13 @@ export class SMB {
     return list;
   }
 
-  async deleteFile(p: string) {}
+  async deleteFile(p: string) {
+    console.log('deleteFile', p);
+    const qbConfig = electronAPI.store.get('qbConfig') as QBConfig;
+    const smbRemotePath = electronAPI.store.get('smbConfig').remotePath;
+    p = path.join(process.platform == 'darwin' ? path.join('/Volumes', new URL(smbRemotePath).pathname) : smbRemotePath, path.normalize(p.replace(qbConfig.save_path, '')));
+    fs.unlinkSync(p);
+  }
 
   async getFile(event, infoHash: string, p: string) {
     //smb方式可以直接使用import方法打开文件，不需要将文件下载回本地
@@ -56,9 +63,7 @@ export class SMB {
     const stream = fs.createReadStream(p);
     const smbRemotePath = electronAPI.store.get('smbConfig').remotePath;
     const platform = process.platform;
-    const writeStream = fs.createWriteStream(
-      path.join(platform == 'darwin' ? path.join('/Volumes', new URL(smbRemotePath).pathname) : smbRemotePath, filename)
-    );
+    const writeStream = fs.createWriteStream(path.join(platform == 'darwin' ? path.join('/Volumes', new URL(smbRemotePath).pathname) : smbRemotePath, filename));
     stream.pipe(writeStream);
     return new Promise((resolve, reject) => {
       stream.on('end', () => {

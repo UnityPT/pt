@@ -27,8 +27,8 @@ export class electronAPI {
     return this.store.set(key, value);
   }
 
-  static async deleteFile(path: string) {
-    console.log('deleteFile', path);
-    fs.unlinkSync(path);
+  static async deleteFile(p: string) {
+    console.log('deleteFile', p);
+    fs.unlinkSync(p);
   }
 }
