@@ -43,10 +43,10 @@ export class QBittorrentService {
   }
 
   async authLoginTest(qburl: string, username: string, password: string) {
-    const body = new FormData();
-    body.append('username', username);
-    body.append('password', password);
-    return firstValueFrom(this.http.post(`${qburl}/api/v2/auth/login`, body, { responseType: 'text' }));
+    await this.request('auth/logout', {}).catch(console.error);
+    await this.request(`auth/login`, { username, password }, undefined, qburl);
+    await this.request('auth/logout', {}, undefined, qburl);
+    await this.authLogin().catch(console.error);
   }
 
   torrentsInfo(params: { filter?: string; category?: string; tag?: string; sort?: string; reverse?: string; limit?: string; offset?: string; hashes?: string }) {
@@ -119,7 +119,7 @@ export class QBittorrentService {
 
   // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)
 
-  async request<T>(method: string, params: Record<string, string | Blob | undefined>, responseType: 'json' | 'text' = 'text'): Promise<T> {
+  async request<T>(method: string, params: Record<string, string | Blob | undefined>, responseType: 'json' | 'text' = 'text', qburl?: string): Promise<T> {
     const body = new FormData();
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined) {
@@ -132,7 +132,7 @@ export class QBittorrentService {
     }
     // @ts-ignore
     return firstValueFrom(
-      this.http.post<T>(`${(await window.electronAPI.store_get('qbConfig')).qb_url}/api/v2/${method}`, Object.keys(params).length == 0 ? null : body, {
+      this.http.post<T>(`${qburl ?? (await window.electronAPI.store_get('qbConfig')).qb_url}/api/v2/${method}`, Object.keys(params).length == 0 ? null : body, {
         // @ts-ignore
         responseType,
         withCredentials: true,

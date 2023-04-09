@@ -45,7 +45,11 @@ export class PublishComponent implements OnInit {
       const taskHashes = (await this.qBittorrent.torrentsInfo({ category: 'Unity' })).map((t) => t.hash);
       const resourceVersionIds = items.map((item) => item.meta.version_id);
       for (let i = 0; i < selectFiles.length; i++) {
-        await this.processLocalOne(selectFiles.item(i)!, items, taskHashes, resourceVersionIds);
+        try {
+          await this.processLocalOne(selectFiles.item(i)!, items, taskHashes, resourceVersionIds);
+        } catch (e) {
+          console.error(e);
+        }
       }
     } catch (e) {
       console.error(e);
