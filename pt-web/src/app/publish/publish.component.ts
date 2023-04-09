@@ -55,6 +55,7 @@ export class PublishComponent implements OnInit {
       console.error(e);
     }
     this.publishing = false;
+    console.log('localpublish done,', this.publishing);
   }
 
   async processLocalOne(file: File, items: { resource: Resource; meta: any }[], taskHashes: string[], resourceVersionIds: string[]) {
@@ -96,7 +97,7 @@ export class PublishComponent implements OnInit {
           this.setProgressState(progress, 'create_torrent', 'downloading', `downloading ${meta.title}`);
           const torrent = await this.api.download(resource.torrent_id);
           if (!torrent) return this.setProgressState(progress, 'qBittorrent', 'skipped', `torrent is not exist: ${meta.title}`);
-          this.setProgressState(progress, 'create_torrent', 'downloaded');
+          this.setProgressState(progress, 'create_torrent', 'downloaded', `downloaded ${meta.title}`);
 
           const info = await parseTorrent(Buffer.from(await torrent.arrayBuffer()));
           taskHashes.push(resource.info_hash);
@@ -123,6 +124,7 @@ export class PublishComponent implements OnInit {
   async torrentsAdd(torrent: Blob, progress: PublishLog, filepath: string, is_remote_publish_flag: boolean, standardizedName?: string) {
     //注意standardizedName是标准名[xxx]xxx形式的标准名，只有需要创建新文件时才会用到
     try {
+      this.setProgressState(progress, 'qBittorrent', 'adding', `adding: ${filepath}`);
       const p = filepath.replaceAll('\\', '/');
       if (this.protocol == 'local' && !is_remote_publish_flag) {
         //本地qb本地发布
@@ -154,6 +156,7 @@ export class PublishComponent implements OnInit {
 
   async reStartTask(torrent: Blob, meta: Meta, taskHash: string, oldPath: string, newPath: string, progress: PublishLog, is_remote_publish_flag: boolean) {
     try {
+      this.setProgressState(progress, 'qBittorrent', 'adding', `restarting:${meta.title}`);
       await this.qBittorrent.torrentsPause(taskHash);
       await this.qBittorrent.waitPaused(taskHash);
       // @ts-ignore
@@ -195,12 +198,12 @@ export class PublishComponent implements OnInit {
   async checkLocalSmb(torrent: Blob, p: string) {
     if (this.protocol == 'smb') {
       const smbRemotePath = (await window.electronAPI.store_get('smbConfig')).remotePath;
-      const macLocalSmbPath = path.posix.join('/Volumes', (await window.electronAPI.new_url(smbRemotePath)).pathname); //这是mac的挂载路径，win的跟远程路径相同
+      const macLocalSmbPath = smbRemotePath.startsWith('smb://') ? path.posix.join('/Volumes', (await window.electronAPI.new_url(smbRemotePath)).pathname) : null; //这是mac的挂载路径，win的跟远程路径相同
       // 远程qb本地发布，但是选择了跟qb中填写的同一个smb文件夹,等于走远程qb远程发布(即源文件原地不动,所以需要rename)
-      if (p.startsWith(smbRemotePath.replaceAll('\\', '/')) || p.startsWith(macLocalSmbPath)) {
+      if (p.startsWith(smbRemotePath.replaceAll('\\', '/')) || (macLocalSmbPath && p.startsWith(macLocalSmbPath))) {
         const newPath = path.posix.join(
           (await window.electronAPI.store_get('qbConfig')).save_path,
-          p.replace(smbRemotePath.replaceAll('\\', '/'), '').replace(macLocalSmbPath, '')
+          p.replace(smbRemotePath.replaceAll('\\', '/'), '').replace(macLocalSmbPath ?? '', '')
         );
         return { result: true, newpath: newPath };
       }
@@ -313,7 +316,7 @@ export class PublishComponent implements OnInit {
           this.setProgressState(progress, 'qBittorrent', 'downloading', `downloading ${meta.title}`);
           const torrent = await this.api.download(resource.torrent_id);
           if (!torrent) return this.setProgressState(progress, 'qBittorrent', 'skipped', `torrent is not exist: ${meta.title}`);
-          this.setProgressState(progress, 'create_torrent', 'downloaded');
+          this.setProgressState(progress, 'create_torrent', 'downloaded', `downloaded ${meta.title}`);
 
           taskHashes.push(resource.info_hash);
 
@@ -384,5 +387,5 @@ export interface PublishLog {
   file: string;
   version_id?: string | boolean;
   create_torrent?: 'downloading' | 'downloaded' | 'creating' | 'uploading' | 'uploaded' | 'conflict';
-  qBittorrent?: 'added' | 'skipped';
+  qBittorrent?: 'adding' | 'added' | 'skipped';
 }

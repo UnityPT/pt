@@ -71,6 +71,7 @@
   <ng-container matColumnDef='qBittorrent'>
     <th mat-header-cell *matHeaderCellDef>qb</th>
     <td mat-cell *matCellDef='let element' [ngSwitch]='element.qBittorrent'>
+      <mat-icon *ngSwitchCase='"adding"'>pending</mat-icon>
       <mat-icon *ngSwitchCase='"added"'>done</mat-icon>
       <ng-container *ngSwitchCase='"skipped"'>跳过</ng-container>
     </td>
