@@ -10,18 +10,17 @@
   "scripts": {
     "start": "webpack --mode development && electron .",
     "build": "webpack --mode production",
-    "auto": "node --loader ts-node/esm pt/src/index.ts",
     "pack": "npm run build && electron-builder --dir",
     "dist": "npm run build && electron-builder",
     "upload": "npm run build && electron-builder --publish always"
   },
   "dependencies": {
-    "create-torrent": "git+ssh://git@github.com:nanamicat/create-torrent#patch-1",
-    "glob": "^9.3.4",
-    "ssh2": "^1.11.0",
-    "typed-struct": "^2.3.0"
+    "ssh2": "^1.11.0"
   },
   "devDependencies": {
+    "create-torrent": "git+ssh://git@github.com:nanamicat/create-torrent#patch-1",
+    "glob": "^9.3.4",
+    "typed-struct": "^2.3.0",
     "@types/ssh2": "^1.11.6",
     "@types/tough-cookie": "^4.0.2",
     "copy-webpack-plugin": "^11.0.0",

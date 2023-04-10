@@ -1,4 +1,4 @@
-import { Client, ConnectConfig, ReadStream, utils } from 'ssh2';
+import { Client, ConnectConfig } from 'ssh2';
 import { readFileSync } from 'fs';
 import { electronAPI } from './electronAPI';
 import path from 'path';
