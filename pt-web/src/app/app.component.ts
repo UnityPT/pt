@@ -106,26 +106,3 @@ export class AppComponent {
     console.log(new URL('smb://10.198.11.1/shared/e').pathname);
   }
 }
-
-declare global {
-  interface Window {
-    electronAPI: {
-      import: (origin: string, pathname: string) => Promise<void>;
-      store_get: (key: string, defaultValue?: any) => Promise<any>;
-      store_set: (key: string, value: any) => Promise<void>;
-      relaunch: () => Promise<void>;
-      on: (channel: string, func: (event: any, data: any) => void) => void;
-      create_connect: () => Promise<void>;
-      get_list: (path: string, type: 'd' | 'f') => Promise<DirItem[] | string[]>;
-      get_file: (infoHash: string, filename: string) => Promise<void>;
-      upload_file: (path: string, filename: string) => Promise<void>;
-      extra_field: (path: string) => Promise<string>;
-      create_torrent: (filepath: string, opts: any) => Promise<any>;
-      smb_connect: () => Promise<void>;
-      smb_browse: () => Promise<string>;
-      connect_test: (protocol: 'local' | 'sftp' | 'smb' | 'webdav', configMapElement: any) => Promise<void>;
-      delete_file: (content_path: string) => Promise<void>;
-      url_pathname: (url: string) => Promise<any>;
-    };
-  }
-}

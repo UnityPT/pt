@@ -1,30 +1,31 @@
-import { HttpConfig, QBConfig, SmbConfig, SSHConfig } from '../types';
+import { HttpConfig, QBittorrentConfig, SmbConfig, SSHConfig, SSHPasswordConfig } from '../types';
 
-const defaultQBConfig: QBConfig = {
+const defaultQBConfig: QBittorrentConfig = {
   qb_location: 'local',
   qb_url: 'http://localhost:8080',
   username: 'admin',
   password: 'adminadmin',
   save_path: '/downloads',
   local_path: '',
-  protocol: 'local',
 };
 
-const defaultSSHConfig: SSHConfig = {
+const defaultSSHConfig: SSHPasswordConfig = {
+  protocol: 'sftp',
   username: '',
   remotePath: '',
   auth: 'password',
   password: '',
-  privateKeyPath: undefined,
 };
 
 const defaultHTTPConfig: HttpConfig = {
+  protocol: 'http',
   remotePath: '',
   username: '',
   password: '',
 };
 
 const defaultSMBConfig: SmbConfig = {
+  protocol: 'smb',
   remotePath: '',
   username: '',
   password: '',

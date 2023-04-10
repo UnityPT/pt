@@ -5,13 +5,14 @@ import { Torrent, TorrentFile } from '@ctrl/qbittorrent/dist/src/types';
 // @ts-ignore
 import parseTorrent from 'parse-torrent';
 import pRetry from 'p-retry';
-import { countBy } from 'lodash-es';
+import { SettingsService } from './setting/settings.service';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class QBittorrentService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private settings: SettingsService) {
+  }
 
   async torrentsAdd(torrent: Blob, savepath?: string, filename?: string) {
     await pRetry(() =>
@@ -20,7 +21,7 @@ export class QBittorrentService {
         savepath,
         category: 'Unity',
         paused: filename ? 'true' : 'false',
-        skip_checking: filename ? 'true' : 'false',
+        skip_checking: filename ? 'true' : 'false'
       })
     );
 
@@ -34,8 +35,8 @@ export class QBittorrentService {
   }
 
   async authLogin(username?: string, password?: string) {
-    if (!username) username = (await window.electronAPI.store_get('qbConfig')).username;
-    if (!password) password = (await window.electronAPI.store_get('qbConfig')).password;
+    // if (!username) username = (await window.electronAPI.store_get('qbConfig')).username;
+    // if (!password) password = (await window.electronAPI.store_get('qbConfig')).password;
     return this.request('auth/login', { username, password });
   }
 
@@ -46,7 +47,16 @@ export class QBittorrentService {
     await this.authLogin().catch(console.error);
   }
 
-  torrentsInfo(params: { filter?: string; category?: string; tag?: string; sort?: string; reverse?: string; limit?: string; offset?: string; hashes?: string }) {
+  torrentsInfo(params: {
+    filter?: string;
+    category?: string;
+    tag?: string;
+    sort?: string;
+    reverse?: string;
+    limit?: string;
+    offset?: string;
+    hashes?: string
+  }) {
     return this.request<Torrent[]>('torrents/info', params, 'json');
   }
 
@@ -76,7 +86,7 @@ export class QBittorrentService {
     await this.request('torrents/renameFile', {
       hash: hash,
       oldPath: oldName,
-      newPath: newName,
+      newPath: newName
     });
     await this.request('torrents/recheck', { hashes: hash });
     const finishedState = ['uploading', 'stalledUP'];
@@ -98,6 +108,7 @@ export class QBittorrentService {
       }
     }, 1000);
   }
+
   async waitPaused(hash: string) {
     await new Promise((resolve) => {
       let i = 0; //尝试次数
@@ -127,12 +138,13 @@ export class QBittorrentService {
         }
       }
     }
+
     // @ts-ignore
     return firstValueFrom(
-      this.http.post<T>(`${qburl ?? (await window.electronAPI.store_get('qbConfig')).qb_url}/api/v2/${method}`, Object.keys(params).length == 0 ? null : body, {
+      this.http.post<T>(`${this.settings.config.qBittorrent.qb_url}/api/v2/${method}`, Object.keys(params).length == 0 ? null : body, {
         // @ts-ignore
         responseType,
-        withCredentials: true,
+        withCredentials: true
       })
     );
   }

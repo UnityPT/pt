@@ -7,7 +7,7 @@ import { AuthGuard } from './auth.guard';
 import { HelpComponent } from './help/help.component';
 import { PublishComponent } from './publish/publish.component';
 import { InvitationComponent } from './invitation/invitation.component';
-import { SettingComponent } from './setting/setting.component';
+import { SettingsComponent } from './setting/settings.component';
 import { RssComponent } from './rss/rss.component';
 
 const routes: Routes = [
@@ -18,7 +18,7 @@ const routes: Routes = [
   { path: 'resource', component: ResourcesComponent, canActivate: [AuthGuard] },
   { path: 'help', component: HelpComponent },
   { path: 'publish', component: PublishComponent },
-  { path: 'setting', component: SettingComponent },
+  { path: 'setting', component: SettingsComponent },
   { path: '**', redirectTo: 'resource' },
 ];
 

@@ -34,8 +34,7 @@ import { HelpComponent } from './help/help.component';
 import { PublishComponent } from './publish/publish.component';
 import { InvitationComponent } from './invitation/invitation.component';
 import { JwtModule } from '@auth0/angular-jwt';
-import { SettingComponent } from './setting/setting.component';
-import { SettingDirective } from './setting/setting.directive';
+import { SettingsComponent } from './setting/settings.component';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -52,11 +51,10 @@ import { RssComponent } from './rss/rss.component';
     ResourcesComponent,
     RegisterComponent,
     PasswordAgainDirective,
-    SettingDirective,
     HelpComponent,
     PublishComponent,
     InvitationComponent,
-    SettingComponent,
+    SettingsComponent,
     BrowseRemoteComponent,
     RssComponent,
   ],

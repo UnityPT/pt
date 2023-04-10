@@ -50,40 +50,65 @@ export interface RegisterInfo {
   invitation: string;
 }
 
-export interface QBConfig {
+export interface UserStat {
+  uploaded: number;
+  downloaded: number;
+  passkey: string;
+}
+
+export interface DirItem {
+  name: string;
+  children: Record<string, DirItem>;
+}
+
+export interface Config {
+  qBittorrent: QBittorrentConfig;
+  remote: SmbConfig | SSHPasswordConfig | SSHKeyConfig | HttpConfig;
+}
+
+export interface QBittorrentConfig {
   qb_location: 'local' | 'remote';
   qb_url: string;
   username: string;
   password: string;
   save_path: string;
   local_path: string;
-  protocol: 'local' | 'sftp' | 'smb' | 'webdav';
 }
 
-export interface UserStat {
-  uploaded: number;
-  downloaded: number;
-  passkey: string;
+export interface RemoteConfig {
+  protocol: string;
+  remotePath: string;
+  username: string;
+  password: string;
 }
+
+export interface SmbConfig extends RemoteConfig {
+  protocol: 'smb';
+  remotePath: string;
+  username: string;
+  password: string;
+}
+
 export interface SSHConfig {
-  remotePath: string;
+  protocol: 'sftp';
   username: string;
+  remotePath: string;
   auth: 'password' | 'key';
-  privateKeyPath?: string;
-  password?: string;
 }
-export interface SmbConfig {
-  remotePath: string;
-  username: string;
-  password: string;
-}
-export interface HttpConfig {
-  remotePath: string;
-  username: string;
+
+export interface SSHPasswordConfig extends SSHConfig {
+  auth: 'password';
   password: string;
 }
 
-export interface DirItem {
-  name: string;
-  children: Record<string, DirItem>;
+export interface SSHKeyConfig extends SSHConfig {
+  auth: 'key';
+  privateKeyPath: string;
+}
+
+export interface HttpConfig extends RemoteConfig {
+  protocol: 'http';
+  remotePath: string;
+  username: string;
+  password: string;
 }

@@ -53,13 +53,13 @@ export class ResourcesComponent implements OnInit {
     await this.refresh();
     setInterval(() => this.loadTorrents(), 800);
 
-    window.electronAPI.on('get_file_progress', async (event, data) => {
-      this.ssh_get_file_progress[data.infoHash] = data.progress;
-      if (data.progress === 1) {
-        const localPath = (await window.electronAPI.store_get('qbConfig', {})).local_path;
-        await window.electronAPI.import(localPath, this.torrents[data.infoHash].name);
-      }
-    });
+    // window.electronAPI.on('get_file_progress', async (event, data) => {
+    //   this.ssh_get_file_progress[data.infoHash] = data.progress;
+    //   if (data.progress === 1) {
+    //     const localPath = (await window.electronAPI.store_get('qbConfig', {})).local_path;
+    //     await window.electronAPI.import(localPath, this.torrents[data.infoHash].name);
+    //   }
+    // });
   }
 
   async loadTorrents() {
@@ -68,35 +68,35 @@ export class ResourcesComponent implements OnInit {
   }
 
   async download(resource: Resource) {
-    const torrent = await this.api.download(resource.torrent_id);
-    console.log(resource);
-    if (!torrent) return;
-    const qb_cfg = await window.electronAPI.store_get('qbConfig', defaultQBConfig);
-    await this.qBittorrent.torrentsAdd(torrent, qb_cfg.save_path);
+    // const torrent = await this.api.download(resource.torrent_id);
+    // console.log(resource);
+    // if (!torrent) return;
+    // const qb_cfg = await window.electronAPI.store_get('qbConfig', defaultQBConfig);
+    // await this.qBittorrent.torrentsAdd(torrent, qb_cfg.save_path);
   }
 
   async import(torrent: Torrent) {
-    try {
-      console.log(torrent);
-      const qb_cfg = await window.electronAPI.store_get('qbConfig', defaultQBConfig);
-      if (qb_cfg.protocol === 'sftp' || qb_cfg.protocol === 'webdav') {
-        // @ts-ignore
-        await window.electronAPI.get_file(torrent.hash, torrent.content_path);
-      } else if (qb_cfg.protocol === 'smb') {
-        const remotePath = (await window.electronAPI.store_get('smbConfig', defaultSMBConfig)).remotePath;
-        if (remotePath) {
-          await window.electronAPI.import(
-            remotePath,
-            // @ts-ignore
-            torrent.content_path.replace(qb_cfg.save_path, '')
-          );
-        }
-      } else if (qb_cfg.protocol === 'local') {
-        await window.electronAPI.import(torrent.save_path, torrent.name);
-      }
-    } catch (error) {
-      alert(error);
-    }
+    // try {
+    //   console.log(torrent);
+    //   const qb_cfg = await window.electronAPI.store_get('qbConfig', defaultQBConfig);
+    //   if (qb_cfg.protocol === 'sftp' || qb_cfg.protocol === 'webdav') {
+    //     // @ts-ignore
+    //     await window.electronAPI.get_file(torrent.hash, torrent.content_path);
+    //   } else if (qb_cfg.protocol === 'smb') {
+    //     const remotePath = (await window.electronAPI.store_get('smbConfig', defaultSMBConfig)).remotePath;
+    //     if (remotePath) {
+    //       await window.electronAPI.import(
+    //         remotePath,
+    //         // @ts-ignore
+    //         torrent.content_path.replace(qb_cfg.save_path, '')
+    //       );
+    //     }
+    //   } else if (qb_cfg.protocol === 'local') {
+    //     await window.electronAPI.import(torrent.save_path, torrent.name);
+    //   }
+    // } catch (error) {
+    //   alert(error);
+    // }
   }
 
   cancel(torrent: Torrent) {
