@@ -20,6 +20,8 @@ export class SettingsComponent {
 
   showRemote: boolean;
 
+  isWeb = true;
+
   constructor(
     private api: ApiService,
     private _formBuilder: FormBuilder,
