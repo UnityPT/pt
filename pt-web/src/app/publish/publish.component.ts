@@ -159,39 +159,35 @@ export class PublishComponent implements OnInit {
       await this.qBittorrent.torrentsPause(taskHash);
       await this.qBittorrent.waitPaused(taskHash);
       // @ts-ignore
-      await window.electronAPI.delete_file(oldPath).catch(console.error);
+      await window.electronAPI.delete_file(oldPath).catch(console.log);
       const torrent = await this.api.download(torrent_id)!;
       const info = await parseTorrent(Buffer.from(await torrent.arrayBuffer()));
 
       if (this.protocol == 'local') {
         //本地qb本地发布
-        await this.qBittorrent.torrentsSetLocation(taskHash, path.dirname(newPath));
-        await this.qBittorrent.torrentsRestart(taskHash, info.name, path.basename(newPath));
+        await this.qBittorrent.torrentsRestart(taskHash, info.name, newPath);
         return this.setProgressState(progress, 'qBittorrent', 'added', `restarted ${meta.title} to ${newPath}`);
       } else {
         if (!is_remote_publish_flag) {
           const { result, newpath } = await this.checkLocalSmb(torrent, newPath);
           if (result) {
-            //远程qb本地发布，但是选择了smb目录
-            await this.qBittorrent.torrentsSetLocation(taskHash, path.dirname(newpath!));
-            await this.qBittorrent.torrentsRestart(taskHash, info.name, path.basename(newpath!));
+            //远程qb本地发布，但是选择了smb目
+            await this.qBittorrent.torrentsRestart(taskHash, info.name, newpath!);
           } else {
             //正常远程qb本地发布，上传文件，并重置到默认位置和标准文件名
             await window.electronAPI.upload_file(newPath, info.name);
             const qbSavePath = (await window.electronAPI.store_get('qbConfig')).save_path;
-            await this.qBittorrent.torrentsSetLocation(taskHash, qbSavePath);
-            await this.qBittorrent.torrentsRestart(taskHash, info.name, info.name);
+            await this.qBittorrent.torrentsRestart(taskHash, '', qbSavePath);
           }
         } else {
           //远程qb远程发布
-          await this.qBittorrent.torrentsSetLocation(taskHash, path.dirname(newPath));
-          await this.qBittorrent.torrentsRestart(taskHash, info.name, path.basename(newPath));
+          await this.qBittorrent.torrentsRestart(taskHash, info.name, newPath);
         }
       }
     } catch (e) {
       this.setProgressState(progress, 'qBittorrent', 'skipped', 'failed to restart task:' + e);
     }
-    this.setProgressState(progress, 'create_torrent', 'restart');
+    this.setProgressState(progress, 'create_torrent', 'downloaded');
     return this.setProgressState(progress, 'qBittorrent', 'added', `restarted ${meta.title} to ${newPath}`);
   }
 
@@ -301,7 +297,6 @@ export class PublishComponent implements OnInit {
         const t = (await this.qBittorrent.torrentsInfo({ hashes: resource.info_hash }))[0];
         if (this.unFinishedState.includes(t.state)) {
           // pt有，qb有，未完成 => 重启任务
-          const torrent = await this.createTorrent(filepath, meta, progress, false, true);
           // @ts-ignore
           return this.reStartTask(resource.torrent_id, meta, resource.info_hash, t.content_path, p, progress, true);
         } else {
@@ -386,6 +381,6 @@ export class PublishComponent implements OnInit {
 export interface PublishLog {
   file: string;
   version_id?: string | boolean;
-  create_torrent?: 'downloading' | 'downloaded' | 'creating' | 'uploading' | 'uploaded' | 'restart' | 'conflict';
+  create_torrent?: 'downloading' | 'downloaded' | 'creating' | 'uploading' | 'uploaded' | 'conflict';
   qBittorrent?: 'adding' | 'added' | 'skipped';
 }

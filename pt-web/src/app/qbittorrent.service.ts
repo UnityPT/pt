@@ -6,6 +6,7 @@ import { Torrent, TorrentFile } from '@ctrl/qbittorrent/dist/src/types';
 import parseTorrent from 'parse-torrent';
 import pRetry from 'p-retry';
 import { countBy } from 'lodash-es';
+import path from 'path';
 
 @Injectable({
   providedIn: 'root',
@@ -71,13 +72,16 @@ export class QBittorrentService {
     return this.request<TorrentFile[]>('torrents/files', { hash }, 'json');
   }
 
-  async torrentsRestart(hash: string, oldName: string, newName: string) {
-    console.log('restart', hash, oldName, newName);
-    await this.request('torrents/renameFile', {
-      hash: hash,
-      oldPath: oldName,
-      newPath: newName,
-    });
+  async torrentsRestart(hash: string, oldName: string, newPath: string) {
+    console.log('restart', hash, oldName, path.basename(newPath));
+    await this.request('torrents/setLocation', { hashes: hash, location: path.dirname(newPath) });
+    if (oldName) {
+      await this.request('torrents/renameFile', {
+        hash: hash,
+        oldPath: oldName,
+        newPath: path.basename(newPath),
+      });
+    }
     await this.request('torrents/recheck', { hashes: hash });
     const finishedState = ['uploading', 'stalledUP'];
     let i = 0; //尝试次数
