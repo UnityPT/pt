@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Config } from '../types';
+import { Config, HttpConfig, SmbConfig, SSHKeyConfig, SSHPasswordConfig } from '../types';
 import { defaultHTTPConfig, defaultQBConfig } from './defaultSetting';
 
 @Injectable({

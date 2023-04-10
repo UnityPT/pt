@@ -1,111 +1,163 @@
-//:host {
-//  display: flex;
-//  flex: 1;
+:host {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+#left {
+  width: 200px;
+}
+
+#right {
+  //width: 600px;
+  //margin: 16px auto 0 auto;
+  overflow-y: auto;
+  flex: 1;
+  //padding-right: 16px;
+}
+
+#container {
+  width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+mat-form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+//mat-card {
+//  margin-left: 16px;
+//  margin-right: 16px;
+//  max-width: 600px;
 //}
-//
-//img {
-//  width: 40vw;
-//  object-fit: contain;
-//}
-.bgc {
-  width: 40%;
-  background-color: #fafafa;
-  margin: 1em auto;
-  border: 1px solid darkgray;
-  padding: 2em;
-  border-radius: 1em;
-  //box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+
+mat-card-actions {
+  justify-content: right;
+  margin-right: 8px;
+}
+
+#remote-label {
+  margin-top: 16px
 }
 
 h2 {
-  font-size: 2em;
-  color: #4252af;
-  text-align: left;
-  margin-bottom: 0.5em;
+  padding-top: 16px;
 }
 
-.hr-solid {
-  border: 0;
-  border-top: 1px solid #aeaeae;
-  margin-bottom: 1.2em;
+.active::ng-deep .mdc-list-item__primary-text {
+  color: #3f51b5;
 }
 
-:host {
-  //background-color: #fafafa;
-  position: relative;
-  display: block;
-  height: 100%;
-}
-
-.row {
-  //color: #4252af;
-  margin-bottom: 1em;
-  //font-weight: 700;
-}
-
-.lab {
-  color: #222529;
-  font-size: 1.2em;
-  display: inline-block;
-  margin-top: 1em;
-  width: 10em;
-  text-align: left;
-  font-weight: bold;
-}
-
-.inputs {
-  //background: #4252af;
-  //margin-left: 1em;
-  padding: 1em;
-  border: 1px solid darkgray;
-  border-radius: 5px;
-  width: 30em;
-  height: 0.8em;
-  background-color: ghostwhite;
-  width: 90%;
-}
-
-//.left {
-//  border-radius: 5px 0 0 5px;
-//  width: 6em;
-//  text-align: left;
-//  height: 3.2em;
+////:host {
+////  display: flex;
+////  flex: 1;
+////}
+////
+////img {
+////  width: 40vw;
+////  object-fit: contain;
+////}
+//.bgc {
+//  width: 40%;
+//  background-color: #fafafa;
+//  margin: 1em auto;
 //  border: 1px solid darkgray;
-//  border-right: 0;
-//  padding: 0 1em;
+//  padding: 2em;
+//  border-radius: 1em;
+//  //box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
 //}
-
-.right {
-  border-radius: 0 5px 5px 0;
-  width: 24em;
-  height: 1em;
-  border: 1px solid darkgray;
-  padding: 1em;
-}
-
-mat-card {
-  //width: 60vw;
-  max-width: 400px;
-  margin: 2em auto;
-  text-align: center;
-}
-
-mat-hint{
-  display: block;
-  color: #aeaeae;
-  font-size: 13px;
-}
-
-.btn {
-  text-align: right;
-  button{
-    margin: 0 1em;
-  }
-}
-
-#protocol_label{
-  width: 5em;
-}
-#auth_label{
-  width: 6em;
-}
+//
+//h2 {
+//  font-size: 2em;
+//  color: #4252af;
+//  text-align: left;
+//  margin-bottom: 0.5em;
+//}
+//
+//.hr-solid {
+//  border: 0;
+//  border-top: 1px solid #aeaeae;
+//  margin-bottom: 1.2em;
+//}
+//
+//:host {
+//  //background-color: #fafafa;
+//  position: relative;
+//  display: block;
+//  height: 100%;
+//}
+//
+//.row {
+//  //color: #4252af;
+//  margin-bottom: 1em;
+//  //font-weight: 700;
+//}
+//
+//.lab {
+//  color: #222529;
+//  font-size: 1.2em;
+//  display: inline-block;
+//  margin-top: 1em;
+//  width: 10em;
+//  text-align: left;
+//  font-weight: bold;
+//}
+//
+//.inputs {
+//  //background: #4252af;
+//  //margin-left: 1em;
+//  padding: 1em;
+//  border: 1px solid darkgray;
+//  border-radius: 5px;
+//  width: 30em;
+//  height: 0.8em;
+//  background-color: ghostwhite;
+//  width: 90%;
+//}
+//
+////.left {
+////  border-radius: 5px 0 0 5px;
+////  width: 6em;
+////  text-align: left;
+////  height: 3.2em;
+////  border: 1px solid darkgray;
+////  border-right: 0;
+////  padding: 0 1em;
+////}
+//
+//.right {
+//  border-radius: 0 5px 5px 0;
+//  width: 24em;
+//  height: 1em;
+//  border: 1px solid darkgray;
+//  padding: 1em;
+//}
+//
+//mat-card {
+//  //width: 60vw;
+//  max-width: 400px;
+//  margin: 2em auto;
+//  text-align: center;
+//}
+//
+//mat-hint{
+//  display: block;
+//  color: #aeaeae;
+//  font-size: 13px;
+//}
+//
+//.btn {
+//  text-align: right;
+//  button{
+//    margin: 0 1em;
+//  }
+//}
+//
+//#protocol_label{
+//  width: 5em;
+//}
+//#auth_label{
+//  width: 6em;
+//}

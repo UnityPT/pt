@@ -77,9 +77,6 @@ export interface QBittorrentConfig {
 
 export interface RemoteConfig {
   protocol: string;
-  remotePath: string;
-  username: string;
-  password: string;
 }
 
 export interface SmbConfig extends RemoteConfig {
