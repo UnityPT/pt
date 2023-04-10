@@ -1,0 +1,5 @@
+<ng-container [ngSwitch]="state" *ngIf="promise">
+  <span class="mdc-button" *ngSwitchCase="'pending'">检测连接 <mat-spinner [diameter]="20"></mat-spinner></span>
+  <span class="mdc-button" *ngSwitchCase="'resolved'">{{ text }} <mat-icon>done</mat-icon></span>
+  <span class="rejected" *ngSwitchCase="'rejected'">{{ text }} <mat-icon>error</mat-icon></span>
+</ng-container>

@@ -63,7 +63,7 @@ export interface DirItem {
 
 export interface Config {
   qBittorrent: QBittorrentConfig;
-  remote: SmbConfig | SSHPasswordConfig | SSHKeyConfig | HttpConfig;
+  remote: SmbConfig | SSHPasswordConfig | SSHKeyConfig | HttpConfig | {protocol: 'local'};
 }
 
 export interface QBittorrentConfig {

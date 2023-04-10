@@ -1,18 +1,17 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
-import { Torrent, TorrentFile } from '@ctrl/qbittorrent/dist/src/types';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {firstValueFrom} from 'rxjs';
+import {Torrent, TorrentFile} from '@ctrl/qbittorrent/dist/src/types';
 // @ts-ignore
 import parseTorrent from 'parse-torrent';
 import pRetry from 'p-retry';
-import { SettingsService } from './setting/settings.service';
+import {SettingsService} from './setting/settings.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class QBittorrentService {
-  constructor(private http: HttpClient, private settings: SettingsService) {
-  }
+  constructor(private http: HttpClient, private settings: SettingsService) {}
 
   async torrentsAdd(torrent: Blob, savepath?: string, filename?: string) {
     await pRetry(() =>
@@ -21,7 +20,7 @@ export class QBittorrentService {
         savepath,
         category: 'Unity',
         paused: filename ? 'true' : 'false',
-        skip_checking: filename ? 'true' : 'false'
+        skip_checking: filename ? 'true' : 'false',
       })
     );
 
@@ -37,14 +36,18 @@ export class QBittorrentService {
   async authLogin(username?: string, password?: string) {
     // if (!username) username = (await window.electronAPI.store_get('qbConfig')).username;
     // if (!password) password = (await window.electronAPI.store_get('qbConfig')).password;
-    return this.request('auth/login', { username, password });
+    return this.request('auth/login', {username, password}, undefined, true);
   }
 
   async authLoginTest(qburl: string, username: string, password: string) {
-    await this.request('auth/logout', {}).catch(console.error);
-    await this.request(`auth/login`, { username, password }, undefined, qburl);
-    await this.request('auth/logout', {}, undefined, qburl);
-    await this.authLogin().catch(console.error);
+    // await this.request('auth/logout', {}).catch(console.error);
+    // await this.request(`auth/login`, {username, password}, undefined, qburl);
+    // await this.request('auth/logout', {}, undefined, qburl);
+    // await this.authLogin().catch(console.error);
+  }
+
+  appVersion(): Promise<string> {
+    return this.request('app/version');
   }
 
   torrentsInfo(params: {
@@ -55,30 +58,30 @@ export class QBittorrentService {
     reverse?: string;
     limit?: string;
     offset?: string;
-    hashes?: string
+    hashes?: string;
   }) {
     return this.request<Torrent[]>('torrents/info', params, 'json');
   }
 
   torrentsDelete(hash: string) {
-    return this.request('torrents/delete', { hashes: hash, deleteFiles: 'true' });
+    return this.request('torrents/delete', {hashes: hash, deleteFiles: 'true'});
   }
 
   async torrentsPause(hash: string) {
-    return this.request('torrents/pause', { hashes: hash });
+    return this.request('torrents/pause', {hashes: hash});
   }
 
   async torrentsResume(hash: string) {
-    return this.request('torrents/resume', { hashes: hash });
+    return this.request('torrents/resume', {hashes: hash});
   }
 
   async torrentsSetLocation(hash: string, location: string) {
     console.log(hash, location);
-    return this.request('torrents/setLocation', { hashes: hash, location });
+    return this.request('torrents/setLocation', {hashes: hash, location});
   }
 
   torrentsFiles(hash: string) {
-    return this.request<TorrentFile[]>('torrents/files', { hash }, 'json');
+    return this.request<TorrentFile[]>('torrents/files', {hash}, 'json');
   }
 
   async torrentsRestart(hash: string, oldName: string, newName: string) {
@@ -86,24 +89,24 @@ export class QBittorrentService {
     await this.request('torrents/renameFile', {
       hash: hash,
       oldPath: oldName,
-      newPath: newName
+      newPath: newName,
     });
-    await this.request('torrents/recheck', { hashes: hash });
+    await this.request('torrents/recheck', {hashes: hash});
     const finishedState = ['uploading', 'stalledUP'];
     let i = 0; //尝试次数
     const timer1 = setInterval(async () => {
       if (i++ > 10) clearInterval(timer1);
-      const state1 = (await this.request<Torrent[]>('torrents/info', { hashes: hash }, 'json'))[0].state;
+      const state1 = (await this.request<Torrent[]>('torrents/info', {hashes: hash}, 'json'))[0].state;
       if (state1 != 'checkingResumeData') {
         clearInterval(timer1);
-        await this.request('torrents/resume', { hashes: hash });
+        await this.request('torrents/resume', {hashes: hash});
         const timer2 = setInterval(async () => {
           if (i++ > 10) clearInterval(timer2);
-          const state2 = (await this.request<Torrent[]>('torrents/info', { hashes: hash }, 'json'))[0].state;
+          const state2 = (await this.request<Torrent[]>('torrents/info', {hashes: hash}, 'json'))[0].state;
           if (finishedState.includes(state2)) {
             clearInterval(timer2);
           }
-          await this.request('torrents/resume', { hashes: hash });
+          await this.request('torrents/resume', {hashes: hash});
         }, 1000);
       }
     }, 1000);
@@ -113,7 +116,7 @@ export class QBittorrentService {
     await new Promise((resolve) => {
       let i = 0; //尝试次数
       const t1 = setInterval(async () => {
-        const state = (await this.torrentsInfo({ hashes: hash }))[0].state;
+        const state = (await this.torrentsInfo({hashes: hash}))[0].state;
         console.log('wait pause', state);
         if (state == 'pausedDL' || i++ > 5) {
           clearInterval(t1);
@@ -127,7 +130,12 @@ export class QBittorrentService {
 
   // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)
 
-  async request<T>(method: string, params: Record<string, string | Blob | undefined>, responseType: 'json' | 'text' = 'text', qburl?: string): Promise<T> {
+  async request<T>(
+    method: string,
+    params: Record<string, string | Blob | undefined> = {},
+    responseType: 'json' | 'text' = 'text',
+    login = false
+  ): Promise<T> {
     const body = new FormData();
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined) {
@@ -139,13 +147,28 @@ export class QBittorrentService {
       }
     }
 
-    // @ts-ignore
-    return firstValueFrom(
-      this.http.post<T>(`${this.settings.config.qBittorrent.qb_url}/api/v2/${method}`, Object.keys(params).length == 0 ? null : body, {
-        // @ts-ignore
-        responseType,
-        withCredentials: true
-      })
-    );
+    const url = new URL(`api/v2/${method}`, this.settings.config.qBittorrent.qb_url);
+
+    try {
+      // @ts-ignore
+      return await firstValueFrom(
+        this.http.post<T>(url.href, Object.keys(params).length == 0 ? null : body, {
+          // @ts-ignore
+          responseType,
+          withCredentials: true,
+        })
+      );
+    } catch (e) {
+      if (e instanceof HttpErrorResponse) {
+        switch (e.status) {
+          case 401:
+            if (login) break;
+            await this.authLogin(this.settings.config.qBittorrent.username, this.settings.config.qBittorrent.password);
+            break;
+        }
+        throw e.message;
+      }
+      throw e;
+    }
   }
 }

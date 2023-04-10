@@ -38,6 +38,10 @@ mat-card-actions {
   margin-right: 8px;
 }
 
+mat-spinner {
+  display: inline-block;
+}
+
 #remote-label {
   margin-top: 16px
 }
@@ -48,6 +52,12 @@ h2 {
 
 .active::ng-deep .mdc-list-item__primary-text {
   color: #3f51b5;
+}
+
+.rejected {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 ////:host {
