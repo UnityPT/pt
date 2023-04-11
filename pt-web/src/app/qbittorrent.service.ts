@@ -29,7 +29,7 @@ export class QBittorrentService {
     const hash = info.infoHash!;
 
     if (filename) {
-      await this.torrentsRestart(hash, info.files![0].path, filename);
+      await this.torrentsRestart(hash, info.files![0].path, filename, false);
     }
     return hash;
   }
@@ -72,9 +72,10 @@ export class QBittorrentService {
     return this.request<TorrentFile[]>('torrents/files', { hash }, 'json');
   }
 
-  async torrentsRestart(hash: string, oldName: string, newPath: string) {
-    console.log('restart', hash, oldName, path.basename(newPath));
-    await this.request('torrents/setLocation', { hashes: hash, location: path.dirname(newPath) });
+  async torrentsRestart(hash: string, oldName: string, newPath: string, is_set_location_flag: boolean) {
+    if (is_set_location_flag) {
+      await this.request('torrents/setLocation', { hashes: hash, location: path.dirname(newPath) });
+    }
     if (oldName) {
       await this.request('torrents/renameFile', {
         hash: hash,
