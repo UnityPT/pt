@@ -24,7 +24,7 @@ export class Webdav {
   createConnect(cfg?: any) {
     if (!cfg) cfg = electronAPI.store.get('httpConfig');
     this.client = createClient(cfg.remotePath, {
-      authType: AuthType.Password,
+      authType: AuthType.Digest,
       username: cfg.username,
       password: cfg.password,
     });
