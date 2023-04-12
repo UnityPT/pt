@@ -52,10 +52,9 @@
       "category": "public.app-category.developer-tools",
       "target": [
         {
-          "target": "dmg",
+          "target": "default",
           "arch": [
-            "x64",
-            "arm64"
+            "universal"
           ]
         }
       ]
