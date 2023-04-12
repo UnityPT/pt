@@ -4,7 +4,8 @@
   "compilerOptions": {
     "outDir": "./out-tsc/app",
     "types": [
-      "user-agent-data-types"
+      "user-agent-data-types",
+      "core-typescript/src/proposals/stage-3/array-grouping",
     ],
     "esModuleInterop": true
   },

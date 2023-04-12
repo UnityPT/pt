@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom, Observable} from 'rxjs';
 import {Torrent, TorrentFile} from '@ctrl/qbittorrent/dist/src/types';
-// @ts-ignore
+// @ts-ignore parse-torrent
 import parseTorrent from 'parse-torrent';
 import pRetry from 'p-retry';
 import {SettingsService} from './setting/settings.service';
@@ -12,6 +12,10 @@ import {SettingsService} from './setting/settings.service';
 })
 export class QBittorrentService {
   constructor(private http: HttpClient, private settings: SettingsService) {}
+
+  syncMaindata(rid: number): Observable<MainData> {
+    return this.request2('sync/maindata', {rid: rid.toString()}, 'json');
+  }
 
   async torrentsAdd(torrent: Blob, savepath?: string, filename?: string) {
     await pRetry(() =>
@@ -31,12 +35,6 @@ export class QBittorrentService {
       await this.torrentsRestart(hash, info.files![0].path, filename);
     }
     return hash;
-  }
-
-  async authLogin(username?: string, password?: string) {
-    // if (!username) username = (await window.electronAPI.store_get('qbConfig')).username;
-    // if (!password) password = (await window.electronAPI.store_get('qbConfig')).password;
-    return this.request('auth/login', {username, password}, undefined, true);
   }
 
   async authLoginTest(qburl: string, username: string, password: string) {
@@ -126,10 +124,6 @@ export class QBittorrentService {
     });
   }
 
-  // low level apis
-
-  // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)
-
   async request<T>(
     method: string,
     params: Record<string, string | Blob | undefined> = {},
@@ -171,4 +165,54 @@ export class QBittorrentService {
       throw e;
     }
   }
+
+  request2<T>(
+    method: string,
+    params: Record<string, string | Blob | undefined> = {},
+    responseType: 'json' | 'text' = 'text',
+    login = false
+  ): Observable<T> {
+    const body = new FormData();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined) {
+        if (typeof value === 'string') {
+          body.append(key, value);
+        } else {
+          body.append(key, value, 'test.torrent');
+        }
+      }
+    }
+
+    const url = new URL(`api/v2/${method}`, this.settings.config.qBittorrent.qb_url);
+
+    // @ts-ignore
+    return this.http.post<T>(url.href, Object.keys(params).length == 0 ? null : body, {
+      // @ts-ignore
+      responseType,
+      withCredentials: true,
+    });
+    // .pipe(catchError((e) => ));
+  }
+
+  // low level apis
+
+  // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)
+
+  private async authLogin(username?: string, password?: string) {
+    // if (!username) username = (await window.electronAPI.store_get('qbConfig')).username;
+    // if (!password) password = (await window.electronAPI.store_get('qbConfig')).password;
+    return this.request('auth/login', {username, password}, undefined, true);
+  }
+}
+
+export interface MainData {
+  rid: number;
+  full_update: boolean;
+  torrents: Record<string, Torrent>;
+  torrents_removed: string[];
+  categories: Record<string, never>;
+  categories_removed: string[];
+  tags: string[];
+  tags_removed: string[];
+  server_state: object;
 }

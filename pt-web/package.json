@@ -25,6 +25,7 @@
     "@ctrl/qbittorrent": "^5.2.0",
     "buffer": "^6.0.3",
     "core-js": "^3.28.0",
+    "core-typescript": "^0.0.1",
     "create-torrent": "^6.0.9",
     "electron-store": "^8.1.0",
     "lodash-es": "^4.17.21",

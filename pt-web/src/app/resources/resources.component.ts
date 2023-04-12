@@ -1,13 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { Resource, ResourceMeta } from '../types';
-import { Torrent } from '@ctrl/qbittorrent/dist/src/types';
-import { FormControl } from '@angular/forms';
-import { map, startWith } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { QBittorrentService } from '../qbittorrent.service';
-import { ApiService } from '../api.service';
-import { mapValues, orderBy } from 'lodash-es';
-import { defaultQBConfig, defaultSMBConfig } from '../setting/defaultSetting';
+import {Component, OnInit} from '@angular/core';
+import {Resource, ResourceMeta} from '../types';
+import {Torrent} from '@ctrl/qbittorrent/dist/src/types';
+import {FormControl} from '@angular/forms';
+import {concatMap, map, reduce, startWith, timer} from 'rxjs';
+import {HttpClient} from '@angular/common/http';
+import {QBittorrentService} from '../qbittorrent.service';
+import {ApiService} from '../api.service';
+import {mapValues, orderBy, pullAll, sortBy} from 'lodash-es';
 
 @Component({
   selector: 'app-resources',
@@ -41,17 +40,17 @@ export class ResourcesComponent implements OnInit {
   }
 
   async ngOnInit() {
-    try {
-      await this.qBittorrent.authLogin();
-    } catch (error) {
-      alert('无法连接 qBittorrent，请确认 qBittorrent 正在运行，且启用了 WebUI');
-      throw error;
-    }
+    // try {
+    //   await this.qBittorrent.appVersion();
+    // } catch (error) {
+    //   alert('无法连接 qBittorrent，请确认 qBittorrent 正在运行，且启用了 WebUI');
+    //   throw error;
+    // }
 
     // await this.api.login();
-    await this.loadTorrents();
+    // await this.loadTorrents();
     await this.refresh();
-    setInterval(() => this.loadTorrents(), 800);
+    // setInterval(() => this.loadTorrents(), 800);
 
     // window.electronAPI.on('get_file_progress', async (event, data) => {
     //   this.ssh_get_file_progress[data.infoHash] = data.progress;
@@ -60,10 +59,41 @@ export class ResourcesComponent implements OnInit {
     //     await window.electronAPI.import(localPath, this.torrents[data.infoHash].name);
     //   }
     // });
+    this.sync().subscribe((d) => console.log(d));
+  }
+
+  sync() {
+    let rid = 0;
+    return timer(0, 800).pipe(
+      concatMap((i) => this.qBittorrent.syncMaindata(rid)),
+      reduce((last, current) => {
+        rid = current.rid;
+
+        if (current.full_update) {
+          return current;
+        } else {
+          Object.assign(last.server_state, current.server_state);
+          for (const [key, value] of Object.entries(current.torrents)) {
+            Object.assign(last.torrents[key], value);
+          }
+          for (const key of current.torrents_removed) {
+            delete last.torrents[key];
+          }
+          for (const [key, value] of Object.entries(current.categories)) {
+            Object.assign(last.torrents[key], value);
+          }
+          for (const key of current.categories_removed) {
+            delete last.categories[key];
+          }
+          pullAll(last.tags, current.tags_removed);
+        }
+        return last;
+      })
+    );
   }
 
   async loadTorrents() {
-    const list: Torrent[] = await this.qBittorrent.torrentsInfo({ category: 'Unity' });
+    const list: Torrent[] = await this.qBittorrent.torrentsInfo({category: 'Unity'});
     this.torrents = Object.fromEntries(list.map((i) => [i.hash, i]));
   }
 
@@ -112,23 +142,23 @@ export class ResourcesComponent implements OnInit {
   }
 
   async refresh() {
+    console.log(1);
     const items = await this.api.index();
     this.version_sum = items.length;
     this.itemsGroup = mapValues(
-      // @ts-ignore
-      items.group(({ meta }) => meta.id),
-      (arr) => orderBy(arr, [({ meta }) => meta.version_id], ['desc'])
+      items.group(({meta}) => meta.id),
+      (arr) => orderBy(arr, [({meta}) => meta.version_id], ['desc'])
     );
-    this.items = orderBy(
+    this.items = sortBy(
       Object.values(this.itemsGroup).map((arr) => arr[0]),
-      [(item) => item.meta.title],
-      ['asc']
+      (item) => item.meta.title
     );
 
     this.refreshed_at = new Date();
-    this.api.user_stat.published = items.filter(({ resource }) => resource.username === this.api.username).length;
+    this.api.user_stat.published = items.filter(({resource}) => resource.username === this.api.username).length;
     await this.api.refreshUserStat();
     this.myControl.reset();
+    console.log(2);
   }
 
   select(event: ResourceMeta) {
@@ -141,6 +171,6 @@ export class ResourcesComponent implements OnInit {
 
   private filter(value: string): ResourceMeta[] {
     const filterValue = value.toLowerCase();
-    return this.items.filter(({ meta }) => meta.title.toLowerCase().includes(filterValue) || meta.id.toString().includes(filterValue));
+    return this.items.filter(({meta}) => meta.title.toLowerCase().includes(filterValue) || meta.id.toString().includes(filterValue));
   }
 }

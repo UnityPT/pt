@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { ApiService } from '../api.service';
-import { Router } from '@angular/router';
-import { RegisterInfo } from '../types';
+import {Component, OnInit} from '@angular/core';
+import {ApiService} from '../api.service';
+import {Router} from '@angular/router';
+import {RegisterInfo} from '../types';
 
 @Component({
   selector: 'app-register',
@@ -26,11 +26,12 @@ export class RegisterComponent implements OnInit {
       const res = await this.api.register(this.user);
       if (res == 'success') {
         await this.api.login(this.user.username, this.user.password);
-        this.router.navigate(['resource']);
+        const _ = this.router.navigate(['resource']);
       }
     } catch (err) {
-      // @ts-ignore
-      alert('注册失败: ' + JSON.parse(err.error).message);
+      // TODO: alert
+      console.error(err);
+      // alert('注册失败: ' + JSON.parse(err.error).message);
     }
   }
 }

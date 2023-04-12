@@ -1,15 +1,15 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ExtraField } from '../gzip';
-import { Meta, Resource } from '../types';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {ExtraField} from '../gzip';
+import {Meta, Resource} from '../types';
 import createTorrent from 'create-torrent';
-import { ApiService } from '../api.service';
-import { QBittorrentService } from '../qbittorrent.service';
+import {ApiService} from '../api.service';
+import {QBittorrentService} from '../qbittorrent.service';
 import path from 'path';
-import { MatTable } from '@angular/material/table';
+import {MatTable} from '@angular/material/table';
 import util from 'util';
-import { MatDialog } from '@angular/material/dialog';
-import { BrowseRemoteComponent } from '../browse-remote/browse-remote.component';
-import { Buffer } from 'buffer';
+import {MatDialog} from '@angular/material/dialog';
+import {BrowseRemoteComponent} from '../browse-remote/browse-remote.component';
+import {Buffer} from 'buffer';
 //@ts-ignore
 import parseTorrent from 'parse-torrent';
 
@@ -25,7 +25,18 @@ export class PublishComponent implements OnInit {
   loading: boolean = false;
   publishing: boolean = false;
   protocol: string = '';
-  unFinishedState: string[] = ['error', 'missingFiles', 'allocating', 'downloading', 'metaDL', 'pausedDL', 'queuedDL', 'stalledDL', 'checkingDL', 'forcedDL'];
+  unFinishedState: string[] = [
+    'error',
+    'missingFiles',
+    'allocating',
+    'downloading',
+    'metaDL',
+    'pausedDL',
+    'queuedDL',
+    'stalledDL',
+    'checkingDL',
+    'forcedDL',
+  ];
 
   constructor(private api: ApiService, private qBittorrent: QBittorrentService, private dialog: MatDialog) {}
 
@@ -42,7 +53,7 @@ export class PublishComponent implements OnInit {
     try {
       this.dataSource = [];
       const items = await this.api.index(true);
-      const taskHashes = (await this.qBittorrent.torrentsInfo({ category: 'Unity' })).map((t) => t.hash);
+      const taskHashes = (await this.qBittorrent.torrentsInfo({category: 'Unity'})).map((t) => t.hash);
       const resourceVersionIds = items.map((item) => item.meta.version_id);
       for (let i = 0; i < selectFiles.length; i++) {
         try {
@@ -58,7 +69,7 @@ export class PublishComponent implements OnInit {
     console.log('localpublish done,', this.publishing);
   }
 
-  async processLocalOne(file: File, items: { resource: Resource; meta: any }[], taskHashes: string[], resourceVersionIds: string[]) {
+  async processLocalOne(file: File, items: {resource: Resource; meta: any}[], taskHashes: string[], resourceVersionIds: string[]) {
     console.log('torrent proecessing', file.name);
     if (path.extname(file.name) !== '.unitypackage') return;
     // @ts-ignore  // provided by electron, not works in chrome.
@@ -67,7 +78,8 @@ export class PublishComponent implements OnInit {
     const progress = this.startNewProgress(file.name);
 
     const description = await ExtraField(file, 65, 36);
-    if (!description) return this.setProgressState(progress, 'version_id', false, `${file.webkitRelativePath} is not a unity asset store package`);
+    if (!description)
+      return this.setProgressState(progress, 'version_id', false, `${file.webkitRelativePath} is not a unity asset store package`);
     const meta = <Meta>JSON.parse(description);
     if (!meta.version_id) return this.setProgressState(progress, 'version_id', false, `${file.webkitRelativePath} is strange`);
 
@@ -78,10 +90,10 @@ export class PublishComponent implements OnInit {
     if (resourceIndex >= 0) {
       const item = items[resourceIndex];
       if (!item) return this.setProgressState(progress, 'qBittorrent', 'skipped', 'file is repeated');
-      const { resource, meta } = item;
+      const {resource, meta} = item;
       if (taskHashes.includes(resource.info_hash)) {
         // pt有，qb 有
-        const t = (await this.qBittorrent.torrentsInfo({ hashes: resource.info_hash }))[0];
+        const t = (await this.qBittorrent.torrentsInfo({hashes: resource.info_hash}))[0];
         if (this.unFinishedState.includes(t.state)) {
           // pt有，qb 有, 没下载完 => 重启任务
           // @ts-ignore   //t.content_path报错，实际有这个属性
@@ -100,7 +112,7 @@ export class PublishComponent implements OnInit {
 
           const info = await parseTorrent(Buffer.from(await torrent.arrayBuffer()));
           taskHashes.push(resource.info_hash);
-          // @ts-ignore
+          // @ts-ignore file.path
           return this.torrentsAdd(torrent, progress, file.path, false, info.name);
         } else {
           // pt有，qb 无，不一致 => 忽略
@@ -115,7 +127,7 @@ export class PublishComponent implements OnInit {
       const info = await parseTorrent(Buffer.from(await torrent.arrayBuffer()));
       resourceVersionIds.push(meta.version_id);
       taskHashes.push(info.infoHash);
-      // @ts-ignore
+      // @ts-ignore file.path
       return this.torrentsAdd(torrent, progress, file.path, false, info.name);
     }
   }
@@ -153,7 +165,15 @@ export class PublishComponent implements OnInit {
     // this.setProgressState(progress, 'qBittorrent', 'added', `added ${path.posix.basename(filepath)} to qBittorrent`);
   }
 
-  async reStartTask(torrent_id: number, meta: Meta, taskHash: string, oldPath: string, newPath: string, progress: PublishLog, is_remote_publish_flag: boolean) {
+  async reStartTask(
+    torrent_id: number,
+    meta: Meta,
+    taskHash: string,
+    oldPath: string,
+    newPath: string,
+    progress: PublishLog,
+    is_remote_publish_flag: boolean
+  ) {
     // try {
     //   this.setProgressState(progress, 'qBittorrent', 'adding', `restarting:${meta.title}`);
     //   await this.qBittorrent.torrentsPause(taskHash);
@@ -267,7 +287,7 @@ export class PublishComponent implements OnInit {
 
   async processRemoteOne(
     filepath: string,
-    items: { resource: Resource; meta: Meta }[],
+    items: {resource: Resource; meta: Meta}[],
     taskHashes: string[],
     resourceVersionIds: string[],
     qbSavePath: string,
@@ -355,12 +375,14 @@ export class PublishComponent implements OnInit {
         private: true,
       };
 
-      // @ts-ignore
-      const torrent0: Buffer = is_remote_publish_flag ? await window.electronAPI.create_torrent(file, opts) : await util.promisify(createTorrent)(file, opts);
+      // @ts-ignore promisify
+      const torrent0: Buffer = await util.promisify(createTorrent)(file, opts);
 
       this.setProgressState(progress, 'create_torrent', 'uploading');
 
-      return upload_flag ? await this.api.upload(torrent0, JSON.stringify(meta), `${name}.torrent`) : new Blob([torrent0], { type: 'application/x-bittorrent' });
+      return upload_flag
+        ? await this.api.upload(torrent0, JSON.stringify(meta), `${name}.torrent`)
+        : new Blob([torrent0], {type: 'application/x-bittorrent'});
     } catch (err) {
       this.setProgressState(progress, 'qBittorrent', 'skipped');
       this.setProgressState(progress, 'create_torrent', 'conflict', `create torrent failed: ${meta.title}`);
@@ -369,10 +391,10 @@ export class PublishComponent implements OnInit {
   }
 
   private startNewProgress(filename: string) {
-    const progress = { file: filename } as PublishLog;
+    const progress = {file: filename} as PublishLog;
     this.dataSource.push(progress);
     this.table.renderRows();
-    document.querySelector(`tr:nth-child(${this.dataSource.length})`)?.scrollIntoView({ block: 'nearest' });
+    document.querySelector(`tr:nth-child(${this.dataSource.length})`)?.scrollIntoView({block: 'nearest'});
     return progress;
   }
 
@@ -380,6 +402,10 @@ export class PublishComponent implements OnInit {
     progress[key] = value;
     this.table.renderRows();
     if (log) console.log(log);
+  }
+
+  browseLocal() {
+    // window.showDirectoryPicker();
   }
 }
 
