@@ -49,6 +49,7 @@
     "@types/create-torrent": "^5.0.0",
     "@types/lodash-es": "^4.17.6",
     "@types/node": "^18.14.0",
+    "@types/wicg-file-system-access": "^2020.9.6",
     "html-loader": "^4.2.0",
     "markdown-loader": "^8.0.0",
     "ng-openapi-gen": "^0.24.0",

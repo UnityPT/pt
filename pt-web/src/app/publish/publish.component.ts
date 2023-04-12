@@ -8,7 +8,6 @@ import path from 'path';
 import {MatTable} from '@angular/material/table';
 import util from 'util';
 import {MatDialog} from '@angular/material/dialog';
-import {BrowseRemoteComponent} from '../browse-remote/browse-remote.component';
 import {Buffer} from 'buffer';
 //@ts-ignore
 import parseTorrent from 'parse-torrent';
@@ -69,7 +68,15 @@ export class PublishComponent implements OnInit {
     console.log('localpublish done,', this.publishing);
   }
 
-  async processLocalOne(file: File, items: {resource: Resource; meta: any}[], taskHashes: string[], resourceVersionIds: string[]) {
+  async processLocalOne(
+    file: File,
+    items: {
+      resource: Resource;
+      meta: any;
+    }[],
+    taskHashes: string[],
+    resourceVersionIds: string[]
+  ) {
     console.log('torrent proecessing', file.name);
     if (path.extname(file.name) !== '.unitypackage') return;
     // @ts-ignore  // provided by electron, not works in chrome.
@@ -359,6 +366,13 @@ export class PublishComponent implements OnInit {
     // }
   }
 
+  async browseLocal() {
+    const result = await showDirectoryPicker();
+    for (const file of result) {
+      console.log(file);
+    }
+  }
+
   private async createTorrent(file: File | string, meta: any, progress: PublishLog, upload_flag: boolean, is_remote_publish_flag: boolean) {
     try {
       this.setProgressState(progress, 'create_torrent', 'creating');
@@ -402,10 +416,6 @@ export class PublishComponent implements OnInit {
     progress[key] = value;
     this.table.renderRows();
     if (log) console.log(log);
-  }
-
-  browseLocal() {
-    // window.showDirectoryPicker();
   }
 }
 
