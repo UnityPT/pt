@@ -367,9 +367,20 @@ export class PublishComponent implements OnInit {
   }
 
   async browseLocal() {
-    const result = await showDirectoryPicker();
-    for (const file of result) {
-      console.log(file);
+    for await (const file of this.recursive(await showDirectoryPicker())) {
+      if (path.extname(file.name) === '.unitypackage') {
+        console.log(file);
+      }
+    }
+  }
+
+  async *recursive(root: FileSystemDirectoryHandle): AsyncIterableIterator<FileSystemFileHandle> {
+    for await (const file of root.values()) {
+      if (file.kind === 'file') {
+        yield file;
+      } else {
+        yield* this.recursive(file);
+      }
     }
   }
 

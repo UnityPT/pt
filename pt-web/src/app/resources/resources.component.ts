@@ -64,7 +64,7 @@ export class ResourcesComponent implements OnInit {
 
   sync() {
     let rid = 0;
-    return timer(0, 800).pipe(
+    return timer(0, 8000).pipe(
       concatMap((i) => this.qBittorrent.syncMaindata(rid)),
       reduce((last, current) => {
         rid = current.rid;

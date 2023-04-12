@@ -57,7 +57,7 @@
               <!--            <mat-option value='smb'>SMB (Windows 共享)</mat-option>-->
               <!--            <mat-option value='sftp'>SFTP</mat-option>-->
             </mat-select>
-            <mat-hint *ngI>服务器搭建教程: <a target="_blank" href="#">https://xxxx</a></mat-hint>
+            <mat-hint>服务器搭建教程: <a target="_blank" href="#">https://xxxx</a></mat-hint>
           </mat-form-field>
           <ng-container [ngSwitch]="settings.config.remote.protocol">
             <ng-container *ngSwitchCase="'http'">
