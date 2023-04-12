@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {firstValueFrom, Observable} from 'rxjs';
 import {Torrent, TorrentFile} from '@ctrl/qbittorrent/dist/src/types';
 // @ts-ignore parse-torrent
@@ -8,13 +8,15 @@ import pRetry from 'p-retry';
 import {SettingsService} from './setting/settings.service';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class QBittorrentService {
-  constructor(private http: HttpClient, private settings: SettingsService) {}
+  constructor(private http: HttpClient, private settings: SettingsService) {
+  }
 
   syncMaindata(rid: number): Observable<MainData> {
-    return this.request2('sync/maindata', {rid: rid.toString()}, 'json');
+    return this.http.get<MainData>(this.url('sync/maindata'), {params: {rid: rid.toString()}, withCredentials: true});
+    // return this.request2('sync/maindata', {rid: rid.toString()}, 'json');
   }
 
   async torrentsAdd(torrent: Blob, savepath?: string, filename?: string) {
@@ -24,7 +26,7 @@ export class QBittorrentService {
         savepath,
         category: 'Unity',
         paused: filename ? 'true' : 'false',
-        skip_checking: filename ? 'true' : 'false',
+        skip_checking: filename ? 'true' : 'false'
       })
     );
 
@@ -87,7 +89,7 @@ export class QBittorrentService {
     await this.request('torrents/renameFile', {
       hash: hash,
       oldPath: oldName,
-      newPath: newName,
+      newPath: newName
     });
     await this.request('torrents/recheck', {hashes: hash});
     const finishedState = ['uploading', 'stalledUP'];
@@ -124,6 +126,10 @@ export class QBittorrentService {
     });
   }
 
+  private url(method: string) {
+    return new URL(`api/v2/${method}`, this.settings.config.qBittorrent.qb_url).href;
+  }
+
   async request<T>(
     method: string,
     params: Record<string, string | Blob | undefined> = {},
@@ -149,7 +155,7 @@ export class QBittorrentService {
         this.http.post<T>(url.href, Object.keys(params).length == 0 ? null : body, {
           // @ts-ignore
           responseType,
-          withCredentials: true,
+          withCredentials: true
         })
       );
     } catch (e) {
@@ -189,7 +195,7 @@ export class QBittorrentService {
     return this.http.post<T>(url.href, Object.keys(params).length == 0 ? null : body, {
       // @ts-ignore
       responseType,
-      withCredentials: true,
+      withCredentials: true
     });
     // .pipe(catchError((e) => ));
   }
