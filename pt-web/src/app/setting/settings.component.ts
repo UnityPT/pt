@@ -3,8 +3,6 @@ import {ApiService} from '../api.service';
 import {FormBuilder} from '@angular/forms';
 import {QBittorrentService} from '../qbittorrent.service';
 import {SettingsService} from './settings.service';
-import {HttpConfig, SmbConfig, SSHKeyConfig, SSHPasswordConfig} from '../types';
-import {includes} from 'lodash-es';
 
 @Component({
   selector: 'app-setting',
@@ -12,14 +10,9 @@ import {includes} from 'lodash-es';
   styleUrls: ['./settings.component.scss'],
 })
 export class SettingsComponent {
-  // for angular template use
-  r: any;
-
   testQBittorrent?: Promise<string>;
   testRemote?: Promise<string>;
-
   showRemote: boolean;
-
   isWeb = true;
 
   constructor(
@@ -28,8 +21,11 @@ export class SettingsComponent {
     private qBittorrent: QBittorrentService,
     public settings: SettingsService
   ) {
-    this.r = this.settings.config.remote;
     this.showRemote = this.settings.config.remote.protocol !== 'local';
+  }
+
+  get r(): any {
+    return this.settings.config.remote;
   }
 
   async saveQBittorrent() {
@@ -51,7 +47,10 @@ export class SettingsComponent {
       <D:propfind xmlns:D="DAV:">
         <D:allprop/>
       </D:propfind>`;
-        const headers = new Headers({Depth: '0'});
+        const headers = new Headers({
+          Authorization: 'Basic ' + btoa(this.settings.config.remote.username + ':' + this.settings.config.remote.password),
+          Depth: '0',
+        });
         const url = this.settings.config.remote.remotePath;
         this.testRemote = (async () => {
           const response = await fetch(url, {method: 'PROPFIND', headers, body});
