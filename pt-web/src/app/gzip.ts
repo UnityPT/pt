@@ -1,5 +1,6 @@
 // https://www.rfc-editor.org/rfc/rfc1952.html#page-5
 import Struct from 'typed-struct';
+import {Buffer} from 'buffer';
 
 const Member = new Struct('Member')
   //
@@ -28,38 +29,83 @@ const enum FlagsMask {
   FCOMMENT = 16,
 }
 
-const SI1 = 1;
-const SI2 = 1;
-// class UnityPackage {
-//   constructor(body: ReadableStream<Uint8Array>) {}
-//
-//   async ExtraField() {
-//     const headerBuffer = await this.read(Member.baseSize);
-//     const member = new Member(headerBuffer);
-//     if (member.ID1 !== 31 || member.ID2 !== 139) {
-//       throw new Error('invalid file signature:' + member.ID1 + ',' + member.ID2);
-//     }
-//     if (member.CM !== 8) {
-//       throw new Error('unknown compression method: ' + member.CM);
-//     }
-//
-//     if (member.FLG & FlagsMask.FEXTRA) {
-//       const lengthBuffer = await this.read(2);
-//       const length = lengthBuffer.readUInt16LE(0);
-//       const extraBuffer = await this.read(length);
-//       for (let offset = 0; offset < length; ) {
-//         const extra = new Extra(extraBuffer.subarray(offset));
-//         if (extra.SI1 == SI1 && extra.SI2 == SI2) {
-//           return extra.data.subarray(offset, offset + extra.LEN).toString();
-//         }
-//         offset += Extra.baseSize + extra.LEN;
-//       }
-//     }
-//   }
-//
-//   private async read(size: number): Promise<Uint8Array> {}
-// }
-//
+const SI1 = 65;
+const SI2 = 36;
+
+export class Gzip {
+  buffers: Uint8Array[] = [];
+  lastBuffer: Buffer = Buffer.alloc(0);
+
+  constructor(private stream: ReadableStream<Uint8Array>) {}
+
+  private async read(size: number): Promise<Buffer> {
+    if (size <= this.lastBuffer.length) {
+      const result = this.lastBuffer.subarray(0, size);
+      this.lastBuffer = this.lastBuffer.subarray(size);
+      return result;
+    }
+
+    let pending = size - this.lastBuffer.length;
+    const buffers: (Buffer | Uint8Array)[] = [this.lastBuffer];
+    const reader = this.stream.getReader();
+
+    try {
+      while (true) {
+        const data = await reader.read();
+        if (!data.value) throw '??';
+
+        const chunk = data.value;
+        this.buffers.push(chunk);
+
+        if (pending <= chunk.length) {
+          buffers.push(Buffer.from(chunk, 0, pending));
+          this.lastBuffer = Buffer.from(chunk, pending);
+
+          return Buffer.concat(buffers);
+        } else {
+          buffers.push(chunk);
+          pending -= chunk.length;
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  }
+
+  async ExtraField() {
+    const headerBuffer = await this.read(Member.baseSize);
+    const member = new Member(headerBuffer);
+    if (member.ID1 !== 31 || member.ID2 !== 139) {
+      // throw new Error('invalid file signature:' + member.ID1 + ',' + member.ID2);
+      return;
+    }
+    if (member.CM !== 8) {
+      // throw new Error('unknown compression method: ' + member.CM);
+      return;
+    }
+
+    if (member.FLG & FlagsMask.FEXTRA) {
+      const lengthBuffer = await this.read(2);
+      const length = lengthBuffer.readUInt16LE(0);
+      const extraBuffer = await this.read(length);
+      for (let offset = 0; offset < length; ) {
+        const extra = new Extra(extraBuffer.subarray(offset));
+        if (extra.SI1 == SI1 && extra.SI2 == SI2) {
+          return extra.data.subarray(offset, offset + extra.LEN).toString();
+        }
+        offset += Extra.baseSize + extra.LEN;
+      }
+    }
+
+    return;
+    // throw 'not found';
+  }
+
+  static ExtractField(stream: ReadableStream<Uint8Array>) {
+    return new this(stream).ExtraField();
+  }
+}
+
 // export async function ExtraField2(body: ReadableStream<Uint8Array>, SI1: number, SI2: number): Promise<string | undefined> {
 //   const buffers: Uint8Array[] = [];
 //   for await (const x of body) {
@@ -68,14 +114,14 @@ const SI2 = 1;
 //
 //   read();
 // }
-
-export async function ExtraField(file: File, SI1: number, SI2: number): Promise<string | undefined> {
-  let position = 0;
-
-  async function read(length: number) {
-    const blob = file.slice(position, (position += length));
-    return Buffer.from(await blob.arrayBuffer());
-  }
-
-  return;
-}
+//
+// export async function ExtraField(file: File, SI1: number, SI2: number): Promise<string | undefined> {
+//   let position = 0;
+//
+//   async function read(length: number) {
+//     const blob = file.slice(position, (position += length));
+//     return Buffer.from(await blob.arrayBuffer());
+//   }
+//
+//   return;
+// }

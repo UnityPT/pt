@@ -1,15 +1,28 @@
-<!doctype html>
-<html lang='zh-Hans' xmlns='http://www.w3.org/1999/html'>
-<head>
-  <meta charset="utf-8">
-  <title>Unity PT - 1.1.0</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-</head>
-<body class="mat-typography">
-  <app-root></app-root>
-</body>
+<!DOCTYPE html>
+<html lang="zh-Hans" xmlns="http://www.w3.org/1999/html">
+  <head>
+    <meta charset="utf-8" />
+    <title>Unity PT - 1.1.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  </head>
+  <body class="mat-typography">
+    <app-root></app-root>
+
+    <script>
+      function allowDrop(ev) {
+        ev.preventDefault();
+      }
+      function drop(ev) {
+        ev.preventDefault();
+        console.log(ev);
+        var data = ev.dataTransfer.getData('text');
+        ev.target.appendChild(document.getElementById(data));
+      }
+    </script>
+    <div ondrop="drop(event)" ondragover="allowDrop(event)">111</div>
+  </body>
 </html>

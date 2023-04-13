@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {ExtraField} from '../gzip';
+import {Gzip} from '../gzip';
 import {Meta, Resource} from '../types';
 import createTorrent from 'create-torrent';
 import {ApiService} from '../api.service';
@@ -14,8 +14,6 @@ import parseTorrent from 'parse-torrent';
 
 import 'core-js/actual/async-iterator/filter.js';
 import {SettingsService} from '../setting/settings.service';
-
-import '@sec-ant/readable-stream';
 
 @Component({
   selector: 'app-publish',
@@ -86,68 +84,7 @@ export class PublishComponent implements OnInit {
     }[],
     taskHashes: string[],
     resourceVersionIds: string[]
-  ) {
-    console.log('torrent proecessing', file.name);
-    if (path.extname(file.name) !== '.unitypackage') return;
-    // @ts-ignore  // provided by electron, not works in chrome.
-    const p = file.path.replaceAll('\\', '/'); // 由于 path-browserify 只支持 posix 风格路径，不支持 win32风格
-
-    const progress = this.startNewProgress(file.name);
-
-    const description = await ExtraField(file, 65, 36);
-    if (!description)
-      return this.setProgressState(progress, 'version_id', false, `${file.webkitRelativePath} is not a unity asset store package`);
-    const meta = <Meta>JSON.parse(description);
-    if (!meta.version_id) return this.setProgressState(progress, 'version_id', false, `${file.webkitRelativePath} is strange`);
-
-    this.setProgressState(progress, 'version_id', meta.version_id, meta.version_id);
-
-    const resourceIndex = resourceVersionIds.indexOf(meta.version_id);
-    // pt有
-    if (resourceIndex >= 0) {
-      const item = items[resourceIndex];
-      if (!item) return this.setProgressState(progress, 'qBittorrent', 'skipped', 'file is repeated');
-      const {resource, meta} = item;
-      if (taskHashes.includes(resource.info_hash)) {
-        // pt有，qb 有
-        const t = (await this.qBittorrent.torrentsInfo({hashes: resource.info_hash}))[0];
-        if (this.unFinishedState.includes(t.state)) {
-          // pt有，qb 有, 没下载完 => 重启任务
-          // @ts-ignore   //t.content_path报错，实际有这个属性
-          return this.reStartTask(resource.torrent_id, meta, resource.info_hash, t.content_path!, p, progress, false);
-        } else {
-          // pt有,qb 有,已下载完成或未知情况 => 跳过
-          return this.setProgressState(progress, 'qBittorrent', 'skipped', `finished or unknown state:${t.state}`);
-        }
-      } else {
-        if (description === resource.description) {
-          // pt有，qb 无，一致 => 添加下载任务
-          this.setProgressState(progress, 'create_torrent', 'downloading', `downloading ${meta.title}`);
-          const torrent = await this.api.download(resource.torrent_id);
-          if (!torrent) return this.setProgressState(progress, 'qBittorrent', 'skipped', `torrent is not exist: ${meta.title}`);
-          this.setProgressState(progress, 'create_torrent', 'downloaded', `downloaded ${meta.title}`);
-
-          const info = await parseTorrent(Buffer.from(await torrent.arrayBuffer()));
-          taskHashes.push(resource.info_hash);
-          // @ts-ignore file.path
-          return this.torrentsAdd(torrent, progress, file.path, false, info.name);
-        } else {
-          // pt有，qb 无，不一致 => 忽略
-          return this.setProgressState(progress, 'create_torrent', 'conflict', `${p} has same version_id with server but not same file`);
-        }
-      }
-    } else if (resourceIndex < 0) {
-      // pt无   => 发布资源并添加下载任务
-      const torrent = (await this.createTorrent(file, meta, progress, true, false))!;
-      this.setProgressState(progress, 'create_torrent', 'uploaded');
-
-      const info = await parseTorrent(Buffer.from(await torrent.arrayBuffer()));
-      resourceVersionIds.push(meta.version_id);
-      taskHashes.push(info.infoHash);
-      // @ts-ignore file.path
-      return this.torrentsAdd(torrent, progress, file.path, false, info.name);
-    }
-  }
+  ) {}
 
   async torrentsAdd(torrent: Blob, progress: PublishLog, filepath: string, is_remote_publish_flag: boolean, standardizedName?: string) {
     //注意standardizedName是标准名[xxx]xxx形式的标准名，只有需要创建新文件时才会用到
@@ -326,54 +263,6 @@ export class PublishComponent implements OnInit {
     // this.table.renderRows();
     // this.setProgressState(progress, 'version_id', meta.version_id);
     //
-    // const resourceIndex = resourceVersionIds.indexOf(meta.version_id);
-    // if (resourceIndex >= 0) {
-    //   //pt有
-    //   const item = items[resourceIndex];
-    //   if (!item) return this.setProgressState(progress, 'create_torrent', 'skipped', 'file is repeated');
-    //
-    //   const { resource, meta } = item;
-    //   if (taskHashes.includes(resource.info_hash)) {
-    //     // pt有，qb有
-    //     const t = (await this.qBittorrent.torrentsInfo({ hashes: resource.info_hash }))[0];
-    //     if (this.unFinishedState.includes(t.state)) {
-    //       // pt有，qb有，未完成 => 重启任务
-    //       const torrent = await this.createTorrent(filepath, meta, progress, false, true);
-    //       // @ts-ignore
-    //       return this.reStartTask(resource.torrent_id, meta, resource.info_hash, t.content_path, p, progress, true);
-    //     } else {
-    //       // pt有，qb有，完成或未知 => 跳过
-    //       return this.setProgressState(progress, 'qBittorrent', 'skipped', `finished or unknown state: ${t.state}`);
-    //     }
-    //   } else {
-    //     if (description === resource.description) {
-    //       // pt有，qb无，一致 => 添加下载任务
-    //       progress.create_torrent = 'downloading';
-    //       this.table.renderRows();
-    //       this.setProgressState(progress, 'qBittorrent', 'downloading', `downloading ${meta.title}`);
-    //       const torrent = await this.api.download(resource.torrent_id);
-    //       if (!torrent) return this.setProgressState(progress, 'qBittorrent', 'skipped', `torrent is not exist: ${meta.title}`);
-    //       this.setProgressState(progress, 'create_torrent', 'downloaded', `downloaded ${meta.title}`);
-    //
-    //       taskHashes.push(resource.info_hash);
-    //
-    //       return this.torrentsAdd(torrent, progress, p, true, undefined);
-    //     } else {
-    //       // pt有，qb无，不一致 => 忽略
-    //       return this.setProgressState(progress, 'create_torrent', 'conflict', `${filepath} has same version_id with server but not same file`);
-    //     }
-    //   }
-    // } else if (resourceIndex < 0) {
-    //   // pt无 => 发布资源并添加下载任务
-    //   const torrent = (await this.createTorrent(filepath, meta, progress, true, true))!;
-    //   this.setProgressState(progress, 'create_torrent', 'uploaded');
-    //
-    //   const info = await parseTorrent(Buffer.from(await torrent.arrayBuffer()));
-    //   resourceVersionIds.push(meta.version_id);
-    //   taskHashes.push(info.infoHash);
-    //
-    //   return this.torrentsAdd(torrent, progress, p, true, undefined);
-    // }
   }
 
   async browseLocal() {
@@ -383,24 +272,31 @@ export class PublishComponent implements OnInit {
     // });
     //
     // const response = await fetch('https://qb.lolo.moe:8443/[628317] UHAK Ultimate Horror Adventure Kit 1.2.5.unitypackage', {headers});
-    // for await (const x of response.body!) {
-    //   console.log(x);
+    // console.log(response.body);
+    // if (!response.body) throw '?';
+    // try {
+    //   const description = await Gzip.ExtractField(response.body);
+    //   console.log(description.length);
+    // } catch {
+    //   await response.body.cancel();
+    //   return;
     // }
 
-    return;
-    // for await (const file of this.recursive(await showDirectoryPicker())) {
-    //   if (path.extname(file.name) !== '.unitypackage') continue;
-    //
-    //   const f = await file.getFile();
-    //   setTimeout(() => {
-    //     console.log(f);
-    //   }, 1000000);
-    //
-    //   // console.log();
-    //   // ExtraField(file.getFile());
-    //   // const x = new ReadableStream();
-    //   // new Blob([x]);
-    // }
+    for await (const file of this.recursive(await showDirectoryPicker())) {
+      if (path.extname(file.name) !== '.unitypackage') continue;
+
+      const f = await file.getFile();
+      console.log(f.size);
+      console.log(await f.arrayBuffer());
+      setTimeout(() => {
+        console.log(f);
+      }, 1000000);
+
+      // console.log();
+      // ExtraField(file.getFile());
+      // const x = new ReadableStream();
+      // new Blob([x]);
+    }
   }
 
   async *recursive(root: FileSystemDirectoryHandle): AsyncIterableIterator<FileSystemFileHandle> {
