@@ -1,4 +1,4 @@
-<div id='main'>
+<div id='main' *ngIf='torrents$ | async as torrents'>
   <div id='left'>
     <form (submit)='nothing($event)'>
       <mat-form-field appearance='fill' subscriptSizing='dynamic'>

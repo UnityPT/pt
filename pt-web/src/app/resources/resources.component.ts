@@ -2,22 +2,22 @@ import {Component, OnInit} from '@angular/core';
 import {Resource, ResourceMeta} from '../types';
 import {Torrent} from '@ctrl/qbittorrent/dist/src/types';
 import {FormControl} from '@angular/forms';
-import {concatMap, map, reduce, startWith, timer} from 'rxjs';
+import {concatMap, map, Observable, reduce, startWith, timer} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {QBittorrentService} from '../qbittorrent.service';
+import {MainData, QBittorrentService} from '../qbittorrent.service';
 import {ApiService} from '../api.service';
 import {mapValues, orderBy, pullAll, sortBy} from 'lodash-es';
 
 @Component({
   selector: 'app-resources',
   templateUrl: './resources.component.html',
-  styleUrls: ['./resources.component.scss'],
+  styleUrls: ['./resources.component.scss']
 })
 export class ResourcesComponent implements OnInit {
   items: ResourceMeta[] = [];
   version_sum: number = 0;
   itemsGroup: Record<string, ResourceMeta[]> = {};
-  torrents: Record<string, Torrent> = {};
+  torrents$: Observable<Record<string, Torrent>> = this.sync2();
   refreshed_at: Date = new Date();
   requesting: Set<string> = new Set();
 
@@ -33,68 +33,54 @@ export class ResourcesComponent implements OnInit {
 
   ssh_get_file_progress: Record<string, number> = {};
 
-  constructor(private http: HttpClient, private qBittorrent: QBittorrentService, private api: ApiService) {}
+  constructor(private http: HttpClient, private qBittorrent: QBittorrentService, private api: ApiService) {
+  }
 
   trackById(index: number, item: ResourceMeta) {
     return item.resource.torrent_id;
   }
 
   async ngOnInit() {
-    // try {
-    //   await this.qBittorrent.appVersion();
-    // } catch (error) {
-    //   alert('无法连接 qBittorrent，请确认 qBittorrent 正在运行，且启用了 WebUI');
-    //   throw error;
-    // }
+    try {
+      await this.qBittorrent.appVersion();
+    } catch (error) {
+      alert('无法连接 qBittorrent，请确认 qBittorrent 正在运行，且启用了 WebUI');
+      throw error;
+    }
 
     // await this.api.login();
-    // await this.loadTorrents();
     await this.refresh();
-    // setInterval(() => this.loadTorrents(), 800);
+    await this.api.refreshUserStat();
+  }
 
-    // window.electronAPI.on('get_file_progress', async (event, data) => {
-    //   this.ssh_get_file_progress[data.infoHash] = data.progress;
-    //   if (data.progress === 1) {
-    //     const localPath = (await window.electronAPI.store_get('qbConfig', {})).local_path;
-    //     await window.electronAPI.import(localPath, this.torrents[data.infoHash].name);
-    //   }
-    // });
-    this.sync().subscribe((d) => console.log(d));
+  sync2() {
+    return timer(0, 800).pipe(
+      concatMap((i) => this.qBittorrent.torrentsInfo({category: 'Unity'})),
+      map(list => Object.fromEntries(list.map((i) => [i.hash, i]))),
+      startWith({})
+    );
   }
 
   sync() {
     let rid = 0;
-    return timer(0, 8000).pipe(
+    return timer(0, 800).pipe(
       concatMap((i) => this.qBittorrent.syncMaindata(rid)),
       reduce((last, current) => {
         rid = current.rid;
 
         if (current.full_update) {
-          return current;
+          return current.torrents;
         } else {
-          Object.assign(last.server_state, current.server_state);
           for (const [key, value] of Object.entries(current.torrents)) {
-            Object.assign(last.torrents[key], value);
+            Object.assign(last[key], value);
           }
           for (const key of current.torrents_removed) {
-            delete last.torrents[key];
+            delete last[key];
           }
-          for (const [key, value] of Object.entries(current.categories)) {
-            Object.assign(last.torrents[key], value);
-          }
-          for (const key of current.categories_removed) {
-            delete last.categories[key];
-          }
-          pullAll(last.tags, current.tags_removed);
         }
         return last;
-      })
+      }, <Record<string, Torrent>>{})
     );
-  }
-
-  async loadTorrents() {
-    const list: Torrent[] = await this.qBittorrent.torrentsInfo({category: 'Unity'});
-    this.torrents = Object.fromEntries(list.map((i) => [i.hash, i]));
   }
 
   async download(resource: Resource) {
@@ -156,7 +142,6 @@ export class ResourcesComponent implements OnInit {
 
     this.refreshed_at = new Date();
     this.api.user_stat.published = items.filter(({resource}) => resource.username === this.api.username).length;
-    await this.api.refreshUserStat();
     this.myControl.reset();
     console.log(2);
   }

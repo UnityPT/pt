@@ -3,5 +3,11 @@
   "workspaces": [
     "pt-main",
     "pt-web"
-  ]
+  ],
+  "devDependencies": {
+    "iterator-helpers-polyfill": "^2.3.1"
+  },
+  "dependencies": {
+    "@sec-ant/readable-stream": "^0.3.1"
+  }
 }

@@ -6,7 +6,8 @@
     "types": [
       "user-agent-data-types",
       "core-typescript/src/proposals/stage-3/array-grouping",
-      "@types/wicg-file-system-access"
+      "@types/wicg-file-system-access",
+      "iterator-helpers-polyfill"
     ],
     "esModuleInterop": true
   },

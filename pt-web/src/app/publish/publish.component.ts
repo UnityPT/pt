@@ -12,6 +12,11 @@ import {Buffer} from 'buffer';
 //@ts-ignore
 import parseTorrent from 'parse-torrent';
 
+import 'core-js/actual/async-iterator/filter.js';
+import {SettingsService} from '../setting/settings.service';
+
+import '@sec-ant/readable-stream';
+
 @Component({
   selector: 'app-publish',
   templateUrl: './publish.component.html',
@@ -37,7 +42,12 @@ export class PublishComponent implements OnInit {
     'forcedDL',
   ];
 
-  constructor(private api: ApiService, private qBittorrent: QBittorrentService, private dialog: MatDialog) {}
+  constructor(
+    private api: ApiService,
+    private qBittorrent: QBittorrentService,
+    private dialog: MatDialog,
+    private settings: SettingsService
+  ) {}
 
   async ngOnInit() {
     // this.protocol = (await window.electronAPI.store_get('qbConfig')).protocol;
@@ -367,11 +377,30 @@ export class PublishComponent implements OnInit {
   }
 
   async browseLocal() {
-    for await (const file of this.recursive(await showDirectoryPicker())) {
-      if (path.extname(file.name) === '.unitypackage') {
-        console.log(file);
-      }
-    }
+    // const headers = new Headers({
+    //   // @ts-ignore
+    //   Authorization: 'Basic ' + btoa(this.settings.config.remote.username + ':' + this.settings.config.remote.password),
+    // });
+    //
+    // const response = await fetch('https://qb.lolo.moe:8443/[628317] UHAK Ultimate Horror Adventure Kit 1.2.5.unitypackage', {headers});
+    // for await (const x of response.body!) {
+    //   console.log(x);
+    // }
+
+    return;
+    // for await (const file of this.recursive(await showDirectoryPicker())) {
+    //   if (path.extname(file.name) !== '.unitypackage') continue;
+    //
+    //   const f = await file.getFile();
+    //   setTimeout(() => {
+    //     console.log(f);
+    //   }, 1000000);
+    //
+    //   // console.log();
+    //   // ExtraField(file.getFile());
+    //   // const x = new ReadableStream();
+    //   // new Blob([x]);
+    // }
   }
 
   async *recursive(root: FileSystemDirectoryHandle): AsyncIterableIterator<FileSystemFileHandle> {
