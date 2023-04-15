@@ -43,6 +43,7 @@ import { BrowseRemoteComponent } from './browse-remote/browse-remote.component';
 import { MatRadioModule } from '@angular/material/radio';
 import { RssComponent } from './rss/rss.component';
 import { TestConnectionComponent } from './test-connection/test-connection.component';
+import { FolderSeclectComponent } from './folder-seclect/folder-seclect.component';
 
 @NgModule({
   declarations: [
@@ -59,6 +60,7 @@ import { TestConnectionComponent } from './test-connection/test-connection.compo
     BrowseRemoteComponent,
     RssComponent,
     TestConnectionComponent,
+    FolderSeclectComponent,
   ],
   imports: [
     BrowserModule,
