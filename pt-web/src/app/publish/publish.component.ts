@@ -14,7 +14,6 @@ import parseTorrent from 'parse-torrent';
 
 import 'core-js/actual/async-iterator/filter.js';
 import {SettingsService} from '../setting/settings.service';
-import {FolderSeclectComponent} from '../folder-seclect/folder-seclect.component';
 
 @Component({
   selector: 'app-publish',
@@ -27,7 +26,9 @@ export class PublishComponent implements OnInit {
   @ViewChild(MatTable) table!: MatTable<PublishLog>;
   loading: boolean = false;
   publishing: boolean = false;
-  protocol: string = '';
+  isWeb = true;
+  historyItems: string[] = [];
+  selectedItem: string = '';
   unFinishedState: string[] = [
     'error',
     'missingFiles',
@@ -45,22 +46,26 @@ export class PublishComponent implements OnInit {
     private api: ApiService,
     private qBittorrent: QBittorrentService,
     private dialog: MatDialog,
-    private settings: SettingsService
+    public settings: SettingsService
   ) {}
 
   async ngOnInit() {
-    // this.protocol = (await window.electronAPI.store_get('qbConfig')).protocol;
+    this.historyItems = ['1111', '2222', '3333', '4444', '5555', '6666', '7777', '8888'];
   }
 
-  async openFolderSelecter() {
-    const dialog = this.dialog.open(FolderSeclectComponent, {
-      width: '550px',
-      height: '320px',
-    });
-    dialog.afterClosed().subscribe(async (result) => {
-      console.log('The dialog was closed', result);
-    });
+  ondrop(event: DragEvent) {
+    event.preventDefault();
+    console.log(event);
+    const foldername = event.dataTransfer?.files[0].name;
+    if (foldername) this.selectedItem = foldername;
   }
+
+  ondragover(event: DragEvent) {
+    event.preventDefault();
+  }
+
+  submit() {}
+  onSelectedHistory(item: any) {}
 
   async publish(selectFiles: FileList | null) {
     console.log('localpublish');
@@ -197,13 +202,13 @@ export class PublishComponent implements OnInit {
   }
 
   async browseRemote() {
-    if (this.publishing) return;
-    if (this.protocol === 'local') return alert('请设置远程通讯协议');
-
-    this.loading = true;
-    this.publishing = true;
-    await this.openBrowser().catch(console.error);
-    this.loading = false;
+    // if (this.publishing) return;
+    // if (this.protocol === 'local') return alert('请设置远程通讯协议');
+    //
+    // this.loading = true;
+    // this.publishing = true;
+    // await this.openBrowser().catch(console.error);
+    // this.loading = false;
   }
 
   async openBrowser() {

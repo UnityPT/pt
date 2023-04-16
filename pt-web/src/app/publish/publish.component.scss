@@ -126,3 +126,101 @@ mat-spinner{
   margin: 20px 10px 0 10px;
 }
 
+// 拖拽区域
+#drag_publish {
+  width: 960px;
+  height: 600px;
+  display: flex;
+  flex-direction: row;
+}
+
+#drop_zone {
+  border: 3px dashed #c0c0c0;
+  background: rgb(247,246,247);
+  border-radius: 10px;
+  width: 500px;
+  height: 260px;
+  margin: 10px auto 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#url_form {
+  margin-top: auto;
+  display: flex;
+  flex-direction: row;
+}
+
+//#url_content  {
+//  width: 350px;
+//  height: 30px;
+//}
+
+#url_input {
+  width: 350px;
+  height: 30px;
+  margin-bottom: 25px;
+  margin-left: 25px;
+  border-radius: 6px;
+  border-color: #aeaeae;
+}
+
+#drop_zone mat-icon:not(#help){
+  width: 45px;
+  height: 45px;
+  font-size: 45px;
+  color: #9a9a9a;
+  margin-top: auto;
+}
+
+#help {
+  margin-top: 5px;
+}
+
+
+#submit {
+  margin-bottom: 25px;
+  margin-left: 10px;
+}
+
+#help_container {
+  position: relative;
+}
+
+#help_container:hover img {
+  visibility: visible;
+}
+
+#help_container img {
+  visibility: hidden;
+  position: absolute;
+  right: 10px;
+  top: 15px;
+}
+
+
+//history
+
+#history {
+  overflow: auto;
+  border: 3px solid #b5b3b3;
+  border-radius: 10px;
+  width: 300px;
+  height: 260px;
+  margin: 10px auto 20px;
+  display: flex;
+}
+
+mat-list {
+  width: 100%;
+}
+
+mat-list-item:hover {
+  background-color: #3949ab;
+}
+
+mat-icon {
+  vertical-align: middle;
+}

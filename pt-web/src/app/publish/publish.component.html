@@ -1,8 +1,30 @@
 <div class="overlay" *ngIf="loading == true">
   <mat-spinner></mat-spinner>
 </div>
+
 <div class="card-container">
-  <mat-card appearance="outlined" *ngIf="protocol != 'local'" (click)="browseRemote()">
+  <div id="drag_publish" *ngIf="isWeb && settings.config.qBittorrent.qb_location == 'local'">
+    <div id="drop_zone" (drop)="ondrop($event)" (dragover)="ondragover($event)">
+      <mat-icon *ngIf="!selectedItem" id="cloud_upload">cloud_upload</mat-icon>
+      <mat-label *ngIf="!selectedItem">将文件夹拖动到此处 或 从右侧选择历史文件夹</mat-label>
+      <mat-icon *ngIf="selectedItem">folder</mat-icon>
+      <mat-label *ngIf="selectedItem">{{ selectedItem }}</mat-label>
+      <div id="url_form">
+        <input id="url_input" matInput placeholder="请输入您选择的文件夹的绝对路径" />
+        <span id="help_container"> <mat-icon id="help">help</mat-icon> <img src="./assets/help.gif" alt="help" /></span>
+        <button mat-raised-button id="submit" color="primary" (click)="submit()">确定</button>
+      </div>
+    </div>
+    <div id="history">
+      <mat-list>
+        <mat-list-item *ngFor="let item of historyItems" (dblclick)="onSelectedHistory(item)">
+          <mat-icon class="itemicon" mat-list-icon>folder</mat-icon>
+          <span mat-line>{{ item }}</span>
+        </mat-list-item>
+      </mat-list>
+    </div>
+  </div>
+  <mat-card appearance="outlined" *ngIf="settings.config.qBittorrent.qb_location == 'remote'" (click)="browseRemote()">
     <div class="mat-card-header">
       <svg t="1680515705104" class="mat-card-icon" viewBox="0 0 1024 1024" version="1.1" p-id="5574" id="mx_n_1680515705105">
         <path
@@ -18,7 +40,7 @@
     </div>
     <div class="mat-card-content blue">选择文件夹</div>
   </mat-card>
-  <mat-card appearance="outlined" (click)="openFolderSelecter()">
+  <mat-card appearance="outlined" *ngIf="!(isWeb && settings.config.qBittorrent.qb_location == 'local')" (click)="browseLocal()">
     <div class="mat-card-header">
       <svg t="1680515810155" class="mat-card-icon" viewBox="0 0 1024 1024" version="1.1" p-id="6589" width="65" height="65">
         <path
