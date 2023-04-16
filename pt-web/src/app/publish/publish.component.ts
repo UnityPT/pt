@@ -14,6 +14,7 @@ import parseTorrent from 'parse-torrent';
 
 import 'core-js/actual/async-iterator/filter.js';
 import {SettingsService} from '../setting/settings.service';
+import {FolderSeclectComponent} from '../folder-seclect/folder-seclect.component';
 
 @Component({
   selector: 'app-publish',
@@ -49,6 +50,16 @@ export class PublishComponent implements OnInit {
 
   async ngOnInit() {
     // this.protocol = (await window.electronAPI.store_get('qbConfig')).protocol;
+  }
+
+  async openFolderSelecter() {
+    const dialog = this.dialog.open(FolderSeclectComponent, {
+      width: '550px',
+      height: '320px',
+    });
+    dialog.afterClosed().subscribe(async (result) => {
+      console.log('The dialog was closed', result);
+    });
   }
 
   async publish(selectFiles: FileList | null) {

@@ -1,1 +1,11 @@
-<p>folder-seclect works!</p>
+<div id='drop_zone' (drop)='ondrop($event)' (dragover)='ondragover($event)'>
+  <mat-icon>cloud_upload</mat-icon>
+  <mat-label>将文件夹拖动到此处</mat-label>
+  <form>
+    <mat-form-field id='input_url' appearance='outline'>
+      <mat-label>qBittorrent WebUI 地址</mat-label>
+      <input matInput />
+    </mat-form-field>
+    <button mat-raised-button color="primary" (click)="submit()">确定</button>
+  </form>
+</div>

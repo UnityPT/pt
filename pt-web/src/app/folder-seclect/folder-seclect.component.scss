@@ -1,0 +1,22 @@
+#drop_zone {
+  border: 3px dashed #b5b3b3;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  width: 500px;
+  height: 260px;
+  margin: 10px auto 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+mat-label {
+  color: #b5b3b3;
+}
+mat-icon {
+  width: 45px;
+  height: 45px;
+  font-size: 45px;
+  color: #b5b3b3;
+}
